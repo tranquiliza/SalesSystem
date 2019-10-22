@@ -28,6 +28,8 @@ namespace Tranquiliza.Shop.Api.Controllers
             _configurationProvider = configurationProvider;
         }
 
+        [HttpPost("Authenticate")]
+        [AllowAnonymous]
         public async Task<IActionResult> Authenticate([FromBody]AuthenticateModel authenticateModel)
         {
             var user = await _userService.Authenticate(authenticateModel.Username, authenticateModel.Password).ConfigureAwait(false);
@@ -47,7 +49,8 @@ namespace Tranquiliza.Shop.Api.Controllers
             };
 
             var roleClaims = user.Roles.Select(r => new Claim(ClaimTypes.Role, r.Name));
-            tokenDescriptor.Subject.AddClaims(roleClaims);
+            if (roleClaims != null)
+                tokenDescriptor.Subject.AddClaims(roleClaims);
             var token = tokenHandler.CreateToken(tokenDescriptor);
 
             return Ok(new User

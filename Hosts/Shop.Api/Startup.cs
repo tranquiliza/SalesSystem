@@ -13,6 +13,9 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
+using Tranquiliza.Shop.Core;
+using Tranquiliza.Shop.Core.Application;
+using Tranquiliza.Shop.Core.Model;
 
 namespace Tranquiliza.Shop.Api
 {
@@ -31,7 +34,9 @@ namespace Tranquiliza.Shop.Api
             services.AddCors();
             services.AddControllers();
 
-            var key = Encoding.ASCII.GetBytes(Configuration.GetValue<string>("TokenSecret"));
+            var config = ConfigurationProvider.CreateFromConfig(Configuration);
+
+            var key = Encoding.ASCII.GetBytes(config.SecurityKey);
             services.AddAuthentication(x =>
             {
                 x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -49,6 +54,20 @@ namespace Tranquiliza.Shop.Api
                     ValidateAudience = false
                 };
             });
+
+            ConfigureDependencyInjection(services, config);
+        }
+
+        private void ConfigureDependencyInjection(IServiceCollection services, IConfigurationProvider configurationProvider)
+        {
+            services.AddTransient<IUserService, UserService>();
+
+            services.AddSingleton<IUserRepository, UserRepMock>();
+            services.AddSingleton<ISecurity, PasswordSecurity>();
+            services.AddSingleton<IDateTimeProvider, DefaultDateTimeProvider>();
+            services.AddSingleton<IRoleRepository, RoleRepMock>();
+
+            services.AddSingleton(configurationProvider);
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -66,11 +85,50 @@ namespace Tranquiliza.Shop.Api
 
             app.UseAuthentication();
             app.UseAuthorization();
-            
-            app.UseEndpoints(endpoints =>
-            {
-                endpoints.MapControllers();
-            });
+            app.UseEndpoints(endpoints => endpoints.MapControllers());
+        }
+    }
+
+    internal class UserRepMock : IUserRepository
+    {
+        private User Mock;
+
+        public UserRepMock()
+        {
+        }
+
+        public Task Delete(Guid id)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<IEnumerable<User>> GetAll()
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<User> GetById(Guid id)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<User> GetByUsername(string username)
+        {
+            return Task.FromResult(Mock);
+        }
+
+        public Task Save(User user)
+        {
+            Mock = user;
+            return Task.CompletedTask;
+        }
+    }
+
+    internal class RoleRepMock : IRoleRepository
+    {
+        public Task<Role> Get(string roleName)
+        {
+            throw new NotImplementedException();
         }
     }
 }
