@@ -12,6 +12,8 @@ namespace Tranquiliza.Shop.Core.Model
         public int PurchaseCost { get; private set; }
         public int Price { get; private set; }
 
+        // Images?
+
         [Obsolete("Serialization", true)]
         public Product() { }
 

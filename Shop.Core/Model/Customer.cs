@@ -11,6 +11,7 @@ namespace Tranquiliza.Shop.Core.Model
         public string FirstName { get; private set; }
         public string Surname { get; private set; }
         public string Address { get; private set; }
+        public string PhoneNumber { get; private set; }
 
         [Obsolete("Serialization", true)]
         public Customer() { }

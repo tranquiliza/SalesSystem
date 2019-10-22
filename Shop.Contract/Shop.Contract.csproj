@@ -1,0 +1,9 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp3.0</TargetFramework>
+    <AssemblyName>Tranquiliza.Shop.Contract</AssemblyName>
+    <RootNamespace>Tranquiliza.Shop.Contract</RootNamespace>
+  </PropertyGroup>
+
+</Project>
