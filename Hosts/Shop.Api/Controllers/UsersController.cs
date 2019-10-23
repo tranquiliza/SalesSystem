@@ -61,7 +61,7 @@ namespace Tranquiliza.Shop.Api.Controllers
         [AllowAnonymous]
         public async Task<IActionResult> RegisterUser([FromBody]RegisterUserModel registerUserModel)
         {
-            var result = await _userService.Create(registerUserModel.Username, registerUserModel.Password).ConfigureAwait(false);
+            var result = await _userService.Create(registerUserModel.Email, registerUserModel.Password).ConfigureAwait(false);
             if (!result.Success)
                 return BadRequest(result.FailureReason);
 
@@ -71,11 +71,21 @@ namespace Tranquiliza.Shop.Api.Controllers
         [HttpGet]
         public async Task<IActionResult> GetUser([FromQuery]Guid userId)
         {
+            var applicationContext = ApplicationContext.Create(Guid.Parse(User.Identity.Name));
             if (userId == Guid.Empty)
-                return BadRequest("Please provide an Id");
+            {
+                var allUsersResult = await _userService.GetAll(applicationContext).ConfigureAwait(false);
+                if (!allUsersResult.Success)
+                    return BadRequest(allUsersResult.FailureReason);
 
-            var user = await _userService.GetById(userId, ApplicationContext.Create(Guid.Parse(User.Identity.Name))).ConfigureAwait(false);
-            return Ok(user.Map());
+                return Ok(allUsersResult.Data.Select(x => x.Map()));
+            }
+
+            var result = await _userService.GetById(userId, applicationContext).ConfigureAwait(false);
+            if (!result.Success)
+                return BadRequest(result.FailureReason);
+
+            return Ok(result.Data.Map());
         }
 
         [HttpDelete]

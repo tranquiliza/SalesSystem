@@ -9,12 +9,14 @@ namespace Tranquiliza.Shop.Api
     public class ConfigurationProvider : IConfigurationProvider
     {
         public string SecurityKey { get; private set; }
+        public string ConnectionString { get; private set; }
 
         public static ConfigurationProvider CreateFromConfig(IConfiguration configuration)
         {
             return new ConfigurationProvider
             {
                 SecurityKey = configuration.GetValue<string>("TokenSecret")
+
             };
         }
     }

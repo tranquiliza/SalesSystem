@@ -59,4 +59,8 @@
     <Folder Include="Tables" />
     <Folder Include="Procedures" />
   </ItemGroup>
+  <ItemGroup>
+    <Build Include="Tables\Users.sql" />
+    <Build Include="Procedures\InsertUpdateUser.sql" />
+  </ItemGroup>
 </Project>

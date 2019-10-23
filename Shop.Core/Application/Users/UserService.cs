@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Mail;
 using System.Security.Cryptography;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Tranquiliza.Shop.Core.Model;
 
@@ -41,14 +43,14 @@ namespace Tranquiliza.Shop.Core.Application
 
         public async Task<ICreateUserResult> Create(string email, string password, string roleName = null)
         {
-            if (string.IsNullOrEmpty(email))
-                return CreateUserResult.Failure("email cannot be empty.");
-
-            if (string.IsNullOrEmpty(password))
-                return CreateUserResult.Failure("Cannot create a user without a password.");
+            if (!EmailIsValid())
+                return CreateUserResult.Failure("Invalid Email");
 
             if (await _userRepository.GetByEmail(email).ConfigureAwait(false) != null)
                 return CreateUserResult.Failure("A user with that username already exists.");
+
+            if (!PasswordIsValid(out var failureReason))
+                return CreateUserResult.Failure(failureReason);
 
             if (!_security.TryCreatePasswordHash(password, out var hash, out var salt))
                 return CreateUserResult.Failure("Unable to generate password hash and salt.");
@@ -60,12 +62,65 @@ namespace Tranquiliza.Shop.Core.Application
             await _userRepository.Save(user).ConfigureAwait(false);
 
             return CreateUserResult.Succeeded(user);
+
+            bool EmailIsValid()
+            {
+                try
+                {
+                    _ = new MailAddress(email);
+                    return true;
+                }
+                catch
+                {
+                    return false;
+                }
+            }
+
+            bool PasswordIsValid(out string failureReason)
+            {
+                if (string.IsNullOrEmpty(password))
+                {
+                    failureReason = "Password cannot be empty";
+                    return false;
+                }
+
+                var hasMinimum8Chars = new Regex(".{8,}");
+                if (!hasMinimum8Chars.Match(password).Success)
+                {
+                    failureReason = "Password must contain atleast 8 characters";
+                    return false;
+                }
+
+                var hasNumber = new Regex("[0-9]+");
+                if (!hasNumber.Match(password).Success)
+                {
+                    failureReason = "Password must contain atleast one number";
+                    return false;
+                }
+
+                var hasUpperChar = new Regex("[A-Z]+");
+                if (!hasUpperChar.Match(password).Success)
+                {
+                    failureReason = "Password must contain atleast one uppercase character";
+                    return false;
+                }
+
+                var hasLowerChar = new Regex("[a-z]+");
+                if (!hasLowerChar.Match(password).Success)
+                {
+                    failureReason = "Password must contain atleast one lowercase character";
+                    return false;
+                }
+
+                failureReason = string.Empty;
+                return true;
+            }
         }
 
         public async Task<IResult> Delete(Guid id, IApplicationContext applicationContext)
         {
             var currentUser = await _userRepository.Get(applicationContext.UserId).ConfigureAwait(false);
-            if (!currentUser.HasRole(Role.Admin))
+            if (currentUser?.HasRole(Role.Admin) == false)
                 return Result.Failure("Unsufficient permissions");
 
             await _userRepository.Delete(id).ConfigureAwait(false);
@@ -73,28 +128,36 @@ namespace Tranquiliza.Shop.Core.Application
             return Result.Succeeded;
         }
 
-        public async Task<IEnumerable<User>> GetAll(IApplicationContext applicationContext)
+        public async Task<IResult<IEnumerable<User>>> GetAll(IApplicationContext applicationContext)
         {
             var currentUser = await _userRepository.Get(applicationContext.UserId).ConfigureAwait(false);
-            if (!currentUser.HasRole(Role.Admin))
-                return Enumerable.Empty<User>();
+            if (currentUser?.HasRole(Role.Admin) == false)
+                return Result<IEnumerable<User>>.Failure("Unauthorized");
 
-            return await _userRepository.GetAll().ConfigureAwait(false);
+            var result = await _userRepository.GetAll().ConfigureAwait(false);
+            if (result == null)
+                return Result<IEnumerable<User>>.Failure("No users found");
+
+            return Result<IEnumerable<User>>.Succeeded(result);
         }
 
-        public async Task<User> GetById(Guid id, IApplicationContext applicationContext)
+        public async Task<IResult<User>> GetById(Guid id, IApplicationContext applicationContext)
         {
             var currentUser = await _userRepository.Get(applicationContext.UserId).ConfigureAwait(false);
-            if (!currentUser.HasRole(Role.Admin) || currentUser.Id != id)
-                return null;
+            if (currentUser?.Id != id && currentUser?.HasRole(Role.Admin) == false)
+                return Result<User>.Failure("Unauthorized");
 
-            return await _userRepository.Get(id).ConfigureAwait(false);
+            var result = await _userRepository.Get(id).ConfigureAwait(false);
+            if (result == null)
+                return Result<User>.Failure("User not found");
+
+            return Result<User>.Succeeded(result);
         }
 
         public async Task UpdatePassword(Guid id, string password, string newPassword, IApplicationContext applicationContext)
         {
             var currentUser = await _userRepository.Get(applicationContext.UserId).ConfigureAwait(false);
-            if (currentUser.Id != id)
+            if (currentUser?.Id != id)
                 return;
 
             var user = await _userRepository.Get(id).ConfigureAwait(false);
@@ -110,8 +173,8 @@ namespace Tranquiliza.Shop.Core.Application
         public async Task<IResult> RestorePassword(Guid id, string newPassword, Guid resetToken)
         {
             var user = await _userRepository.Get(id).ConfigureAwait(false);
-            if (!user.ResetTokenMatchesAndIsValid(resetToken, _timeProvider.UtcNow))
-                return Result.Failure("Token was invalid"); // Perhabs use same pattern as create user?
+            if (user?.ResetTokenMatchesAndIsValid(resetToken, _timeProvider.UtcNow) == false)
+                return Result.Failure("Token was invalid");
 
             if (!_security.TryCreatePasswordHash(newPassword, out var hash, out var salt))
                 return Result.Failure("Unable to generate password hash and salt.");

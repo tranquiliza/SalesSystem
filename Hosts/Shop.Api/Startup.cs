@@ -11,11 +11,11 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
 using Tranquiliza.Shop.Core;
 using Tranquiliza.Shop.Core.Application;
 using Tranquiliza.Shop.Core.Model;
+using Tranquiliza.Shop.Sql;
 
 namespace Tranquiliza.Shop.Api
 {
@@ -36,6 +36,9 @@ namespace Tranquiliza.Shop.Api
 
             var config = ConfigurationProvider.CreateFromConfig(Configuration);
 
+            var connectionString = Configuration.GetConnectionString("ShopDatabase");
+            var connectionStringProvider = new ConnectionStringProvider(connectionString);
+
             var key = Encoding.ASCII.GetBytes(config.SecurityKey);
             services.AddAuthentication(x =>
             {
@@ -55,17 +58,18 @@ namespace Tranquiliza.Shop.Api
                 };
             });
 
-            ConfigureDependencyInjection(services, config);
+            ConfigureDependencyInjection(services, config, connectionStringProvider);
         }
 
-        private void ConfigureDependencyInjection(IServiceCollection services, IConfigurationProvider configurationProvider)
+        private void ConfigureDependencyInjection(IServiceCollection services, IConfigurationProvider configurationProvider, IConnectionStringProvider connectionStringProvider)
         {
             services.AddTransient<IUserService, UserService>();
-
-            services.AddSingleton<IUserRepository, UserRepMock>();
+            services.AddSingleton<IUserRepository, UserRepository>();
             services.AddSingleton<ISecurity, PasswordSecurity>();
             services.AddSingleton<IDateTimeProvider, DefaultDateTimeProvider>();
+            services.AddSingleton<ILogger, DebugLogger>();
 
+            services.AddSingleton(connectionStringProvider);
             services.AddSingleton(configurationProvider);
         }
 
@@ -85,42 +89,6 @@ namespace Tranquiliza.Shop.Api
             app.UseAuthentication();
             app.UseAuthorization();
             app.UseEndpoints(endpoints => endpoints.MapControllers());
-        }
-    }
-
-    internal class UserRepMock : IUserRepository
-    {
-        private List<User> _users = new List<User>();
-
-        public UserRepMock()
-        {
-        }
-
-        public Task Delete(Guid id)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<IEnumerable<User>> GetAll()
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<User> Get(Guid id)
-        {
-            return Task.FromResult(_users.First(x => x.Id == id));
-        }
-
-        public Task<User> GetByEmail(string email)
-        {
-            var user = _users.Find(user => string.Equals(user.Email, email, StringComparison.OrdinalIgnoreCase));
-            return Task.FromResult(user);
-        }
-
-        public Task Save(User user)
-        {
-            _users.Add(user);
-            return Task.CompletedTask;
         }
     }
 }

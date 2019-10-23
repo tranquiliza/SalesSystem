@@ -1,76 +1,94 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Tranquiliza.Shop.Core.Application;
 
 namespace Tranquiliza.Shop.Core.Model
 {
     public class User
     {
-        public Guid Id { get; private set; }
-        public string Username { get; private set; }
-        public string Email { get; private set; }
-        public byte[] PasswordHash { get; private set; }
-        public byte[] PasswordSalt { get; private set; }
-        public IReadOnlyList<string> Roles => _roles.AsReadOnly();
-        private readonly List<string> _roles = new List<string>();
-        public bool EmailConfirmed { get; private set; }
-        private Guid EmailConfirmationToken { get; set; }
+        private class Data
+        {
+            public Guid Id { get; set; }
+            public string Username { get; set; }
+            public string Email { get; set; }
+            public byte[] PasswordHash { get; set; }
+            public byte[] PasswordSalt { get; set; }
+            public List<string> Roles { get; set; } = new List<string>();
+            public bool EmailConfirmed { get; set; }
+            public Guid EmailConfirmationToken { get; set; }
+            public Guid ResetToken { get; set; }
+            public DateTime ResetTokenExpiration { get; set; }
+        }
 
-        private Guid ResetToken { get; set; }
-        private DateTime ResetTokenExpiration { get; set; }
+        private Data UserData { get; }
+        public IReadOnlyList<string> Roles => UserData.Roles.AsReadOnly();
+
+        public Guid Id => UserData.Id;
+        public byte[] PasswordHash => UserData.PasswordHash;
+        public byte[] PasswordSalt => UserData.PasswordSalt;
+        public string Username => UserData.Username;
+        public string Email => UserData.Email;
 
         [Obsolete("Serialization Only", true)]
         public User() { }
 
+        private User(Data userData)
+        {
+            UserData = userData;
+        }
+
         public User(string email, byte[] passwordHash, byte[] passwordSalt)
         {
-            Id = Guid.NewGuid();
-            Email = email;
-            Username = email;
-            PasswordHash = passwordHash;
-            PasswordSalt = passwordSalt;
+            UserData = new Data
+            {
+                Id = Guid.NewGuid(),
+                Email = email,
+                Username = email,
+                PasswordHash = passwordHash,
+                PasswordSalt = passwordSalt
+            };
         }
 
         public void AddRole(string role)
         {
-            if (!_roles.Contains(role))
-                _roles.Add(role);
+            if (!UserData.Roles.Contains(role))
+                UserData.Roles.Add(role);
         }
 
         public bool HasRole(string role)
         {
-            return _roles.Any(r => r == role);
+            return UserData.Roles.Any(r => r == role);
         }
 
         public void UpdatePassword(byte[] passwordHash, byte[] passwordSalt)
         {
-            PasswordHash = passwordHash;
-            PasswordSalt = passwordSalt;
+            UserData.PasswordHash = passwordHash;
+            UserData.PasswordSalt = passwordSalt;
         }
 
         public Guid GenerateResetToken(DateTime tokenExpirationTime)
         {
-            ResetToken = Guid.NewGuid();
-            ResetTokenExpiration = tokenExpirationTime;
+            UserData.ResetToken = Guid.NewGuid();
+            UserData.ResetTokenExpiration = tokenExpirationTime;
 
-            return ResetToken;
+            return UserData.ResetToken;
         }
 
-        public bool ResetTokenMatchesAndIsValid(Guid resetToken, DateTime now)
-            => resetToken == ResetToken && now < ResetTokenExpiration;
+        public bool ResetTokenMatchesAndIsValid(Guid resetToken, DateTime now) => resetToken == UserData.ResetToken && now < UserData.ResetTokenExpiration;
 
         public void InvalidateResetToken()
         {
-            ResetToken = Guid.Empty;
-            ResetTokenExpiration = default;
+            UserData.ResetToken = Guid.Empty;
+            UserData.ResetTokenExpiration = default;
         }
 
         public bool ConfirmEmail(Guid confirmationToken)
         {
-            if (confirmationToken != EmailConfirmationToken)
+            if (confirmationToken != UserData.EmailConfirmationToken)
                 return false;
 
-            EmailConfirmed = true;
+            UserData.EmailConfirmed = true;
             return true;
         }
 
@@ -79,5 +97,8 @@ namespace Tranquiliza.Shop.Core.Model
             emailConfirmationToken = Guid.NewGuid();
             return new User(email, passwordHash, passwordSalt);
         }
+
+        public static User CreateUserFromData(string userData) => new User(Serialization.Deserialize<Data>(userData));
+        public string SerializeUser() => Serialization.Serialize(UserData);
     }
 }

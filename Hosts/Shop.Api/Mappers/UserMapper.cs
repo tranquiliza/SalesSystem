@@ -10,6 +10,9 @@ namespace Tranquiliza.Shop.Api
     {
         public static UserModel Map(this Core.Model.User user)
         {
+            if (user == null)
+                return null;
+
             return new UserModel
             {
                 Email = user.Email,
@@ -20,6 +23,9 @@ namespace Tranquiliza.Shop.Api
 
         public static UserAuthenticatedModel Map(this Core.Model.User user, string token)
         {
+            if (user == null)
+                return null;
+
             return new UserAuthenticatedModel
             {
                 Id = user.Id,
