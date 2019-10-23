@@ -8,8 +8,8 @@ namespace Tranquiliza.Shop.Core.Application
 {
     public interface IUserRepository
     {
-        Task<User> GetById(Guid id);
-        Task<User> GetByUsername(string username);
+        Task<User> Get(Guid id);
+        Task<User> GetByEmail(string email);
         Task<IEnumerable<User>> GetAll();
         Task Save(User user);
         Task Delete(Guid id);

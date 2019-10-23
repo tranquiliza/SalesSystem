@@ -65,7 +65,6 @@ namespace Tranquiliza.Shop.Api
             services.AddSingleton<IUserRepository, UserRepMock>();
             services.AddSingleton<ISecurity, PasswordSecurity>();
             services.AddSingleton<IDateTimeProvider, DefaultDateTimeProvider>();
-            services.AddSingleton<IRoleRepository, RoleRepMock>();
 
             services.AddSingleton(configurationProvider);
         }
@@ -91,7 +90,7 @@ namespace Tranquiliza.Shop.Api
 
     internal class UserRepMock : IUserRepository
     {
-        private User Mock;
+        private List<User> _users = new List<User>();
 
         public UserRepMock()
         {
@@ -107,28 +106,21 @@ namespace Tranquiliza.Shop.Api
             throw new NotImplementedException();
         }
 
-        public Task<User> GetById(Guid id)
+        public Task<User> Get(Guid id)
         {
-            throw new NotImplementedException();
+            return Task.FromResult(_users.First(x => x.Id == id));
         }
 
-        public Task<User> GetByUsername(string username)
+        public Task<User> GetByEmail(string email)
         {
-            return Task.FromResult(Mock);
+            var user = _users.Find(user => string.Equals(user.Email, email, StringComparison.OrdinalIgnoreCase));
+            return Task.FromResult(user);
         }
 
         public Task Save(User user)
         {
-            Mock = user;
+            _users.Add(user);
             return Task.CompletedTask;
-        }
-    }
-
-    internal class RoleRepMock : IRoleRepository
-    {
-        public Task<Role> Get(string roleName)
-        {
-            throw new NotImplementedException();
         }
     }
 }

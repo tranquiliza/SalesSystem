@@ -1,9 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using System;
-using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Security.Claims;
@@ -11,6 +9,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Tranquiliza.Shop.Contract.Models;
 using Tranquiliza.Shop.Core.Application;
+using Tranquiliza.Shop.Core.Model;
 
 namespace Tranquiliza.Shop.Api.Controllers
 {
@@ -28,8 +27,8 @@ namespace Tranquiliza.Shop.Api.Controllers
             _configurationProvider = configurationProvider;
         }
 
-        [HttpPost("Authenticate")]
         [AllowAnonymous]
+        [HttpPost("Authenticate")]
         public async Task<IActionResult> Authenticate([FromBody]AuthenticateModel authenticateModel)
         {
             var user = await _userService.Authenticate(authenticateModel.Username, authenticateModel.Password).ConfigureAwait(false);
@@ -37,6 +36,7 @@ namespace Tranquiliza.Shop.Api.Controllers
                 return BadRequest(new { message = "Username or password is incorrect" });
 
             var tokenHandler = new JwtSecurityTokenHandler();
+
             var key = Encoding.ASCII.GetBytes(_configurationProvider.SecurityKey);
             var tokenDescriptor = new SecurityTokenDescriptor
             {
@@ -48,17 +48,48 @@ namespace Tranquiliza.Shop.Api.Controllers
                 SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
             };
 
-            var roleClaims = user.Roles.Select(r => new Claim(ClaimTypes.Role, r.Name));
+            var roleClaims = user.Roles.Select(role => new Claim(ClaimTypes.Role, role));
             if (roleClaims != null)
                 tokenDescriptor.Subject.AddClaims(roleClaims);
             var token = tokenHandler.CreateToken(tokenDescriptor);
+            var bearerToken = tokenHandler.WriteToken(token);
 
-            return Ok(new User
-            {
-                Id = user.Id,
-                Username = user.Username,
-                Token = tokenHandler.WriteToken(token)
-            });
+            return Ok(user.Map(bearerToken));
+        }
+
+        [HttpPost]
+        [AllowAnonymous]
+        public async Task<IActionResult> RegisterUser([FromBody]RegisterUserModel registerUserModel)
+        {
+            var result = await _userService.Create(registerUserModel.Username, registerUserModel.Password).ConfigureAwait(false);
+            if (!result.Success)
+                return BadRequest(result.FailureReason);
+
+            return Ok(result.User.Map());
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetUser([FromQuery]Guid userId)
+        {
+            if (userId == Guid.Empty)
+                return BadRequest("Please provide an Id");
+
+            var user = await _userService.GetById(userId, ApplicationContext.Create(Guid.Parse(User.Identity.Name))).ConfigureAwait(false);
+            return Ok(user.Map());
+        }
+
+        [HttpDelete]
+        [Authorize(Roles = Role.Admin)]
+        public async Task<IActionResult> Delete([FromQuery]Guid userId)
+        {
+            if (userId == Guid.Empty)
+                return BadRequest("Please provide an Id");
+
+            var result = await _userService.Delete(userId, ApplicationContext.Create(Guid.Parse(User.Identity.Name))).ConfigureAwait(false);
+            if (!result.Success)
+                return Unauthorized(result.FailureReason);
+
+            return Ok();
         }
     }
 }
