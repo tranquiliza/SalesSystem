@@ -19,9 +19,9 @@ namespace Tranquiliza.Shop.Api.Controllers
     public class UsersController : ControllerBase
     {
         private readonly IUserService _userService;
-        private readonly IConfigurationProvider _configurationProvider;
+        private readonly Core.IConfigurationProvider _configurationProvider;
 
-        public UsersController(IUserService userService, IConfigurationProvider configurationProvider)
+        public UsersController(IUserService userService, Core.IConfigurationProvider configurationProvider)
         {
             _userService = userService;
             _configurationProvider = configurationProvider;

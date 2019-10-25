@@ -17,6 +17,7 @@ using Scrutor;
 using Tranquiliza.Shop.Core;
 using Tranquiliza.Shop.Core.Application;
 using Tranquiliza.Shop.Core.Model;
+using Tranquiliza.Shop.Email;
 using Tranquiliza.Shop.Sql;
 
 namespace Tranquiliza.Shop.Api
@@ -63,19 +64,11 @@ namespace Tranquiliza.Shop.Api
             ConfigureDependencyInjection(services, config, connectionStringProvider);
         }
 
-        private void ConfigureDependencyInjection(IServiceCollection services, IConfigurationProvider configurationProvider, IConnectionStringProvider connectionStringProvider)
+        private void ConfigureDependencyInjection(IServiceCollection services, Core.IConfigurationProvider configurationProvider, IConnectionStringProvider connectionStringProvider)
         {
             services.AddTransient<IUserService, UserService>();
 
             services.AddMediatR(typeof(DomainEntityBase));
-
-            //services.AddTransient<ServiceFactory>(p => p.GetService);
-
-            //services.Scan(scan => scan
-            //    .FromAssembliesOf(typeof(IMediator), typeof(DomainEntityBase))
-            //    .AddClasses()
-            //    .UsingRegistrationStrategy(RegistrationStrategy.Skip)
-            //    .AsImplementedInterfaces());
 
             services.AddSingleton<IUserRepository, UserRepository>();
             services.AddSingleton<IEventRepository, EventRepository>();
@@ -83,6 +76,7 @@ namespace Tranquiliza.Shop.Api
             services.AddSingleton<IDateTimeProvider, DefaultDateTimeProvider>();
             services.AddSingleton<IEventDispatcher, DefaultEventDispatcher>();
             services.AddSingleton<ILogger, DebugLogger>();
+            services.AddSingleton<IMessageSender, DefaultMessageSender>();
 
             services.AddSingleton(connectionStringProvider);
             services.AddSingleton(configurationProvider);

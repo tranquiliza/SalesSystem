@@ -52,7 +52,7 @@ namespace Tranquiliza.Shop.Sql
             for (int i = 0; i < domainEvents.Count; i++)
             {
                 var currentEvent = domainEvents[i];
-                dataTable.Rows.Add(currentEvent.GetType().Name, Serialization.Serialize(currentEvent), _dateTimeProvider.UtcNow);
+                dataTable.Rows.Add(currentEvent.GetType().Name, Serialization.Serialize(currentEvent), _dateTimeProvider.UtcNow.ToString("o"));
             }
 
             return dataTable;
