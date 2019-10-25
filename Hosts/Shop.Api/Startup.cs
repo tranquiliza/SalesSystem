@@ -77,6 +77,8 @@ namespace Tranquiliza.Shop.Api
             services.AddSingleton<IEventDispatcher, DefaultEventDispatcher>();
             services.AddSingleton<ILogger, DebugLogger>();
             services.AddSingleton<IMessageSender, DefaultMessageSender>();
+            services.AddSingleton<IProductManagementService, ProductManagementService>();
+            services.AddSingleton<IProductRepository, ProductRepository>();
 
             services.AddSingleton(connectionStringProvider);
             services.AddSingleton(configurationProvider);

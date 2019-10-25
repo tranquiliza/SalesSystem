@@ -43,19 +43,19 @@ namespace Tranquiliza.Shop.Core.Application
             return user;
         }
 
-        public async Task<ICreateUserResult> Create(string email, string password, string roleName = null)
+        public async Task<IResult<User>> Create(string email, string password, string roleName = null)
         {
             if (!EmailIsValid())
-                return CreateUserResult.Failure("Invalid Email");
+                return Result<User>.Failure("Invalid Email");
 
             if (await _userRepository.GetByEmail(email).ConfigureAwait(false) != null)
-                return CreateUserResult.Failure("A user with that username already exists.");
+                return Result<User>.Failure("A user with that username already exists.");
 
             if (!PasswordIsValid(out var failureReason))
-                return CreateUserResult.Failure(failureReason);
+                return Result<User>.Failure(failureReason);
 
             if (!_security.TryCreatePasswordHash(password, out var hash, out var salt))
-                return CreateUserResult.Failure("Unable to generate password hash and salt.");
+                return Result<User>.Failure("Unable to generate password hash and salt.");
 
             var user = User.CreateNewUser(email, hash, salt);
             if (!string.IsNullOrEmpty(roleName))
@@ -64,7 +64,7 @@ namespace Tranquiliza.Shop.Core.Application
             await _userRepository.Save(user).ConfigureAwait(false);
             await _eventDispatcher.DispatchEvents(user).ConfigureAwait(false);
 
-            return CreateUserResult.Succeeded(user);
+            return Result<User>.Succeeded(user);
 
             bool EmailIsValid()
             {

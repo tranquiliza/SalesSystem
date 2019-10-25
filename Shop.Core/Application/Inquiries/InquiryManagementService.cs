@@ -24,7 +24,7 @@ namespace Tranquiliza.Shop.Core.Application
 
         public async Task<Guid> CreateInquiry(Guid productId)
         {
-            var product = await _productRepository.GetProduct(productId).ConfigureAwait(false);
+            var product = await _productRepository.Get(productId).ConfigureAwait(false);
 
             var inquiry = Inquiry.Create(product);
             await _inquiryRepository.Save(inquiry).ConfigureAwait(false);
@@ -72,7 +72,7 @@ namespace Tranquiliza.Shop.Core.Application
 
         private async Task FetchAndAddProductToInquiry(Inquiry inquiry, Guid productId, int amount)
         {
-            var product = await _productRepository.GetProduct(productId).ConfigureAwait(false);
+            var product = await _productRepository.Get(productId).ConfigureAwait(false);
 
             inquiry.AddProduct(product, amount);
         }

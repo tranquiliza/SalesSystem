@@ -13,7 +13,7 @@ namespace Tranquiliza.Shop.Core.Tests.Model
         public void ShouldAddNewOrderLine_WhenItemDoesNotExist()
         {
             // arrange
-            var product = Product.Create("Test Name", 100);
+            var product = Product.Create("Test Name", "TestCategory", 100);
 
             // act            
             var sut = Inquiry.Create(product);
@@ -27,7 +27,7 @@ namespace Tranquiliza.Shop.Core.Tests.Model
         public void ShouldReplaceOrderLine_WhenItemDoesExist_IncrementByOne()
         {
             // arrange
-            var product = Product.Create("Test Name", 100);
+            var product = Product.Create("Test Name", "TestCategory", 100);
             var sut = Inquiry.Create(product);
 
             // act            
@@ -43,7 +43,7 @@ namespace Tranquiliza.Shop.Core.Tests.Model
         public void ShouldDesignateCustomer()
         {
             // arrange
-            var product = Product.Create("Test Name", 100);
+            var product = Product.Create("Test Name", "TestCategory", 100);
             var sut = Inquiry.Create(product);
             var customer = Customer.Create("tranq@twitch.tv");
 
@@ -59,11 +59,11 @@ namespace Tranquiliza.Shop.Core.Tests.Model
         public void ShouldReturnTheTotalOfTheOrder()
         {
             // arrange
-            var product = Product.Create("Product One", 100);
+            var product = Product.Create("Product One", "TestCategory", 100);
             var sut = Inquiry.Create(product);
             sut.AddProduct(product, 7);
 
-            var productExpensive = Product.Create("My expensive product!", 200000);
+            var productExpensive = Product.Create("My expensive product!", "TestCategory", 200000);
             sut.AddProduct(productExpensive);
 
             // act

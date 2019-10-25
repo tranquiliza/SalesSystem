@@ -22,6 +22,7 @@ namespace Tranquiliza.Shop.Sql
             _log = log;
         }
 
+        // TODO Refactor SQL into common baseclass (Be smarter with connections etc)
         public async Task Save(User user)
         {
             using var connection = new SqlConnection(_connectionString);

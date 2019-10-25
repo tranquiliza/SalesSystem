@@ -65,7 +65,7 @@ namespace Tranquiliza.Shop.Api.Controllers
             if (!result.Success)
                 return BadRequest(result.FailureReason);
 
-            return Ok(result.User.Map());
+            return Ok(result.Data.Map());
         }
 
         [HttpGet]
