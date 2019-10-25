@@ -9,14 +9,20 @@ namespace Tranquiliza.Shop.Core.Application
     public class ProductManagementService : IProductManagementService
     {
         private readonly IProductRepository _productRepository;
+        private readonly IUserRepository _userRepository;
 
-        public ProductManagementService(IProductRepository productRepository)
+        public ProductManagementService(IProductRepository productRepository, IUserRepository userRepository)
         {
             _productRepository = productRepository;
+            _userRepository = userRepository;
         }
 
-        public async Task<IResult<Product>> CreateProduct(string title, string category, int price)
+        public async Task<IResult<Product>> CreateProduct(string title, string category, int price, IApplicationContext context)
         {
+            var currentUser =  await _userRepository.Get(context.UserId).ConfigureAwait(false);
+            if (!currentUser.HasRole(Role.Admin))
+                return Result<Product>.Failure("Insufficient permissions");
+
             try
             {
                 var product = Product.Create(title, category, price);
