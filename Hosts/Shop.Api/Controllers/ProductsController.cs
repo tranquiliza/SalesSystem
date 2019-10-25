@@ -25,7 +25,14 @@ namespace Tranquiliza.Shop.Api.Controllers
 
         [HttpGet]
         [AllowAnonymous]
-        public IActionResult Index()
+        public IActionResult GetProducts()
+        {
+            return Ok();
+        }
+
+        [HttpGet("categories")]
+        [AllowAnonymous]
+        public IActionResult GetCategories()
         {
             return Ok();
         }
