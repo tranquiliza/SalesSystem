@@ -9,8 +9,8 @@ namespace Tranquiliza.Shop.Core.Model
     {
         public Guid Id { get; private set; }
 
-        private List<OrderLine> orderLines;
-        public IReadOnlyList<OrderLine> OrderLines => orderLines;
+        private readonly List<OrderLine> _orderLines;
+        public IReadOnlyList<OrderLine> OrderLines => _orderLines;
 
         public Customer Customer { get; private set; }
 
@@ -20,7 +20,7 @@ namespace Tranquiliza.Shop.Core.Model
         private Inquiry(Product product)
         {
             Id = Guid.NewGuid();
-            orderLines = new List<OrderLine>();
+            _orderLines = new List<OrderLine>();
             AddProduct(product);
         }
 
@@ -29,15 +29,15 @@ namespace Tranquiliza.Shop.Core.Model
             if (amount < 1)
                 throw new InvalidOperationException("Cannot add less than one product");
 
-            var existingOrderline = orderLines.Find(x => x.Item.Id == item.Id);
+            var existingOrderline = _orderLines.Find(x => x.Item.Id == item.Id);
             if (existingOrderline == null)
             {
-                orderLines.Add(OrderLine.Create(item, amount));
+                _orderLines.Add(OrderLine.Create(item, amount));
             }
             else
             {
-                orderLines.Remove(existingOrderline);
-                orderLines.Add(OrderLine.Replace(item, existingOrderline.Amount + amount));
+                _orderLines.Remove(existingOrderline);
+                _orderLines.Add(OrderLine.Replace(item, existingOrderline.Amount + amount));
             }
         }
 
@@ -53,7 +53,7 @@ namespace Tranquiliza.Shop.Core.Model
 
         public int GetTotal()
         {
-            return orderLines.Sum(x => x.Amount * x.Item.Price);
+            return _orderLines.Sum(x => x.Amount * x.Item.Price);
         }
     }
 }

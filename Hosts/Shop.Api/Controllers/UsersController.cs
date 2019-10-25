@@ -19,9 +19,9 @@ namespace Tranquiliza.Shop.Api.Controllers
     public class UsersController : ControllerBase
     {
         private readonly IUserService _userService;
-        private readonly IConfigurationProvider _configurationProvider;
+        private readonly Core.IConfigurationProvider _configurationProvider;
 
-        public UsersController(IUserService userService, IConfigurationProvider configurationProvider)
+        public UsersController(IUserService userService, Core.IConfigurationProvider configurationProvider)
         {
             _userService = userService;
             _configurationProvider = configurationProvider;
@@ -86,6 +86,17 @@ namespace Tranquiliza.Shop.Api.Controllers
                 return BadRequest(result.FailureReason);
 
             return Ok(result.Data.Map());
+        }
+
+        [HttpGet("Confirm")]
+        [AllowAnonymous]
+        public async Task<IActionResult> ConfirmEmail([FromQuery]Guid userId, Guid emailConfirmationToken)
+        {
+            var result = await _userService.ConfirmEmail(userId, emailConfirmationToken).ConfigureAwait(false);
+            if (!result.Success)
+                return BadRequest(result.FailureReason);
+
+            return Ok();
         }
 
         [HttpDelete]

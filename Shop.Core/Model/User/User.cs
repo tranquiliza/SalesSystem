@@ -5,7 +5,7 @@ using Tranquiliza.Shop.Core.Application;
 
 namespace Tranquiliza.Shop.Core.Model
 {
-    public class User
+    public class User : DomainEntityBase
     {
         private class Data
         {
@@ -38,7 +38,7 @@ namespace Tranquiliza.Shop.Core.Model
             UserData = userData;
         }
 
-        public User(string email, byte[] passwordHash, byte[] passwordSalt)
+        private User(string email, byte[] passwordHash, byte[] passwordSalt)
         {
             UserData = new Data
             {
@@ -46,28 +46,31 @@ namespace Tranquiliza.Shop.Core.Model
                 Email = email,
                 Username = email,
                 PasswordHash = passwordHash,
-                PasswordSalt = passwordSalt
+                PasswordSalt = passwordSalt,
+                EmailConfirmationToken = Guid.NewGuid()
             };
+
+            AddEvent(new UserCreatedEvent(UserData.EmailConfirmationToken, Id, Email));
         }
 
-        public void AddRole(string role)
+        internal void AddRole(string role)
         {
             if (!UserData.Roles.Contains(role))
                 UserData.Roles.Add(role);
         }
 
-        public bool HasRole(string role)
+        internal bool HasRole(string role)
         {
             return UserData.Roles.Any(r => r == role);
         }
 
-        public void UpdatePassword(byte[] passwordHash, byte[] passwordSalt)
+        internal void UpdatePassword(byte[] passwordHash, byte[] passwordSalt)
         {
             UserData.PasswordHash = passwordHash;
             UserData.PasswordSalt = passwordSalt;
         }
 
-        public Guid GenerateResetToken(DateTime tokenExpirationTime)
+        internal Guid GenerateResetToken(DateTime tokenExpirationTime)
         {
             UserData.ResetToken = Guid.NewGuid();
             UserData.ResetTokenExpiration = tokenExpirationTime;
@@ -75,30 +78,26 @@ namespace Tranquiliza.Shop.Core.Model
             return UserData.ResetToken;
         }
 
-        public bool ResetTokenMatchesAndIsValid(Guid resetToken, DateTime now) => resetToken == UserData.ResetToken && now < UserData.ResetTokenExpiration;
+        internal bool ResetTokenMatchesAndIsValid(Guid resetToken, DateTime now) => resetToken == UserData.ResetToken && now < UserData.ResetTokenExpiration;
 
-        public void InvalidateResetToken()
+        internal void InvalidateResetToken()
         {
             UserData.ResetToken = Guid.Empty;
             UserData.ResetTokenExpiration = default;
         }
 
-        public bool ConfirmEmail(Guid confirmationToken)
+        internal bool TryConfirmEmail(Guid confirmationToken)
         {
             if (confirmationToken != UserData.EmailConfirmationToken)
                 return false;
 
             UserData.EmailConfirmed = true;
+            AddEvent(new UserEmailConfirmedEvent(Email));
             return true;
         }
 
-        public static User CreateNewUser(string email, byte[] passwordHash, byte[] passwordSalt, out Guid emailConfirmationToken)
-        {
-            emailConfirmationToken = Guid.NewGuid();
-            return new User(email, passwordHash, passwordSalt);
-        }
-
+        internal static User CreateNewUser(string email, byte[] passwordHash, byte[] passwordSalt) => new User(email, passwordHash, passwordSalt);
         public static User CreateUserFromData(string userData) => new User(Serialization.Deserialize<Data>(userData));
-        public string SerializeUser() => Serialization.Serialize(UserData);
+        public string Serialize() => Serialization.Serialize(UserData);
     }
 }

@@ -29,7 +29,7 @@ namespace Tranquiliza.Shop.Sql
                 .WithParameter("id", SqlDbType.UniqueIdentifier, user.Id)
                 .WithParameter("username", SqlDbType.NVarChar, user.Username)
                 .WithParameter("email", SqlDbType.NVarChar, user.Email)
-                .WithParameter("data", SqlDbType.NVarChar, user.SerializeUser());
+                .WithParameter("data", SqlDbType.NVarChar, user.Serialize());
 
             try
             {

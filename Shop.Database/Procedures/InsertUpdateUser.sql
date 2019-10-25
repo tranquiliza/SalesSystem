@@ -4,6 +4,7 @@
 	@email NVARCHAR(1000),
 	@data NVARCHAR(MAX)
 AS
+BEGIN
 	IF NOT EXISTS (SELECT * FROM Users WHERE Id = @id)
 		INSERT INTO Users(Id, Username, Email, Data)
 		VALUES(@id, @username, @email, @data)
@@ -14,4 +15,4 @@ AS
 		Email = @email,
 		Data = @data
 		WHERE Id = @id
-RETURN 0
+END

@@ -15,5 +15,6 @@ namespace Tranquiliza.Shop.Core.Application
         Task UpdatePassword(Guid id, string password, string newPassword, IApplicationContext applicationContext);
         Task<IResult> Delete(Guid id, IApplicationContext applicationContext);
         Task<IResult> RestorePassword(Guid id, string newPassword, Guid resetToken);
+        Task<IResult> ConfirmEmail(Guid id, Guid emailConfirmationToken);
     }
 }

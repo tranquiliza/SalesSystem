@@ -62,5 +62,7 @@
   <ItemGroup>
     <Build Include="Tables\Users.sql" />
     <Build Include="Procedures\InsertUpdateUser.sql" />
+    <Build Include="Tables\DomainEvents.sql" />
+    <Build Include="Procedures\BulkInsertEvents.sql" />
   </ItemGroup>
 </Project>
