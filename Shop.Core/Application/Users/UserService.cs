@@ -15,12 +15,14 @@ namespace Tranquiliza.Shop.Core.Application
         private readonly IUserRepository _userRepository;
         private readonly ISecurity _security;
         private readonly IDateTimeProvider _timeProvider;
+        private readonly IEventDispatcher _eventDispatcher;
 
-        public UserService(IUserRepository userRepository, ISecurity security, IDateTimeProvider timeProvider)
+        public UserService(IUserRepository userRepository, ISecurity security, IDateTimeProvider timeProvider, IEventDispatcher eventDispatcher)
         {
             _userRepository = userRepository;
             _security = security;
             _timeProvider = timeProvider;
+            _eventDispatcher = eventDispatcher;
         }
 
         public async Task<User> Authenticate(string email, string password)
@@ -55,11 +57,12 @@ namespace Tranquiliza.Shop.Core.Application
             if (!_security.TryCreatePasswordHash(password, out var hash, out var salt))
                 return CreateUserResult.Failure("Unable to generate password hash and salt.");
 
-            var user = new User(email, hash, salt);
+            var user = User.CreateNewUser(email, hash, salt);
             if (!string.IsNullOrEmpty(roleName))
                 user.AddRole(roleName);
 
             await _userRepository.Save(user).ConfigureAwait(false);
+            await _eventDispatcher.DispatchEvents(user).ConfigureAwait(false);
 
             return CreateUserResult.Succeeded(user);
 
@@ -168,6 +171,7 @@ namespace Tranquiliza.Shop.Core.Application
                 user.UpdatePassword(hash, salt);
 
             await _userRepository.Save(user).ConfigureAwait(false);
+            await _eventDispatcher.DispatchEvents(user).ConfigureAwait(false);
         }
 
         public async Task<IResult> RestorePassword(Guid id, string newPassword, Guid resetToken)
@@ -182,6 +186,7 @@ namespace Tranquiliza.Shop.Core.Application
             user.UpdatePassword(hash, salt);
             user.InvalidateResetToken();
             await _userRepository.Save(user).ConfigureAwait(false);
+            await _eventDispatcher.DispatchEvents(user).ConfigureAwait(false);
 
             return Result.Succeeded;
         }

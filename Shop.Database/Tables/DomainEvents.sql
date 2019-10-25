@@ -1,0 +1,10 @@
+﻿CREATE TABLE [dbo].[DomainEvents]
+(
+	[Id] INT IDENTITY(1,1) NOT NULL PRIMARY KEY, 
+    [EventName] VARCHAR(50) NOT NULL, 
+    [Data] VARCHAR(MAX) NOT NULL, 
+    [Timestamp] DATETIME2 NOT NULL
+)
+GO
+
+CREATE INDEX IX_DOMAINEVENTS_EVENTNAME ON DomainEvents(EventName)

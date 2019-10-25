@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using MediatR;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -12,6 +13,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.IdentityModel.Tokens;
+using Scrutor;
 using Tranquiliza.Shop.Core;
 using Tranquiliza.Shop.Core.Application;
 using Tranquiliza.Shop.Core.Model;
@@ -64,16 +66,28 @@ namespace Tranquiliza.Shop.Api
         private void ConfigureDependencyInjection(IServiceCollection services, IConfigurationProvider configurationProvider, IConnectionStringProvider connectionStringProvider)
         {
             services.AddTransient<IUserService, UserService>();
+
+            services.AddMediatR(typeof(DomainEntityBase));
+
+            //services.AddTransient<ServiceFactory>(p => p.GetService);
+
+            //services.Scan(scan => scan
+            //    .FromAssembliesOf(typeof(IMediator), typeof(DomainEntityBase))
+            //    .AddClasses()
+            //    .UsingRegistrationStrategy(RegistrationStrategy.Skip)
+            //    .AsImplementedInterfaces());
+
             services.AddSingleton<IUserRepository, UserRepository>();
+            services.AddSingleton<IEventRepository, EventRepository>();
             services.AddSingleton<ISecurity, PasswordSecurity>();
             services.AddSingleton<IDateTimeProvider, DefaultDateTimeProvider>();
+            services.AddSingleton<IEventDispatcher, DefaultEventDispatcher>();
             services.AddSingleton<ILogger, DebugLogger>();
 
             services.AddSingleton(connectionStringProvider);
             services.AddSingleton(configurationProvider);
         }
 
-        // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
             if (env.IsDevelopment())
