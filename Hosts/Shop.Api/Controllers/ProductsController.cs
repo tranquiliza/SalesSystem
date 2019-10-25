@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using Tranquiliza.Shop.Api.Mappers;
 using Tranquiliza.Shop.Contract.Models;
 using Tranquiliza.Shop.Core.Application;
+using Tranquiliza.Shop.Core.Model;
 
 namespace Tranquiliza.Shop.Api.Controllers
 {
@@ -30,9 +31,11 @@ namespace Tranquiliza.Shop.Api.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = Role.Admin)]
         public async Task<IActionResult> CreateProduct([FromBody]CreateProductModel createProductModel)
         {
-            var result = await _productManagementService.CreateProduct(createProductModel.Title, createProductModel.Category, createProductModel.Price).ConfigureAwait(false);
+            var context = ApplicationContext.Create(Guid.Parse(User.Identity.Name));
+            var result = await _productManagementService.CreateProduct(createProductModel.Title, createProductModel.Category, createProductModel.Price, context).ConfigureAwait(false);
             if (!result.Success)
                 return BadRequest(result.FailureReason);
 
