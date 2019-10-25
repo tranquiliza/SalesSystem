@@ -12,20 +12,21 @@ namespace Tranquiliza.Shop.Core.Application.EventHandlers
     public class UserCreatedEventHandler : INotificationHandler<UserCreatedEvent>
     {
         private readonly IMessageSender _messageSender;
+        private readonly string _hostName;
 
-        public UserCreatedEventHandler(IMessageSender messageSender)
+        public UserCreatedEventHandler(IMessageSender messageSender, IConfigurationProvider configurationProvider)
         {
             _messageSender = messageSender;
+            _hostName = configurationProvider.HostName;
         }
 
         public async Task Handle(UserCreatedEvent notification, CancellationToken cancellationToken)
         {
+            // TODO Make configurable email formatting for system.
             var title = "Confirm your email!";
-            var message = $"Confirm your email by pressing this link: https://localhost:44311/confirm?{notification.EmailConfirmationToken}";
+            var message = $"Confirm your email by pressing this link: {_hostName}confirm?{notification.EmailConfirmationToken}";
 
             await _messageSender.SendMessage(notification.Email, title, message).ConfigureAwait(false);
-
-            System.Diagnostics.Debug.WriteLine($"Handled UserCreatedEvent with email: {notification.Email} and token {notification.EmailConfirmationToken}");
         }
     }
 }

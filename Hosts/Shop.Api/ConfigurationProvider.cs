@@ -12,6 +12,7 @@ namespace Tranquiliza.Shop.Api
         public string SmtpEndpointAddress { get; private set; }
         public string SmtpAccountName { get; private set; }
         public string SmtpPassword { get; private set; }
+        public string HostName { get; private set; }
 
         public static ConfigurationProvider CreateFromConfig(IConfiguration configuration)
         {
@@ -20,7 +21,8 @@ namespace Tranquiliza.Shop.Api
                 SecurityKey = configuration.GetValue<string>("TokenSecret"),
                 SmtpEndpointAddress = configuration.GetValue<string>("SmtpEndpointAddress"),
                 SmtpAccountName = configuration.GetValue<string>("SmtpAccountName"),
-                SmtpPassword = configuration.GetValue<string>("SmtpPassword")
+                SmtpPassword = configuration.GetValue<string>("SmtpPassword"),
+                HostName = configuration.GetValue<string>("HostName")
             };
         }
     }

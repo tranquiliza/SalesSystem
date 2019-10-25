@@ -11,5 +11,6 @@ namespace Tranquiliza.Shop.Core
         string SmtpEndpointAddress { get; }
         string SmtpAccountName { get; }
         string SmtpPassword { get; }
+        string HostName { get; }
     }
 }
