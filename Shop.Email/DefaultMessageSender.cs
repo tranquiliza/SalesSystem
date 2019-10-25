@@ -43,6 +43,7 @@ namespace Tranquiliza.Shop.Email
 
             await EnsureClientIsConnected().ConfigureAwait(false);
             await _smtpClient.SendAsync(mimeMessage).ConfigureAwait(false);
+            await _smtpClient.DisconnectAsync(true).ConfigureAwait(false);
         }
 
         private async Task EnsureClientIsConnected()

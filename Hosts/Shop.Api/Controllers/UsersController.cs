@@ -88,6 +88,17 @@ namespace Tranquiliza.Shop.Api.Controllers
             return Ok(result.Data.Map());
         }
 
+        [HttpGet("Confirm")]
+        [AllowAnonymous]
+        public async Task<IActionResult> ConfirmEmail([FromQuery]Guid userId, Guid emailConfirmationToken)
+        {
+            var result = await _userService.ConfirmEmail(userId, emailConfirmationToken).ConfigureAwait(false);
+            if (!result.Success)
+                return BadRequest(result.FailureReason);
+
+            return Ok();
+        }
+
         [HttpDelete]
         [Authorize(Roles = Role.Admin)]
         public async Task<IActionResult> Delete([FromQuery]Guid userId)

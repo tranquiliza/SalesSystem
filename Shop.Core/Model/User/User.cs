@@ -50,7 +50,7 @@ namespace Tranquiliza.Shop.Core.Model
                 EmailConfirmationToken = Guid.NewGuid()
             };
 
-            AddEvent(new UserCreatedEvent(UserData.EmailConfirmationToken, Email));
+            AddEvent(new UserCreatedEvent(UserData.EmailConfirmationToken, Id, Email));
         }
 
         internal void AddRole(string role)
@@ -86,7 +86,7 @@ namespace Tranquiliza.Shop.Core.Model
             UserData.ResetTokenExpiration = default;
         }
 
-        internal bool ConfirmEmail(Guid confirmationToken)
+        internal bool TryConfirmEmail(Guid confirmationToken)
         {
             if (confirmationToken != UserData.EmailConfirmationToken)
                 return false;

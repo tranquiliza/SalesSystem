@@ -157,6 +157,21 @@ namespace Tranquiliza.Shop.Core.Application
             return Result<User>.Succeeded(result);
         }
 
+        public async Task<IResult> ConfirmEmail(Guid id, Guid emailConfirmationToken)
+        {
+            var user = await _userRepository.Get(id).ConfigureAwait(false);
+            if (user == null)
+                return Result.Failure("User not found");
+
+            if (!user.TryConfirmEmail(emailConfirmationToken))
+                return Result.Failure("Invalid email token");
+
+            await _userRepository.Save(user).ConfigureAwait(false);
+            await _eventDispatcher.DispatchEvents(user).ConfigureAwait(false);
+
+            return Result.Succeeded;
+        }
+
         public async Task UpdatePassword(Guid id, string password, string newPassword, IApplicationContext applicationContext)
         {
             var currentUser = await _userRepository.Get(applicationContext.UserId).ConfigureAwait(false);
