@@ -25,6 +25,7 @@
     <ProjectReference Include="..\..\Shop.Contract\Shop.Contract.csproj" />
     <ProjectReference Include="..\..\Shop.Core\Shop.Core.csproj" />
     <ProjectReference Include="..\..\Shop.Email\Shop.Email.csproj" />
+    <ProjectReference Include="..\..\Shop.FileSystem\Shop.FileSystem.csproj" />
     <ProjectReference Include="..\..\Shop.Sql\Shop.Sql.csproj" />
   </ItemGroup>
 

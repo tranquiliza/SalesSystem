@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Tranquiliza.Shop.Api.Mappers;
 using Tranquiliza.Shop.Contract.Models;
@@ -34,6 +36,18 @@ namespace Tranquiliza.Shop.Api.Controllers
         [AllowAnonymous]
         public IActionResult GetCategories()
         {
+            return Ok();
+        }
+
+        [HttpPost("uploadImage")]
+        [Authorize(Roles = Role.Admin)]
+        public async Task<IActionResult> UploadProductImage([FromQuery]Guid productId, [FromForm]IFormFile file)
+        {
+            using var memoryStream = new MemoryStream();
+            var stream = file.OpenReadStream();
+            await stream.CopyToAsync(memoryStream).ConfigureAwait(false);
+            await _productManagementService.AttachImageToProduct(productId, memoryStream.ToArray(), Path.GetExtension(file.FileName)).ConfigureAwait(false);
+
             return Ok();
         }
 

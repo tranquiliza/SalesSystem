@@ -10,11 +10,13 @@ namespace Tranquiliza.Shop.Core.Application
     {
         private readonly IProductRepository _productRepository;
         private readonly IUserRepository _userRepository;
+        private readonly IImageRepository _imageRepository;
 
-        public ProductManagementService(IProductRepository productRepository, IUserRepository userRepository)
+        public ProductManagementService(IProductRepository productRepository, IUserRepository userRepository, IImageRepository imageRepository)
         {
             _productRepository = productRepository;
             _userRepository = userRepository;
+            _imageRepository = imageRepository;
         }
 
         public async Task<IResult<Product>> CreateProduct(string title, string category, int price, IApplicationContext context)
@@ -36,6 +38,19 @@ namespace Tranquiliza.Shop.Core.Application
             {
                 return Result<Product>.Failure(ex.Message);
             }
+        }
+
+        public async Task<IResult> AttachImageToProduct(Guid productId, byte[] imageData, string imageType)
+        {
+            var product = await _productRepository.Get(productId).ConfigureAwait(false);
+            if (product == null)
+                return Result.Failure("Product does not exist");
+
+            var imageId = product.AddImage(imageType);
+            await _imageRepository.Save(productId, imageData, imageType, imageId).ConfigureAwait(false);
+            await _productRepository.Save(product).ConfigureAwait(false);
+
+            return Result.Succeeded;
         }
     }
 }

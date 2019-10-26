@@ -16,7 +16,10 @@ namespace Tranquiliza.Shop.Core.Model
             public int Price { get; set; }
             public int Weight { get; set; }
             public bool IsActive { get; set; }
+
+            //TODO Consider multiple categories
             public string Category { get; set; }
+            public List<string> Images { get; set; } = new List<string>();
         }
 
         private Data ProductData { get; }
@@ -28,8 +31,6 @@ namespace Tranquiliza.Shop.Core.Model
         public string Name => ProductData.Name;
         public string Description => ProductData.Description;
         public int Weight => ProductData.Weight;
-
-        // TODO Figure out how to store and serve images.
 
         [Obsolete("Serialization", true)]
         public Product() { }
@@ -54,6 +55,13 @@ namespace Tranquiliza.Shop.Core.Model
         private Product(Data data)
         {
             ProductData = data;
+        }
+
+        public Guid AddImage(string imageType)
+        {
+            var imageId = Guid.NewGuid();
+            ProductData.Images.Add(imageId + imageType);
+            return imageId;
         }
 
         //public void AdjustPrice(int newPrice)

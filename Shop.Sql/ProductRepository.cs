@@ -21,9 +21,26 @@ namespace Tranquiliza.Shop.Sql
             _log = log;
         }
 
-        public Task<Product> Get(Guid productId)
+        public async Task<Product> Get(Guid productId)
         {
-            throw new NotImplementedException();
+            const string Query = "SELECT Data FROM Products WHERE Id = @Id";
+            using var connection = new SqlConnection(_connectionString);
+            using var command = new SqlCommand(Query, connection) { CommandType = CommandType.Text }
+            .WithParameter("id", SqlDbType.UniqueIdentifier, productId);
+
+            try
+            {
+                await connection.OpenAsync().ConfigureAwait(false);
+                using var reader = await command.ExecuteReaderAsync(CommandBehavior.SingleRow).ConfigureAwait(false);
+                if (await reader.ReadAsync().ConfigureAwait(false))
+                    return Product.CreateProductFromData(reader.GetString("data"));
+            }
+            catch (Exception ex)
+            {
+                _log.Warning("Unable to fetch product", ex);
+            }
+
+            return null;
         }
 
         public async Task<bool> Save(Product product)

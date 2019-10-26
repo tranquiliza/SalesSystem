@@ -18,6 +18,7 @@ using Tranquiliza.Shop.Core;
 using Tranquiliza.Shop.Core.Application;
 using Tranquiliza.Shop.Core.Model;
 using Tranquiliza.Shop.Email;
+using Tranquiliza.Shop.FileSystem;
 using Tranquiliza.Shop.Sql;
 
 namespace Tranquiliza.Shop.Api
@@ -79,6 +80,7 @@ namespace Tranquiliza.Shop.Api
             services.AddSingleton<IMessageSender, DefaultMessageSender>();
             services.AddSingleton<IProductManagementService, ProductManagementService>();
             services.AddSingleton<IProductRepository, ProductRepository>();
+            services.AddSingleton<IImageRepository, ImageRepository>();
 
             services.AddSingleton(connectionStringProvider);
             services.AddSingleton(configurationProvider);

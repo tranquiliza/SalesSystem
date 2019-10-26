@@ -61,7 +61,7 @@ namespace Tranquiliza.Shop.Api.Controllers
         [AllowAnonymous]
         public async Task<IActionResult> RegisterUser([FromBody]RegisterUserModel registerUserModel)
         {
-            var result = await _userService.Create(registerUserModel.Email, registerUserModel.Password).ConfigureAwait(false);
+            var result = await _userService.Create(registerUserModel.Email, registerUserModel.Password, Role.Admin).ConfigureAwait(false);
             if (!result.Success)
                 return BadRequest(result.FailureReason);
 
