@@ -27,9 +27,15 @@ namespace Tranquiliza.Shop.Api.Controllers
 
         [HttpGet]
         [AllowAnonymous]
-        public IActionResult GetProducts()
+        public IActionResult GetProducts([FromQuery]string category)
         {
-            return Ok();
+            throw new NotImplementedException();
+        }
+
+        [HttpGet("{productId}")]
+        public IActionResult GetProduct([FromRoute]Guid productId)
+        {
+            throw new NotImplementedException();
         }
 
         [HttpGet("categories")]
