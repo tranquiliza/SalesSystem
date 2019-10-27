@@ -7,7 +7,7 @@ namespace Tranquiliza.Shop.Core.Application
 {
     public interface IImageRepository
     {
-        Task Save(Guid productId, byte[] fileData, string fileType, Guid imageId);
+        Task Save(byte[] fileData, string fileType, Guid imageId);
         Task<byte[]> GetImage(string imagePath);
     }
 }

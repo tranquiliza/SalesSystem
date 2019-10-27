@@ -17,9 +17,9 @@ namespace Tranquiliza.Shop.FileSystem
             _imageStoragePath = configurationProvider.ImageStoragePath;
         }
 
-        public async Task Save(Guid productId, byte[] fileData, string fileType, Guid imageId)
+        public async Task Save(byte[] fileData, string fileType, Guid imageId)
         {
-            var directoryPath = Path.Combine(_imageStoragePath, productId.ToString());
+            var directoryPath = Path.Combine(_imageStoragePath);
             var imagePath = Path.Combine(directoryPath, imageId.ToString() + fileType);
 
             if (!Directory.Exists(directoryPath))
@@ -31,12 +31,8 @@ namespace Tranquiliza.Shop.FileSystem
 
         public async Task<byte[]> GetImage(string imagePath)
         {
-            var parts = imagePath.Split('_');
-            if (parts.Length != 2)
-                return null;
-
-            var directoryPath = Path.Combine(_imageStoragePath, parts[0]);
-            var image = Path.Combine(directoryPath, parts[1]);
+            var directoryPath = Path.Combine(_imageStoragePath);
+            var image = Path.Combine(directoryPath, imagePath);
 
             return await File.ReadAllBytesAsync(image).ConfigureAwait(false);
         }

@@ -47,7 +47,7 @@ namespace Tranquiliza.Shop.Core.Application
                 return Result.Failure("Product does not exist");
 
             var imageId = product.AddImage(imageType);
-            await _imageRepository.Save(productId, imageData, imageType, imageId).ConfigureAwait(false);
+            await _imageRepository.Save(imageData, imageType, imageId).ConfigureAwait(false);
             await _productRepository.Save(product).ConfigureAwait(false);
 
             return Result.Succeeded;

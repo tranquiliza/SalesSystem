@@ -20,6 +20,7 @@ namespace Tranquiliza.Shop.Core.Model
             //TODO Consider multiple categories
             public string Category { get; set; }
             public List<string> Images { get; set; } = new List<string>();
+            public string MainImage { get; set; }
         }
 
         private Data ProductData { get; }
@@ -31,6 +32,8 @@ namespace Tranquiliza.Shop.Core.Model
         public string Name => ProductData.Name;
         public string Description => ProductData.Description;
         public int Weight => ProductData.Weight;
+        public IReadOnlyList<string> Images => ProductData.Images;
+        public string MainImage => ProductData.MainImage;
 
         [Obsolete("Serialization", true)]
         public Product() { }
@@ -60,7 +63,11 @@ namespace Tranquiliza.Shop.Core.Model
         public Guid AddImage(string imageType)
         {
             var imageId = Guid.NewGuid();
-            ProductData.Images.Add(imageId + imageType);
+            var imageName = imageId + imageType;
+            ProductData.Images.Add(imageName);
+            if (string.IsNullOrEmpty(MainImage))
+                ProductData.MainImage = imageName;
+
             return imageId;
         }
 
