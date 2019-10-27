@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
@@ -51,6 +52,12 @@ namespace Tranquiliza.Shop.Core.Application
             await _productRepository.Save(product).ConfigureAwait(false);
 
             return Result.Succeeded;
+        }
+
+        public async Task<IResult<IEnumerable<string>>> GetCategories()
+        {
+            var categories = await _productRepository.GetCategories().ConfigureAwait(false);
+            return Result<IEnumerable<string>>.Succeeded(categories);
         }
     }
 }

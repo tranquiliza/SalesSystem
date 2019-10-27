@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
+using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Tranquiliza.Shop.Core;
@@ -41,6 +42,30 @@ namespace Tranquiliza.Shop.Sql
             }
 
             return null;
+        }
+
+        public async Task<IEnumerable<string>> GetCategories()
+        {
+            const string SqlQuery = "SELECT DISTINCT Category FROM Products";
+            using var connection = new SqlConnection(_connectionString);
+            using var command = new SqlCommand(SqlQuery, connection) { CommandType = CommandType.Text };
+
+            try
+            {
+                var result = new List<string>();
+                await connection.OpenAsync().ConfigureAwait(false);
+                using var reader = await command.ExecuteReaderAsync().ConfigureAwait(false);
+                while (await reader.ReadAsync().ConfigureAwait(false))
+                    result.Add(reader.GetString("Category"));
+
+                return result;
+            }
+            catch (Exception ex)
+            {
+                _log.Warning("Unable to fetch categories", ex);
+            }
+
+            return Enumerable.Empty<string>();
         }
 
         public async Task<bool> Save(Product product)

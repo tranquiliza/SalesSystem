@@ -34,9 +34,13 @@ namespace Tranquiliza.Shop.Api.Controllers
 
         [HttpGet("categories")]
         [AllowAnonymous]
-        public IActionResult GetCategories()
+        public async Task<IActionResult> GetCategories()
         {
-            return Ok();
+            var result = await _productManagementService.GetCategories();
+            if (!result.Success)
+                return BadRequest(result.FailureReason);
+
+            return Ok(result.Data);
         }
 
         [HttpPost("uploadImage")]
