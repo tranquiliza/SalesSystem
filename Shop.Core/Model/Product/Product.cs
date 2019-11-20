@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.Text;
 using Tranquiliza.Shop.Core.Application;
@@ -7,33 +8,36 @@ namespace Tranquiliza.Shop.Core.Model
 {
     public class Product
     {
-        private class Data
-        {
-            public Guid Id { get; set; }
-            public string Name { get; set; }
-            public string Description { get; set; }
-            public int PurchaseCost { get; set; }
-            public int Price { get; set; }
-            public int Weight { get; set; }
-            public bool IsActive { get; set; }
+        [JsonProperty]
+        public Guid Id { get; private set; }
 
-            //TODO Consider multiple categories
-            public string Category { get; set; }
-            public List<string> Images { get; set; } = new List<string>();
-            public string MainImage { get; set; }
-        }
+        [JsonProperty]
+        public string Name { get; private set; }
 
-        private Data ProductData { get; }
+        [JsonProperty]
+        public string Description { get; private set; }
 
-        public Guid Id => ProductData.Id;
-        public int Price => ProductData.Price;
-        public bool IsActive => ProductData.IsActive;
-        public string Category => ProductData.Category;
-        public string Name => ProductData.Name;
-        public string Description => ProductData.Description;
-        public int Weight => ProductData.Weight;
-        public IReadOnlyList<string> Images => ProductData.Images;
-        public string MainImage => ProductData.MainImage;
+        [JsonProperty]
+        public int PurchaseCost { get; private set; }
+
+        [JsonProperty]
+        public int Price { get; private set; }
+
+        [JsonProperty]
+        public int Weight { get; private set; }
+
+        [JsonProperty]
+        public bool IsActive { get; private set; }
+
+        //TODO Consider multiple categories
+        [JsonProperty]
+        public string Category { get; private set; }
+
+        [JsonProperty]
+        public List<string> Images { get; private set; } = new List<string>();
+
+        [JsonProperty]
+        public string MainImage { get; private set; }
 
         [Obsolete("Serialization", true)]
         public Product() { }
@@ -45,28 +49,20 @@ namespace Tranquiliza.Shop.Core.Model
             if (string.IsNullOrEmpty(category)) throw new DomainException("Category name must be given");
             if (price <= 0) throw new DomainException("Price must be above 0");
 
-            ProductData = new Data
-            {
-                Id = Guid.NewGuid(),
-                Name = name,
-                Price = price,
-                Category = category,
-                IsActive = false
-            };
-        }
-
-        private Product(Data data)
-        {
-            ProductData = data;
+            Id = Guid.NewGuid();
+            Name = name;
+            Price = price;
+            Category = category;
+            IsActive = false;
         }
 
         public Guid AddImage(string imageType)
         {
             var imageId = Guid.NewGuid();
             var imageName = imageId + imageType;
-            ProductData.Images.Add(imageName);
+            Images.Add(imageName);
             if (string.IsNullOrEmpty(MainImage))
-                ProductData.MainImage = imageName;
+                MainImage = imageName;
 
             return imageId;
         }
@@ -78,9 +74,5 @@ namespace Tranquiliza.Shop.Core.Model
         //}
 
         public static Product Create(string title, string category, int price) => new Product(title, category, price);
-
-        public static Product CreateProductFromData(string productData) => new Product(Serialization.Deserialize<Data>(productData));
-
-        public string Serialize() => Serialization.Serialize(ProductData);
     }
 }

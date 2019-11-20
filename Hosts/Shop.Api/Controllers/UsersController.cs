@@ -48,7 +48,7 @@ namespace Tranquiliza.Shop.Api.Controllers
                 SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
             };
 
-            var roleClaims = user.Roles.Select(role => new Claim(ClaimTypes.Role, role));
+            var roleClaims = user.UserRoles.Select(role => new Claim(ClaimTypes.Role, role));
             if (roleClaims != null)
                 tokenDescriptor.Subject.AddClaims(roleClaims);
             var token = tokenHandler.CreateToken(tokenDescriptor);

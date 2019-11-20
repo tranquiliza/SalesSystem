@@ -1,3 +1,4 @@
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,97 +8,96 @@ namespace Tranquiliza.Shop.Core.Model
 {
     public class User : DomainEntityBase
     {
-        private class Data
-        {
-            public Guid Id { get; set; }
-            public string Username { get; set; }
-            public string Email { get; set; }
-            public byte[] PasswordHash { get; set; }
-            public byte[] PasswordSalt { get; set; }
-            public List<string> Roles { get; set; } = new List<string>();
-            public bool EmailConfirmed { get; set; }
-            public Guid EmailConfirmationToken { get; set; }
-            public Guid ResetToken { get; set; }
-            public DateTime ResetTokenExpiration { get; set; }
-        }
+        [JsonProperty]
+        public Guid Id { get; private set; }
 
-        private Data UserData { get; }
-        public IReadOnlyList<string> Roles => UserData.Roles.AsReadOnly();
+        [JsonProperty]
+        public string Username { get; private set; }
 
-        public Guid Id => UserData.Id;
-        public byte[] PasswordHash => UserData.PasswordHash;
-        public byte[] PasswordSalt => UserData.PasswordSalt;
-        public string Username => UserData.Username;
-        public string Email => UserData.Email;
+        [JsonProperty]
+        public string Email { get; private set; }
+
+        [JsonProperty]
+        public byte[] PasswordHash { get; private set; }
+
+        [JsonProperty]
+        public byte[] PasswordSalt { get; private set; }
+
+        [JsonProperty]
+        private List<string> Roles { get; set; } = new List<string>();
+
+        [JsonProperty]
+        public bool EmailConfirmed { get; private set; }
+
+        [JsonProperty]
+        public Guid EmailConfirmationToken { get; private set; }
+
+        [JsonProperty]
+        public Guid ResetToken { get; private set; }
+
+        [JsonProperty]
+        public DateTime ResetTokenExpiration { get; private set; }
+
+        public IReadOnlyList<string> UserRoles => Roles.AsReadOnly();
 
         [Obsolete("Serialization Only", true)]
         public User() { }
 
-        private User(Data userData)
-        {
-            UserData = userData;
-        }
-
         private User(string email, byte[] passwordHash, byte[] passwordSalt)
         {
-            UserData = new Data
-            {
-                Id = Guid.NewGuid(),
-                Email = email,
-                Username = email,
-                PasswordHash = passwordHash,
-                PasswordSalt = passwordSalt,
-                EmailConfirmationToken = Guid.NewGuid()
-            };
+            Id = Guid.NewGuid();
+            Email = email;
+            Username = email;
+            PasswordHash = passwordHash;
+            PasswordSalt = passwordSalt;
+            EmailConfirmationToken = Guid.NewGuid();
 
-            AddEvent(new UserCreatedEvent(UserData.EmailConfirmationToken, Id, Email));
+            AddEvent(new UserCreatedEvent(EmailConfirmationToken, Id, Email));
         }
 
         internal void AddRole(string role)
         {
-            if (!UserData.Roles.Contains(role))
-                UserData.Roles.Add(role);
+            if (!Roles.Contains(role))
+                Roles.Add(role);
         }
 
         internal bool HasRole(string role)
         {
-            return UserData.Roles.Any(r => r == role);
+            return Roles.Any(r => r == role);
         }
 
         internal void UpdatePassword(byte[] passwordHash, byte[] passwordSalt)
         {
-            UserData.PasswordHash = passwordHash;
-            UserData.PasswordSalt = passwordSalt;
+            PasswordHash = passwordHash;
+            PasswordSalt = passwordSalt;
         }
 
         internal Guid GenerateResetToken(DateTime tokenExpirationTime)
         {
-            UserData.ResetToken = Guid.NewGuid();
-            UserData.ResetTokenExpiration = tokenExpirationTime;
+            ResetToken = Guid.NewGuid();
+            ResetTokenExpiration = tokenExpirationTime;
 
-            return UserData.ResetToken;
+            return ResetToken;
         }
 
-        internal bool ResetTokenMatchesAndIsValid(Guid resetToken, DateTime now) => resetToken == UserData.ResetToken && now < UserData.ResetTokenExpiration;
+        internal bool ResetTokenMatchesAndIsValid(Guid resetToken, DateTime now) => resetToken == ResetToken && now < ResetTokenExpiration;
 
         internal void InvalidateResetToken()
         {
-            UserData.ResetToken = Guid.Empty;
-            UserData.ResetTokenExpiration = default;
+            ResetToken = Guid.Empty;
+            ResetTokenExpiration = default;
         }
 
         internal bool TryConfirmEmail(Guid confirmationToken)
         {
-            if (confirmationToken != UserData.EmailConfirmationToken)
+            if (confirmationToken != EmailConfirmationToken)
                 return false;
 
-            UserData.EmailConfirmed = true;
+            EmailConfirmed = true;
             AddEvent(new UserEmailConfirmedEvent(Email));
             return true;
         }
 
         internal static User CreateNewUser(string email, byte[] passwordHash, byte[] passwordSalt) => new User(email, passwordHash, passwordSalt);
-        public static User CreateUserFromData(string userData) => new User(Serialization.Deserialize<Data>(userData));
-        public string Serialize() => Serialization.Serialize(UserData);
     }
 }

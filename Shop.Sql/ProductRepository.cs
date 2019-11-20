@@ -34,7 +34,7 @@ namespace Tranquiliza.Shop.Sql
                 await connection.OpenAsync().ConfigureAwait(false);
                 using var reader = await command.ExecuteReaderAsync(CommandBehavior.SingleRow).ConfigureAwait(false);
                 if (await reader.ReadAsync().ConfigureAwait(false))
-                    return Product.CreateProductFromData(reader.GetString("data"));
+                    return Serialization.Deserialize<Product>(reader.GetString("data"));
             }
             catch (Exception ex)
             {
@@ -77,7 +77,7 @@ namespace Tranquiliza.Shop.Sql
                 .WithParameter("isActive", SqlDbType.Bit, product.IsActive)
                 .WithParameter("category", SqlDbType.NVarChar, product.Category)
                 .WithParameter("name", SqlDbType.NVarChar, product.Name)
-                .WithParameter("data", SqlDbType.NVarChar, product.Serialize());
+                .WithParameter("data", SqlDbType.NVarChar, Serialization.Serialize(product));
 
             try
             {
