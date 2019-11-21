@@ -12,5 +12,6 @@ namespace Tranquiliza.Shop.Core
         string SmtpAccountName { get; }
         string SmtpPassword { get; }
         string HostName { get; }
+        string ImageStoragePath { get; }
     }
 }

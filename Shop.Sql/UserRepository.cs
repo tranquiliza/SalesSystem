@@ -22,6 +22,7 @@ namespace Tranquiliza.Shop.Sql
             _log = log;
         }
 
+        // TODO Refactor SQL into common baseclass (Be smarter with connections etc)
         public async Task Save(User user)
         {
             using var connection = new SqlConnection(_connectionString);
@@ -29,7 +30,7 @@ namespace Tranquiliza.Shop.Sql
                 .WithParameter("id", SqlDbType.UniqueIdentifier, user.Id)
                 .WithParameter("username", SqlDbType.NVarChar, user.Username)
                 .WithParameter("email", SqlDbType.NVarChar, user.Email)
-                .WithParameter("data", SqlDbType.NVarChar, user.Serialize());
+                .WithParameter("data", SqlDbType.NVarChar, Serialization.Serialize(user));
 
             try
             {
@@ -53,7 +54,7 @@ namespace Tranquiliza.Shop.Sql
                 await connection.OpenAsync().ConfigureAwait(false);
                 using var reader = await command.ExecuteReaderAsync(CommandBehavior.SingleRow).ConfigureAwait(false);
                 if (await reader.ReadAsync().ConfigureAwait(false))
-                    return User.CreateUserFromData(reader.GetString("data"));
+                    return Serialization.Deserialize<User>(reader.GetString("data"));
             }
             catch (Exception ex)
             {
@@ -93,7 +94,7 @@ namespace Tranquiliza.Shop.Sql
                 await connection.OpenAsync().ConfigureAwait(false);
                 using var reader = await command.ExecuteReaderAsync(CommandBehavior.SingleRow).ConfigureAwait(false);
                 if (await reader.ReadAsync().ConfigureAwait(false))
-                    return User.CreateUserFromData(reader.GetString("data"));
+                    return Serialization.Deserialize<User>(reader.GetString("data"));
             }
             catch (Exception ex)
             {
@@ -116,7 +117,7 @@ namespace Tranquiliza.Shop.Sql
                 await connection.OpenAsync().ConfigureAwait(false);
                 using var reader = await command.ExecuteReaderAsync(CommandBehavior.Default).ConfigureAwait(false);
                 while (await reader.ReadAsync().ConfigureAwait(false))
-                    result.Add(User.CreateUserFromData(reader.GetString("Data")));
+                    result.Add(Serialization.Deserialize<User>(reader.GetString("Data")));
 
                 return result;
             }

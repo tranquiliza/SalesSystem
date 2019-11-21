@@ -48,7 +48,7 @@ namespace Tranquiliza.Shop.Api.Controllers
                 SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
             };
 
-            var roleClaims = user.Roles.Select(role => new Claim(ClaimTypes.Role, role));
+            var roleClaims = user.UserRoles.Select(role => new Claim(ClaimTypes.Role, role));
             if (roleClaims != null)
                 tokenDescriptor.Subject.AddClaims(roleClaims);
             var token = tokenHandler.CreateToken(tokenDescriptor);
@@ -61,11 +61,11 @@ namespace Tranquiliza.Shop.Api.Controllers
         [AllowAnonymous]
         public async Task<IActionResult> RegisterUser([FromBody]RegisterUserModel registerUserModel)
         {
-            var result = await _userService.Create(registerUserModel.Email, registerUserModel.Password).ConfigureAwait(false);
+            var result = await _userService.Create(registerUserModel.Email, registerUserModel.Password, Role.Admin).ConfigureAwait(false);
             if (!result.Success)
                 return BadRequest(result.FailureReason);
 
-            return Ok(result.User.Map());
+            return Ok(result.Data.Map());
         }
 
         [HttpGet]
