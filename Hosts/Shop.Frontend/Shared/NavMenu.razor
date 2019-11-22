@@ -1,29 +1,62 @@
-﻿<header>
-    <div class="navbar-fixed">
-        <nav>
-            <div class="nav-wrapper">
-                <a href="" class="brand-logo center">Logo</a>
-                <ul id="nav-mobile" class="left hide-on-med-and-down">
-                    <li>
-                        <NavLink ActiveClass="disabled" class="waves-effect waves-light" href="" Match="NavLinkMatch.All">
-                            Home
-                        </NavLink>
-                    </li>
-                    <li>
-                        <NavLink ActiveClass="disabled" class="waves-effect waves-light" href="counter">
-                            Counter
-                        </NavLink>
-                    </li>
-                    <li>
-                        <NavLink ActiveClass="disabled" class="waves-effect waves-light" href="fetchdata">
-                            Fetch data
-                        </NavLink>
-                    </li>
-                </ul>
-            </div>
-        </nav>
-    </div>
-</header>
+﻿@inject IJSRuntime JSRuntime
+@inject HttpClient Http
+
+<ul id="dropdown1" class="dropdown-content">
+    @if (categories == null)
+    {
+        <ProgressBar></ProgressBar>
+    }
+    else
+    {
+        @foreach (var category in categories)
+        {
+            <li><a href="product/@category">@category</a></li>
+        }
+    }
+</ul>
+<div class="navbar-fixed">
+    <nav>
+        <div class="nav-wrapper">
+            <a href="" class="brand-logo center">Logo</a>
+            <ul id="nav-mobile" class="left hide-on-med-and-down">
+                <li>
+                    <NavLink class="waves-effect waves-light" href="" Match="NavLinkMatch.All">
+                        Home
+                    </NavLink>
+                </li>
+                <li>
+                    <NavLink class="waves-effect waves-light" href="counter">
+                        Counter
+                    </NavLink>
+                </li>
+                <li>
+                    <NavLink class="waves-effect waves-light" href="fetchdata">
+                        Fetch data
+                    </NavLink>
+                </li>
+                <li>
+                    <NavLink data-target="dropdown1" class="dropdown-trigger waves-effect waves-light" href="products">
+                        Products<i class="material-icons right">arrow_drop_down</i>
+                    </NavLink>
+                </li>
+            </ul>
+        </div>
+    </nav>
+</div>
 
 @code {
+    private string[] categories;
+
+    protected override async Task OnInitializedAsync()
+    {
+        categories = await Http.GetJsonAsync<string[]>("https://localhost:44311/products/categories");
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+            await JSRuntime.InvokeVoidAsync("InitializeDropDowns").ConfigureAwait(false);
+
+        await base.OnAfterRenderAsync(firstRender);
+    }
 }
