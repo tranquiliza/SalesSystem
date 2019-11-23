@@ -1,0 +1,5 @@
+﻿CREATE PROCEDURE [dbo].[GetProductFromId]
+	@Id UNIQUEIDENTIFIER
+AS
+	SELECT TOP(1) Data FROM Products WHERE Id = @Id
+GO

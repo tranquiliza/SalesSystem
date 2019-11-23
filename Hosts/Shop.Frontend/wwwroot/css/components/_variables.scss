@@ -34,11 +34,11 @@
 // 1. Colors
 // ==========================================================================
 
-$primary-color: color("grey", "base") !default;
+$primary-color: color("grey", "darken-4") !default;
 $primary-color-light: lighten($primary-color, 15%) !default;
 $primary-color-dark: darken($primary-color, 15%) !default;
 
-$secondary-color: color("teal", "lighten-1") !default;
+$secondary-color: color("blue", "darken-3") !default;
 $success-color: color("green", "base") !default;
 $error-color: color("red", "base") !default;
 $link-color: color("light-blue", "darken-1") !default;
@@ -101,7 +101,7 @@ $button-floating-radius: 50% !default;
 
 $card-padding: 24px !default;
 $card-bg-color: #fff !default;
-$card-link-color: color("orange", "accent-2") !default;
+$card-link-color: $secondary-color !default;
 $card-link-color-light: lighten($card-link-color, 20%) !default;
 
 

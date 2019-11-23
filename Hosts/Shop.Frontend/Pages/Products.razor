@@ -1,0 +1,46 @@
+﻿@page "/products"
+@page "/products/{productCategory}"
+@inject IConfiguration config
+@inject HttpClient Http
+
+<div class="section">
+    <div class="row col s12">
+        @if (!string.IsNullOrEmpty(ProductCategory))
+        {
+            <Header Title="@ProductCategory"></Header>
+        }
+    </div>
+
+    <div class="row">
+        @if (products == null)
+        {
+            <ProgressBar />
+        }
+        else
+        {
+            @foreach (var product in products)
+            {
+                <Product ProductModel="product"></Product>
+            }
+        }
+    </div>
+</div>
+
+
+
+@code {
+    [Parameter]
+    public string ProductCategory { get; set; }
+
+    public IEnumerable<ProductModel> products;
+
+    protected override async Task OnInitializedAsync()
+    {
+        products = await Http.GetJsonAsync<IEnumerable<ProductModel>>(config.ApiBaseAddress + "products/");
+    }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        products = await Http.GetJsonAsync<IEnumerable<ProductModel>>(config.ApiBaseAddress + "products?category=" + ProductCategory);
+    }
+}

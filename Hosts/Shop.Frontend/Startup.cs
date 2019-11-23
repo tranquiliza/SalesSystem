@@ -7,6 +7,7 @@ namespace Shop.Frontend
     {
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddSingleton<IConfiguration, Configuration>();
         }
 
         public void Configure(IComponentsApplicationBuilder app)

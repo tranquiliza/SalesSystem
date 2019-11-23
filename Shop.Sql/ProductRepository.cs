@@ -24,10 +24,9 @@ namespace Tranquiliza.Shop.Sql
 
         public async Task<Product> Get(Guid productId)
         {
-            const string Query = "SELECT Data FROM Products WHERE Id = @Id";
             using var connection = new SqlConnection(_connectionString);
-            using var command = new SqlCommand(Query, connection) { CommandType = CommandType.Text }
-            .WithParameter("id", SqlDbType.UniqueIdentifier, productId);
+            using var command = new SqlCommand("GetProductFromId", connection) { CommandType = CommandType.StoredProcedure }
+                .WithParameter("id", SqlDbType.UniqueIdentifier, productId);
 
             try
             {
@@ -46,9 +45,8 @@ namespace Tranquiliza.Shop.Sql
 
         public async Task<IEnumerable<string>> GetCategories()
         {
-            const string SqlQuery = "SELECT DISTINCT Category FROM Products";
             using var connection = new SqlConnection(_connectionString);
-            using var command = new SqlCommand(SqlQuery, connection) { CommandType = CommandType.Text };
+            using var command = new SqlCommand("GetCategories", connection) { CommandType = CommandType.StoredProcedure };
 
             try
             {
@@ -66,6 +64,37 @@ namespace Tranquiliza.Shop.Sql
             }
 
             return Enumerable.Empty<string>();
+        }
+
+        public async Task<IEnumerable<Product>> GetProducts(string category)
+        {
+            if (string.IsNullOrEmpty(category))
+                category = string.Empty;
+
+            using var connection = new SqlConnection(_connectionString);
+            using var command = new SqlCommand("GetProductsByCategory", connection) { CommandType = CommandType.StoredProcedure }
+                .WithParameter("category", SqlDbType.NVarChar, category);
+
+            try
+            {
+                await connection.OpenAsync().ConfigureAwait(false);
+                using var reader = await command.ExecuteReaderAsync().ConfigureAwait(false);
+
+                var result = new List<Product>();
+                while (await reader.ReadAsync().ConfigureAwait(false))
+                {
+                    var product = Serialization.Deserialize<Product>(reader.GetString("data"));
+                    result.Add(product);
+                }
+
+                return result;
+            }
+            catch (Exception ex)
+            {
+                _log.Warning("Unable to fetch products", ex);
+            }
+
+            return Enumerable.Empty<Product>();
         }
 
         public async Task<bool> Save(Product product)

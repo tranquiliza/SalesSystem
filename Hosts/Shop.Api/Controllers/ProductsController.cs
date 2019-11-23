@@ -27,15 +27,27 @@ namespace Tranquiliza.Shop.Api.Controllers
 
         [HttpGet]
         [AllowAnonymous]
-        public IActionResult GetProducts([FromQuery]string category)
+        public async Task<IActionResult> GetProducts([FromQuery]string category)
         {
-            throw new NotImplementedException();
+            var result = await _productManagementService.GetProducts(category);
+            if (!result.Success)
+                return BadRequest(result.FailureReason);
+
+            return Ok(result.Data.Select(x => x.Map(Request.Scheme, Request.Host.Value)));
         }
 
         [HttpGet("{productId}")]
-        public IActionResult GetProduct([FromRoute]Guid productId)
+        [AllowAnonymous]
+        public async Task<IActionResult> GetProduct([FromRoute]Guid productId)
         {
-            throw new NotImplementedException();
+            if (productId == Guid.Empty)
+                return BadRequest("Invalid product ID");
+
+            var result = await _productManagementService.GetProduct(productId).ConfigureAwait(false);
+            if (!result.Success)
+                return BadRequest(result.FailureReason);
+
+            return Ok(result.Data.Map(Request.Scheme, Request.Host.Value));
         }
 
         [HttpGet("categories")]
@@ -70,7 +82,7 @@ namespace Tranquiliza.Shop.Api.Controllers
             if (!result.Success)
                 return BadRequest(result.FailureReason);
 
-            return Ok(result.Data.Map());
+            return Ok(result.Data.Map(Request.Scheme, Request.Host.Value));
         }
     }
 }
