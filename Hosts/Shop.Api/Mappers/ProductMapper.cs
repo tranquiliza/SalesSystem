@@ -16,7 +16,7 @@ namespace Tranquiliza.Shop.Api.Mappers
                 Category = x.Category,
                 Title = x.Name,
                 Description = x.Description,
-                Price = x.Price,
+                Price = x.ActualPrice,
                 Weight = x.Weight,
                 ImageUrl = CreateImageUrl(x.MainImage, scheme, hostName)
             });
@@ -28,7 +28,7 @@ namespace Tranquiliza.Shop.Api.Mappers
                 Category = product.Category,
                 Title = product.Name,
                 Description = product.Description,
-                Price = product.Price,
+                Price = product.ActualPrice,
                 Weight = product.Weight,
                 ImageUrl = CreateImageUrl(product.MainImage, scheme, hostName),
                 ImageUrls = product.Images.Select(image => CreateImageUrl(image, scheme, hostName)).ToList()

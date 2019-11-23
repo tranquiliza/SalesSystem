@@ -20,8 +20,11 @@ namespace Tranquiliza.Shop.Core.Model
         [JsonProperty]
         public int PurchaseCost { get; private set; }
 
+        // TODO, how to make sure we convert this price correctly everywhere it needs to be corrected?
         [JsonProperty]
         public int Price { get; private set; }
+
+        public double ActualPrice => Price / 100d;
 
         [JsonProperty]
         public int Weight { get; private set; }
