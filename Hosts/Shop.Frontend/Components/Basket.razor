@@ -1,0 +1,16 @@
+﻿@inject IBasketService basketService
+
+<h1>Products in basket @basketService.ItemCount() : TOTAL @basketService.Total().ToString("0.00") DKK</h1>
+
+@code {
+
+    protected override void OnInitialized()
+    {
+        basketService.OnChange += StateHasChanged;
+    }
+
+    public void Dispose()
+    {
+        basketService.OnChange -= StateHasChanged;
+    }
+}

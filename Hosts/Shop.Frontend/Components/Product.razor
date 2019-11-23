@@ -1,4 +1,6 @@
-﻿<div class="col s12 m4">
+﻿@inject IBasketService basketService
+
+<div class="col s12 m4">
     <div class="card sticky-action">
         <div class="card-image">
             <img class="activator" src="@(string.IsNullOrEmpty(ProductModel.ImageUrl) ? "/images/image-coming-soon-dark.png" : ProductModel.ImageUrl)">
@@ -16,7 +18,7 @@
         </div>
         <div class="card-action center-align">
             <a class="activator waves-effect waves-light"><i class="material-icons left">info</i>Details</a>
-            <a class="waves-effect waves-light"><i class="material-icons left">shopping_basket</i>Add to Cart</a>
+            <a @onclick="@(async () => await AddProductToBasket(ProductModel.Id, ProductModel.Price))" class="waves-effect waves-light"><i class="material-icons left">shopping_basket</i>Add to Cart</a>
         </div>
     </div>
 </div>
@@ -25,4 +27,9 @@
 @code {
     [Parameter]
     public ProductModel ProductModel { get; set; }
+
+    Task AddProductToBasket(Guid productId, double pricePerUnit)
+    {
+        return basketService.AddProduct(productId, pricePerUnit);
+    }
 }
