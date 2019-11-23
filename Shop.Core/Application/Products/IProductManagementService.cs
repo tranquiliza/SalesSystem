@@ -10,5 +10,7 @@ namespace Tranquiliza.Shop.Core.Application
         Task<IResult<Product>> CreateProduct(string title, string category, int price, IApplicationContext context);
         Task<IResult> AttachImageToProduct(Guid productId, byte[] fileData, string fileType);
         Task<IResult<IEnumerable<string>>> GetCategories();
+        Task<IResult<IEnumerable<Product>>> GetProducts(string category);
+        Task<IResult<Product>> GetProduct(Guid productId);
     }
 }

@@ -22,7 +22,7 @@ namespace Tranquiliza.Shop.Core.Application
 
         public async Task<IResult<Product>> CreateProduct(string title, string category, int price, IApplicationContext context)
         {
-            var currentUser =  await _userRepository.Get(context.UserId).ConfigureAwait(false);
+            var currentUser = await _userRepository.Get(context.UserId).ConfigureAwait(false);
             if (!currentUser.HasRole(Role.Admin))
                 return Result<Product>.Failure("Insufficient permissions");
 
@@ -58,6 +58,23 @@ namespace Tranquiliza.Shop.Core.Application
         {
             var categories = await _productRepository.GetCategories().ConfigureAwait(false);
             return Result<IEnumerable<string>>.Succeeded(categories);
+        }
+
+        public async Task<IResult<IEnumerable<Product>>> GetProducts(string category)
+        {
+            var products = await _productRepository.GetProducts(category);
+
+            return Result<IEnumerable<Product>>.Succeeded(products);
+        }
+
+        public async Task<IResult<Product>> GetProduct(Guid productId)
+        {
+            var product = await _productRepository.Get(productId);
+            if (product == null)
+                return Result<Product>.Failure($"No product with given id {productId}");
+
+            return Result<Product>.Succeeded(product);
+
         }
     }
 }

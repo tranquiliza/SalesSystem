@@ -58,6 +58,7 @@
     <Folder Include="Properties" />
     <Folder Include="Tables" />
     <Folder Include="Procedures" />
+    <Folder Include="Procedures\Products" />
   </ItemGroup>
   <ItemGroup>
     <Build Include="Tables\Users.sql" />
@@ -65,7 +66,10 @@
     <Build Include="Tables\DomainEvents.sql" />
     <Build Include="Procedures\BulkInsertEvents.sql" />
     <Build Include="Tables\Products.sql" />
-    <Build Include="Procedures\InsertUpdateProduct.sql" />
+    <Build Include="Procedures\Products\GetProductsByCategory.sql" />
+    <Build Include="Procedures\Products\InsertUpdateProduct.sql" />
+    <Build Include="Procedures\Products\GetProductFromId.sql" />
+    <Build Include="Procedures\Products\GetCategories.sql" />
   </ItemGroup>
   <ItemGroup>
     <RefactorLog Include="Shop.Database.refactorlog" />
