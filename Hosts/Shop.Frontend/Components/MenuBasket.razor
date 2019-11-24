@@ -1,6 +1,8 @@
 ﻿@inject IBasketService basketService
 
-<h1>Products in basket @basketService.ItemCount() : TOTAL @basketService.Total().ToString("0.00") DKK</h1>
+<i class="material-icons right">shopping_cart</i> @basketService.ItemCount()
+
+@*<h1>Products in basket @basketService.ItemCount() : TOTAL @basketService.Total().ToString("0.00") DKK</h1>*@
 
 @code {
 
