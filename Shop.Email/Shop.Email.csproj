@@ -1,13 +1,13 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netcoreapp3.0</TargetFramework>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
     <AssemblyName>Tranquiliza.Shop.Email</AssemblyName>
     <RootNamespace>Tranquiliza.Shop.Email</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="MailKit" Version="2.3.2" />
+    <PackageReference Include="MailKit" Version="2.4.1" />
   </ItemGroup>
 
   <ItemGroup>
