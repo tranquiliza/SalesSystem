@@ -28,7 +28,7 @@ namespace Tranquiliza.Shop.Sql
             var input = CreateEventsTable(domainEvents);
 
             using var connection = new SqlConnection(_connectionString);
-            using var command = new SqlCommand("[BulkInsertEvents]", connection) { CommandType = CommandType.StoredProcedure }
+            using var command = new SqlCommand("[Core].[BulkInsertEvents]", connection) { CommandType = CommandType.StoredProcedure }
                 .WithParameter("values", SqlDbType.Structured, input);
 
             try

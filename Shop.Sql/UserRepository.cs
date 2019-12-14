@@ -26,8 +26,8 @@ namespace Tranquiliza.Shop.Sql
         public async Task Save(User user)
         {
             using var connection = new SqlConnection(_connectionString);
-            using var command = new SqlCommand("InsertUpdateUser", connection) { CommandType = CommandType.StoredProcedure }
-                .WithParameter("id", SqlDbType.UniqueIdentifier, user.Id)
+            using var command = new SqlCommand("[Core].[InsertUpdateUser]", connection) { CommandType = CommandType.StoredProcedure }
+                .WithParameter("guid", SqlDbType.UniqueIdentifier, user.Id)
                 .WithParameter("username", SqlDbType.NVarChar, user.Username)
                 .WithParameter("email", SqlDbType.NVarChar, user.Email)
                 .WithParameter("data", SqlDbType.NVarChar, Serialization.Serialize(user));
@@ -45,7 +45,7 @@ namespace Tranquiliza.Shop.Sql
 
         public async Task<User> GetByEmail(string email)
         {
-            const string GetUserByEmail = "SELECT Data FROM Users WHERE Email = @email";
+            const string GetUserByEmail = "SELECT [Data] FROM [Core].[Users] WHERE [Email] = @email";
             using var connection = new SqlConnection(_connectionString);
             using var command = new SqlCommand(GetUserByEmail, connection) { CommandType = CommandType.Text };
             command.WithParameter("email", SqlDbType.NVarChar, email);
@@ -66,11 +66,11 @@ namespace Tranquiliza.Shop.Sql
 
         public async Task Delete(Guid id)
         {
-            const string DeleteStatement = "DELETE FROM Users WHERE Id = @id";
+            const string DeleteStatement = "DELETE FROM [Core].[Users] WHERE Guid = @guid";
 
             using var connection = new SqlConnection(_connectionString);
             using var command = new SqlCommand(DeleteStatement, connection) { CommandType = CommandType.Text }
-                .WithParameter("id", SqlDbType.UniqueIdentifier, id);
+                .WithParameter("guid", SqlDbType.UniqueIdentifier, id);
 
             try
             {
@@ -85,10 +85,10 @@ namespace Tranquiliza.Shop.Sql
 
         public async Task<User> Get(Guid id)
         {
-            const string GetUserById = "SELECT Data FROM Users WHERE Id = @id";
+            const string GetUserById = "SELECT Data FROM [Core].[Users] WHERE [guid] = @guid";
             using var connection = new SqlConnection(_connectionString);
             using var command = new SqlCommand(GetUserById, connection) { CommandType = CommandType.Text }
-                .WithParameter("id", SqlDbType.UniqueIdentifier, id);
+                .WithParameter("guid", SqlDbType.UniqueIdentifier, id);
             try
             {
                 await connection.OpenAsync().ConfigureAwait(false);
@@ -107,7 +107,7 @@ namespace Tranquiliza.Shop.Sql
 
         public async Task<IEnumerable<User>> GetAll()
         {
-            const string SelectAllCommand = "SELECT Data FROM Users";
+            const string SelectAllCommand = "SELECT [Data] FROM [Core].[Users]";
             using var connection = new SqlConnection(_connectionString);
             using var command = new SqlCommand(SelectAllCommand, connection) { CommandType = CommandType.Text };
 

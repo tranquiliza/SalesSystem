@@ -1,8 +1,8 @@
-﻿CREATE PROCEDURE [dbo].[GetProductsByCategory]
+﻿CREATE PROCEDURE [Core].[GetProductsByCategory]
 	@category nvarchar(50)
 AS
 	IF @category = ''
-		SELECT Data FROM Products
+		SELECT [Data] FROM [Core].[Products]
 	ELSE
-		SELECT Data FROM Products WHERE Category = @category
+		SELECT [Data] FROM [Core].[Products] WHERE [Category] = @category
 GO

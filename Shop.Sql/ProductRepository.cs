@@ -25,8 +25,8 @@ namespace Tranquiliza.Shop.Sql
         public async Task<Product> Get(Guid productId)
         {
             using var connection = new SqlConnection(_connectionString);
-            using var command = new SqlCommand("GetProductFromId", connection) { CommandType = CommandType.StoredProcedure }
-                .WithParameter("id", SqlDbType.UniqueIdentifier, productId);
+            using var command = new SqlCommand("[Core].[GetProductFromId]", connection) { CommandType = CommandType.StoredProcedure }
+                .WithParameter("Guid", SqlDbType.UniqueIdentifier, productId);
 
             try
             {
@@ -46,7 +46,7 @@ namespace Tranquiliza.Shop.Sql
         public async Task<IEnumerable<string>> GetCategories()
         {
             using var connection = new SqlConnection(_connectionString);
-            using var command = new SqlCommand("GetCategories", connection) { CommandType = CommandType.StoredProcedure };
+            using var command = new SqlCommand("[Core].[GetCategories]", connection) { CommandType = CommandType.StoredProcedure };
 
             try
             {
@@ -72,7 +72,7 @@ namespace Tranquiliza.Shop.Sql
                 category = string.Empty;
 
             using var connection = new SqlConnection(_connectionString);
-            using var command = new SqlCommand("GetProductsByCategory", connection) { CommandType = CommandType.StoredProcedure }
+            using var command = new SqlCommand("[Core].[GetProductsByCategory]", connection) { CommandType = CommandType.StoredProcedure }
                 .WithParameter("category", SqlDbType.NVarChar, category);
 
             try
@@ -100,8 +100,8 @@ namespace Tranquiliza.Shop.Sql
         public async Task<bool> Save(Product product)
         {
             using var connection = new SqlConnection(_connectionString);
-            using var command = new SqlCommand("InsertUpdateProduct", connection) { CommandType = CommandType.StoredProcedure }
-                .WithParameter("Id", SqlDbType.UniqueIdentifier, product.Id)
+            using var command = new SqlCommand("[Core].[InsertUpdateProduct]", connection) { CommandType = CommandType.StoredProcedure }
+                .WithParameter("Guid", SqlDbType.UniqueIdentifier, product.Id)
                 .WithParameter("price", SqlDbType.Int, product.Price)
                 .WithParameter("isActive", SqlDbType.Bit, product.IsActive)
                 .WithParameter("category", SqlDbType.NVarChar, product.Category)
