@@ -3,6 +3,11 @@
 
 <h3>BasketPage</h3>
 
+@foreach (var item in basketService.Items)
+{
+    <p>@item.ProductTitle: Amount @item.Count, total: @item.Total DKK</p>
+}
+
 @code {
 
 }

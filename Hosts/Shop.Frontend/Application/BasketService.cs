@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Shop.Frontend.Models;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -7,34 +8,17 @@ namespace Shop.Frontend.Application
 {
     public class BasketService : IBasketService
     {
-        private class OrderLine
-        {
-            public Guid ProductId { get; set; }
-            public double PricePerUnit { get; set; }
-            public int Count { get; set; }
+        private List<OrderLine> OrderLines { get; } = new List<OrderLine>();
 
-            public OrderLine(Guid productId, double pricePerUnit)
-            {
-                ProductId = productId;
-                PricePerUnit = pricePerUnit;
-                Count = 1;
-            }
-
-            public void Increment()
-            {
-                Count++;
-            }
-        }
-
-        private List<OrderLine> OrderLines { get; set; } = new List<OrderLine>();
+        public IReadOnlyList<OrderLine> Items => OrderLines;
 
         public event Action OnChange;
 
-        public Task AddProduct(Guid productId, double pricePerUnit)
+        public Task AddProduct(Guid productId, double pricePerUnit, string productTitle)
         {
             var orderLine = OrderLines.Find(x => x.ProductId == productId);
             if (orderLine == null)
-                OrderLines.Add(new OrderLine(productId, pricePerUnit));
+                OrderLines.Add(new OrderLine(productId, pricePerUnit, productTitle));
             else
                 orderLine.Increment();
 
