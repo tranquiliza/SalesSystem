@@ -78,7 +78,7 @@ namespace Tranquiliza.Shop.Api.Controllers
         public async Task<IActionResult> CreateProduct([FromBody]CreateProductModel createProductModel)
         {
             var context = ApplicationContext.Create(Guid.Parse(User.Identity.Name));
-            var result = await _productManagementService.CreateProduct(createProductModel.Title, createProductModel.Category, createProductModel.Price, context).ConfigureAwait(false);
+            var result = await _productManagementService.CreateProduct(createProductModel.Title, createProductModel.Category, createProductModel.Price, createProductModel.Description, context).ConfigureAwait(false);
             if (!result.Success)
                 return BadRequest(result.FailureReason);
 

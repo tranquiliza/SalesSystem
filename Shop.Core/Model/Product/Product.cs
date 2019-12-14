@@ -45,7 +45,7 @@ namespace Tranquiliza.Shop.Core.Model
         [Obsolete("Serialization", true)]
         public Product() { }
 
-        private Product(string name, string category, int price)
+        private Product(string name, string category, int price, string description)
         {
             if (string.IsNullOrWhiteSpace(name)) throw new DomainException("A product must have a title");
             if (name.Length > 200) throw new DomainException("ProductName cannot be more than 200 characters long");
@@ -56,6 +56,7 @@ namespace Tranquiliza.Shop.Core.Model
             Name = name;
             Price = price;
             Category = category;
+            Description = description;
             IsActive = false;
         }
 
@@ -76,6 +77,6 @@ namespace Tranquiliza.Shop.Core.Model
         //        throw new InvalidOperationException("Cannot sell product for less than purchase cost");
         //}
 
-        public static Product Create(string title, string category, int price) => new Product(title, category, price);
+        public static Product Create(string title, string category, int price, string description) => new Product(title, category, price, description);
     }
 }
