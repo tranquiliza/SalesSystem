@@ -13,24 +13,22 @@ namespace Tranquiliza.Shop.Sql
 {
     public class ProductRepository : IProductRepository
     {
-        private readonly string _connectionString;
         private readonly ILogger _log;
+        private readonly ISqlAccess _sql;
 
         public ProductRepository(IConnectionStringProvider connectionStringProvider, ILogger log)
         {
-            _connectionString = connectionStringProvider.ConnectionString;
+            _sql = SqlAccessBase.Create(connectionStringProvider.ConnectionString);
             _log = log;
         }
 
         public async Task<Product> Get(Guid productId)
         {
-            using var connection = new SqlConnection(_connectionString);
-            using var command = new SqlCommand("[Core].[GetProductFromId]", connection) { CommandType = CommandType.StoredProcedure }
-                .WithParameter("Guid", SqlDbType.UniqueIdentifier, productId);
-
             try
             {
-                await connection.OpenAsync().ConfigureAwait(false);
+                using var command = _sql.CreateStoredProcedure("[Core].[GetProductFromId]")
+                    .WithParameter("Guid", productId);
+
                 using var reader = await command.ExecuteReaderAsync(CommandBehavior.SingleRow).ConfigureAwait(false);
                 if (await reader.ReadAsync().ConfigureAwait(false))
                     return Serialization.Deserialize<Product>(reader.GetString("data"));
@@ -45,13 +43,11 @@ namespace Tranquiliza.Shop.Sql
 
         public async Task<IEnumerable<string>> GetCategories()
         {
-            using var connection = new SqlConnection(_connectionString);
-            using var command = new SqlCommand("[Core].[GetCategories]", connection) { CommandType = CommandType.StoredProcedure };
+            var result = new List<string>();
 
             try
             {
-                var result = new List<string>();
-                await connection.OpenAsync().ConfigureAwait(false);
+                using var command = _sql.CreateStoredProcedure("[Core].[GetCategories]");
                 using var reader = await command.ExecuteReaderAsync().ConfigureAwait(false);
                 while (await reader.ReadAsync().ConfigureAwait(false))
                     result.Add(reader.GetString("Category"));
@@ -71,16 +67,13 @@ namespace Tranquiliza.Shop.Sql
             if (string.IsNullOrEmpty(category))
                 category = string.Empty;
 
-            using var connection = new SqlConnection(_connectionString);
-            using var command = new SqlCommand("[Core].[GetProductsByCategory]", connection) { CommandType = CommandType.StoredProcedure }
-                .WithParameter("category", SqlDbType.NVarChar, category);
-
+            var result = new List<Product>();
             try
             {
-                await connection.OpenAsync().ConfigureAwait(false);
+                using var command = _sql.CreateStoredProcedure("[Core].[GetProductsByCategory]")
+                    .WithParameter("category", category);
                 using var reader = await command.ExecuteReaderAsync().ConfigureAwait(false);
 
-                var result = new List<Product>();
                 while (await reader.ReadAsync().ConfigureAwait(false))
                 {
                     var product = Serialization.Deserialize<Product>(reader.GetString("data"));
@@ -99,18 +92,16 @@ namespace Tranquiliza.Shop.Sql
 
         public async Task<bool> Save(Product product)
         {
-            using var connection = new SqlConnection(_connectionString);
-            using var command = new SqlCommand("[Core].[InsertUpdateProduct]", connection) { CommandType = CommandType.StoredProcedure }
-                .WithParameter("Guid", SqlDbType.UniqueIdentifier, product.Id)
-                .WithParameter("price", SqlDbType.Int, product.Price)
-                .WithParameter("isActive", SqlDbType.Bit, product.IsActive)
-                .WithParameter("category", SqlDbType.NVarChar, product.Category)
-                .WithParameter("name", SqlDbType.NVarChar, product.Name)
-                .WithParameter("data", SqlDbType.NVarChar, Serialization.Serialize(product));
-
             try
             {
-                await connection.OpenAsync().ConfigureAwait(false);
+                using var command = _sql.CreateStoredProcedure("[Core].[InsertUpdateProduct]")
+                .WithParameter("Guid", product.Id)
+                .WithParameter("price", product.Price)
+                .WithParameter("isActive", product.IsActive)
+                .WithParameter("category", product.Category)
+                .WithParameter("name", product.Name)
+                .WithParameter("data", Serialization.Serialize(product));
+
                 await command.ExecuteNonQueryAsync().ConfigureAwait(false);
                 return true;
             }

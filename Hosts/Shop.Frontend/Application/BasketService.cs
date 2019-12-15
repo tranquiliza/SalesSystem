@@ -8,6 +8,13 @@ namespace Shop.Frontend.Application
 {
     public class BasketService : IBasketService
     {
+        private readonly string apiBase;
+
+        public BasketService(IConfiguration configuration)
+        {
+            apiBase = configuration.ApiBaseAddress;
+        }
+
         private List<OrderLine> OrderLines { get; } = new List<OrderLine>();
 
         public IReadOnlyList<OrderLine> Items => OrderLines;
@@ -21,6 +28,9 @@ namespace Shop.Frontend.Application
                 OrderLines.Add(new OrderLine(productId, pricePerUnit, productTitle));
             else
                 orderLine.Increment();
+
+            // Invoke backend to update this clients basket. 
+            // Figure out how we can decide who this client is, if anon. We need an ID.
 
             NotifyStateChanged();
             return Task.CompletedTask;

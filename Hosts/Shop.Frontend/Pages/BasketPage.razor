@@ -3,10 +3,19 @@
 
 <h3>BasketPage</h3>
 
-@foreach (var item in basketService.Items)
-{
-    <p>@item.ProductTitle: Amount @item.Count, total: @item.Total DKK</p>
-}
+<div class="row">
+    <div class="col m9">
+        @foreach (var item in basketService.Items)
+        {
+            <p>@item.ProductTitle: Amount @item.Count, total: @item.Total DKK</p>
+        }
+    </div>
+    <div class="col m3">
+        <p>HELLO</p>
+    </div>
+</div>
+
+
 
 @code {
 
