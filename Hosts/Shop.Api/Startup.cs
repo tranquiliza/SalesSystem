@@ -62,6 +62,8 @@ namespace Tranquiliza.Shop.Api
                 };
             });
 
+            services.AddMvc(options => options.Filters.Add(typeof(ApplicationContextFilter)));
+
             ConfigureDependencyInjection(services, config, connectionStringProvider);
         }
 

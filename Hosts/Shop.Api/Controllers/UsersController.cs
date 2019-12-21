@@ -16,7 +16,7 @@ namespace Tranquiliza.Shop.Api.Controllers
     [ApiController]
     [Authorize]
     [Route("[controller]")]
-    public class UsersController : ControllerBase
+    public class UsersController : BaseController
     {
         private readonly IUserService _userService;
         private readonly Core.IConfigurationProvider _configurationProvider;
@@ -71,17 +71,16 @@ namespace Tranquiliza.Shop.Api.Controllers
         [HttpGet]
         public async Task<IActionResult> GetUser([FromQuery]Guid userId)
         {
-            var applicationContext = ApplicationContext.Create(Guid.Parse(User.Identity.Name));
             if (userId == Guid.Empty)
             {
-                var allUsersResult = await _userService.GetAll(applicationContext).ConfigureAwait(false);
+                var allUsersResult = await _userService.GetAll(ApplicationContext).ConfigureAwait(false);
                 if (!allUsersResult.Success)
                     return BadRequest(allUsersResult.FailureReason);
 
                 return Ok(allUsersResult.Data.Select(x => x.Map()));
             }
 
-            var result = await _userService.GetById(userId, applicationContext).ConfigureAwait(false);
+            var result = await _userService.GetById(userId, ApplicationContext).ConfigureAwait(false);
             if (!result.Success)
                 return BadRequest(result.FailureReason);
 
@@ -106,7 +105,7 @@ namespace Tranquiliza.Shop.Api.Controllers
             if (userId == Guid.Empty)
                 return BadRequest("Please provide an Id");
 
-            var result = await _userService.Delete(userId, ApplicationContext.Create(Guid.Parse(User.Identity.Name))).ConfigureAwait(false);
+            var result = await _userService.Delete(userId, ApplicationContext).ConfigureAwait(false);
             if (!result.Success)
                 return Unauthorized(result.FailureReason);
 

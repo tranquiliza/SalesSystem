@@ -12,7 +12,7 @@ namespace Tranquiliza.Shop.Api.Controllers
     [ApiController]
     [Route("[controller]")]
     [Authorize]
-    public class ImagesController : ControllerBase
+    public class ImagesController : BaseController
     {
         private readonly IImageRepository _imageRepository;
 

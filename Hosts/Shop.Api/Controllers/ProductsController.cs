@@ -16,7 +16,7 @@ namespace Tranquiliza.Shop.Api.Controllers
     [ApiController]
     [Route("[controller]")]
     [Authorize]
-    public class ProductsController : ControllerBase
+    public class ProductsController : BaseController
     {
         private readonly IProductManagementService _productManagementService;
 
@@ -77,8 +77,7 @@ namespace Tranquiliza.Shop.Api.Controllers
         [Authorize(Roles = Role.Admin)]
         public async Task<IActionResult> CreateProduct([FromBody]CreateProductModel createProductModel)
         {
-            var context = ApplicationContext.Create(Guid.Parse(User.Identity.Name));
-            var result = await _productManagementService.CreateProduct(createProductModel.Title, createProductModel.Category, createProductModel.Price, createProductModel.Description, context).ConfigureAwait(false);
+            var result = await _productManagementService.CreateProduct(createProductModel.Title, createProductModel.Category, createProductModel.Price, createProductModel.Description, ApplicationContext).ConfigureAwait(false);
             if (!result.Success)
                 return BadRequest(result.FailureReason);
 
