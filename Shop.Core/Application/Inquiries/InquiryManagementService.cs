@@ -35,23 +35,6 @@ namespace Tranquiliza.Shop.Core.Application
             return Result<Inquiry>.Succeeded(inquiry);
         }
 
-        public async Task<Result<Inquiry>> AddProductsToInquiry(Guid inquiryId, Dictionary<Guid, int> productAmounts, IApplicationContext context)
-        {
-            var inquiry = await _inquiryRepository.GetInquiry(inquiryId).ConfigureAwait(false);
-            if (inquiry == null)
-                return Result<Inquiry>.Failure("Inquiry not found");
-
-            if (!context.HasAccessTo(inquiry))
-                return Result<Inquiry>.Failure("User does not have access to this inquiry");
-
-            foreach (var productAmount in productAmounts)
-                await FetchAndAddProductToInquiry(inquiry, productAmount.Key, productAmount.Value).ConfigureAwait(false);
-
-            await _inquiryRepository.Save(inquiry).ConfigureAwait(false);
-
-            return Result<Inquiry>.Succeeded(inquiry);
-        }
-
         public async Task<Result<Inquiry>> AddCustomerToInquiry(
             Guid inquiryId,
             string email,
@@ -90,17 +73,15 @@ namespace Tranquiliza.Shop.Core.Application
             if (!context.HasAccessTo(inquiry))
                 return Result<Inquiry>.Failure("User does not have access to this inquiry");
 
-            await FetchAndAddProductToInquiry(inquiry, productId, amount).ConfigureAwait(false);
+            var product = await _productRepository.Get(productId).ConfigureAwait(false);
+            if (product == null)
+                return Result<Inquiry>.Failure("Product not found");
+
+            inquiry.AddProduct(product, amount);
+
             await _inquiryRepository.Save(inquiry).ConfigureAwait(false);
 
             return Result<Inquiry>.Succeeded(inquiry);
-        }
-
-        private async Task FetchAndAddProductToInquiry(Inquiry inquiry, Guid productId, int amount)
-        {
-            var product = await _productRepository.Get(productId).ConfigureAwait(false);
-
-            inquiry.AddProduct(product, amount);
         }
 
         public async Task<Inquiry> GetInquiry(Guid inquiryId, IApplicationContext context)

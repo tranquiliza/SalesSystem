@@ -65,9 +65,6 @@ namespace Tranquiliza.Shop.Core.Model
             if (UserId == default && CustomerInformation.UserId != default)
             {
                 UserId = customerInformation.UserId;
-
-                // Throw event that user has been assigned to this Inquiry. ??
-                //AddEvent();
             }
         }
 

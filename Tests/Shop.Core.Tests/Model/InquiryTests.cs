@@ -14,10 +14,11 @@ namespace Tranquiliza.Shop.Core.Tests.Model
         {
             // arrange
             var owner = Guid.NewGuid();
+            var clientId = Guid.NewGuid();
             var product = Product.Create("Test Name", "TestCategory", 100, null);
 
             // act            
-            var sut = Inquiry.Create(product, owner);
+            var sut = Inquiry.Create(product, owner, clientId);
 
             // assert
             Assert.AreEqual(expected: 1, sut.OrderLines.Count);
@@ -29,8 +30,9 @@ namespace Tranquiliza.Shop.Core.Tests.Model
         {
             // arrange
             var owner = Guid.NewGuid();
+            var clientId = Guid.NewGuid();
             var product = Product.Create("Test Name", "TestCategory", 100, null);
-            var sut = Inquiry.Create(product, owner);
+            var sut = Inquiry.Create(product, owner, clientId);
 
             // act            
             sut.AddProduct(product);
@@ -46,9 +48,10 @@ namespace Tranquiliza.Shop.Core.Tests.Model
         {
             // arrange
             var owner = Guid.NewGuid();
+            var clientId = Guid.NewGuid();
             var product = Product.Create("Test Name", "TestCategory", 100, null);
-            var sut = Inquiry.Create(product, owner);
-            var customer = CustomerInformation.Create("tranq@twitch.tv");
+            var sut = Inquiry.Create(product, owner, clientId);
+            var customer = CustomerInformation.Create("tranq@twitch.tv", "tranq", "uiliza", "twitch", "0011223344");
 
             // act
             sut.SetCustomerInformation(customer);
@@ -63,8 +66,9 @@ namespace Tranquiliza.Shop.Core.Tests.Model
         {
             // arrange
             var owner = Guid.NewGuid();
+            var clientId = Guid.NewGuid();
             var product = Product.Create("Product One", "TestCategory", 100, null);
-            var sut = Inquiry.Create(product, owner);
+            var sut = Inquiry.Create(product, owner, clientId);
             sut.AddProduct(product, 7);
 
             var productExpensive = Product.Create("My expensive product!", "TestCategory", 200000, null);
