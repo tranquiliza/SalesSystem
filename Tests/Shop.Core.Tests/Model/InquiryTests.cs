@@ -13,10 +13,11 @@ namespace Tranquiliza.Shop.Core.Tests.Model
         public void ShouldAddNewOrderLine_WhenItemDoesNotExist()
         {
             // arrange
+            var owner = Guid.NewGuid();
             var product = Product.Create("Test Name", "TestCategory", 100, null);
 
             // act            
-            var sut = Inquiry.Create(product);
+            var sut = Inquiry.Create(product, owner);
 
             // assert
             Assert.AreEqual(expected: 1, sut.OrderLines.Count);
@@ -27,8 +28,9 @@ namespace Tranquiliza.Shop.Core.Tests.Model
         public void ShouldReplaceOrderLine_WhenItemDoesExist_IncrementByOne()
         {
             // arrange
+            var owner = Guid.NewGuid();
             var product = Product.Create("Test Name", "TestCategory", 100, null);
-            var sut = Inquiry.Create(product);
+            var sut = Inquiry.Create(product, owner);
 
             // act            
             sut.AddProduct(product);
@@ -43,24 +45,26 @@ namespace Tranquiliza.Shop.Core.Tests.Model
         public void ShouldDesignateCustomer()
         {
             // arrange
+            var owner = Guid.NewGuid();
             var product = Product.Create("Test Name", "TestCategory", 100, null);
-            var sut = Inquiry.Create(product);
-            var customer = Customer.Create("tranq@twitch.tv");
+            var sut = Inquiry.Create(product, owner);
+            var customer = CustomerInformation.Create("tranq@twitch.tv");
 
             // act
-            sut.DesignateCustomer(customer);
+            sut.SetCustomerInformation(customer);
 
             // assert
             Assert.IsNotNull(sut);
-            Assert.AreEqual(expected: "tranq@twitch.tv", actual: sut.Customer.Email);
+            Assert.AreEqual(expected: "tranq@twitch.tv", actual: sut.CustomerInformation.Email);
         }
 
         [TestMethod]
         public void ShouldReturnTheTotalOfTheOrder()
         {
             // arrange
+            var owner = Guid.NewGuid();
             var product = Product.Create("Product One", "TestCategory", 100, null);
-            var sut = Inquiry.Create(product);
+            var sut = Inquiry.Create(product, owner);
             sut.AddProduct(product, 7);
 
             var productExpensive = Product.Create("My expensive product!", "TestCategory", 200000, null);

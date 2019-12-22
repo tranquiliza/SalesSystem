@@ -6,8 +6,8 @@ namespace Tranquiliza.Shop.Core.Application
 {
     public interface ICustomerRepository
     {
-        Task<Customer> GetCustomer(Guid customerId);
-        Task<Customer> GetCustomer(string emailAddress);
-        Task Save(Customer customer);
+        Task<CustomerInformation> GetCustomer(Guid customerId);
+        Task<CustomerInformation> GetCustomer(string emailAddress);
+        Task Save(CustomerInformation customer);
     }
 }

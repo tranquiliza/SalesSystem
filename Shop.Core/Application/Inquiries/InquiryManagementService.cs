@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
+using Tranquiliza.Shop.Core.Extensions;
 using Tranquiliza.Shop.Core.Model;
 
 namespace Tranquiliza.Shop.Core.Application
@@ -22,52 +23,77 @@ namespace Tranquiliza.Shop.Core.Application
             _customerRepository = customerRepository;
         }
 
-        public async Task<Guid> CreateInquiry(Guid productId)
+        public async Task<Result<Inquiry>> CreateInquiry(Guid productId, IApplicationContext context)
         {
             var product = await _productRepository.Get(productId).ConfigureAwait(false);
+            if (product == null)
+                return Result<Inquiry>.Failure("Product was not found");
 
-            var inquiry = Inquiry.Create(product);
+            var inquiry = Inquiry.Create(product, context.UserId, context.ClientId);
             await _inquiryRepository.Save(inquiry).ConfigureAwait(false);
 
-            return inquiry.Id;
+            return Result<Inquiry>.Succeeded(inquiry);
         }
 
-        public async Task AddProductsToInquiry(Guid inquiryId, Dictionary<Guid, int> productAmounts)
+        public async Task<Result<Inquiry>> AddProductsToInquiry(Guid inquiryId, Dictionary<Guid, int> productAmounts, IApplicationContext context)
         {
             var inquiry = await _inquiryRepository.GetInquiry(inquiryId).ConfigureAwait(false);
+            if (inquiry == null)
+                return Result<Inquiry>.Failure("Inquiry not found");
+
+            if (!context.HasAccessTo(inquiry))
+                return Result<Inquiry>.Failure("User does not have access to this inquiry");
 
             foreach (var productAmount in productAmounts)
                 await FetchAndAddProductToInquiry(inquiry, productAmount.Key, productAmount.Value).ConfigureAwait(false);
 
             await _inquiryRepository.Save(inquiry).ConfigureAwait(false);
+
+            return Result<Inquiry>.Succeeded(inquiry);
         }
 
-        public async Task AddCustomerToInquiry(Guid inquiryId, string emailAddress)
+        public async Task<Result<Inquiry>> AddCustomerToInquiry(
+            Guid inquiryId,
+            string email,
+            string firstName,
+            string surname,
+            string address,
+            string phoneNumber,
+            IApplicationContext context)
         {
-            var customer = await _customerRepository.GetCustomer(emailAddress).ConfigureAwait(false);
-            if (customer == null)
+            var customerInformation = await _customerRepository.GetCustomer(email).ConfigureAwait(false);
+            if (customerInformation == null)
             {
-                customer = Customer.Create(emailAddress);
-                await _customerRepository.Save(customer).ConfigureAwait(false);
+                customerInformation = CustomerInformation.Create(email, firstName, surname, address, phoneNumber, context.UserId);
+                await _customerRepository.Save(customerInformation).ConfigureAwait(false);
             }
 
             var inquiry = await _inquiryRepository.GetInquiry(inquiryId).ConfigureAwait(false);
             if (inquiry == null)
-            {
-                throw new NotImplementedException();
-            }
-            
-            inquiry.DesignateCustomer(customer);
+                return Result<Inquiry>.Failure("Unable to find Inquiry");
+
+            if (!context.HasAccessTo(inquiry))
+                return Result<Inquiry>.Failure("User does not have access to this inquiry");
+
+            inquiry.SetCustomerInformation(customerInformation);
             await _inquiryRepository.Save(inquiry).ConfigureAwait(false);
+
+            return Result<Inquiry>.Succeeded(inquiry);
         }
 
-        public async Task AddProductToInquiry(Guid inquiryId, Guid productId, int amount)
+        public async Task<Result<Inquiry>> AddProductToInquiry(Guid inquiryId, Guid productId, int amount, IApplicationContext context)
         {
             var inquiry = await _inquiryRepository.GetInquiry(inquiryId).ConfigureAwait(false);
+            if (inquiry == null)
+                return Result<Inquiry>.Failure("Unable to find inquiry");
+
+            if (!context.HasAccessTo(inquiry))
+                return Result<Inquiry>.Failure("User does not have access to this inquiry");
 
             await FetchAndAddProductToInquiry(inquiry, productId, amount).ConfigureAwait(false);
-
             await _inquiryRepository.Save(inquiry).ConfigureAwait(false);
+
+            return Result<Inquiry>.Succeeded(inquiry);
         }
 
         private async Task FetchAndAddProductToInquiry(Inquiry inquiry, Guid productId, int amount)
@@ -77,10 +103,13 @@ namespace Tranquiliza.Shop.Core.Application
             inquiry.AddProduct(product, amount);
         }
 
-        public async Task<Inquiry> GetInquiry(Guid inquiryId)
+        public async Task<Inquiry> GetInquiry(Guid inquiryId, IApplicationContext context)
         {
-            // TODO Check if context is actually allowed to do this.
-            return await _inquiryRepository.GetInquiry(inquiryId).ConfigureAwait(false);
+            var inquiry = await _inquiryRepository.GetInquiry(inquiryId).ConfigureAwait(false);
+            if (!context.HasAccessTo(inquiry))
+                return null;
+
+            return inquiry;
         }
     }
 }

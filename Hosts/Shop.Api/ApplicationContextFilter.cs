@@ -15,8 +15,13 @@ namespace Tranquiliza.Shop.Api
 
         public void OnActionExecuting(ActionExecutingContext context)
         {
-            if (context.Controller is BaseController controller && Guid.TryParse(context.HttpContext?.User?.Identity?.Name, out var userId))
-                controller.ApplicationContext = ApplicationContext.Create(userId);
+            if (context.Controller is BaseController controller)
+            {
+                if (Guid.TryParse(context.HttpContext?.User?.Identity?.Name, out var userId))
+                    controller.ApplicationContext = ApplicationContext.Create(userId);
+                else if (context.HttpContext.Request.Headers.TryGetValue("clientId", out var value) && Guid.TryParse(value.FirstOrDefault(), out var clientId))
+                    controller.ApplicationContext = ApplicationContext.CreateAnonymous(clientId);
+            }
         }
     }
 }
