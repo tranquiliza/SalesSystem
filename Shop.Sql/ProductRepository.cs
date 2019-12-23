@@ -13,10 +13,10 @@ namespace Tranquiliza.Shop.Sql
 {
     public class ProductRepository : IProductRepository
     {
-        private readonly ILogger _log;
+        private readonly IApplicationLogger _log;
         private readonly ISqlAccess _sql;
 
-        public ProductRepository(IConnectionStringProvider connectionStringProvider, ILogger log)
+        public ProductRepository(IConnectionStringProvider connectionStringProvider, IApplicationLogger log)
         {
             _sql = SqlAccessBase.Create(connectionStringProvider.ConnectionString);
             _log = log;

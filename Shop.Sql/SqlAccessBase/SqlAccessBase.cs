@@ -15,7 +15,7 @@ namespace Tranquiliza.Shop.Sql
 
         protected SqlAccessBase(string connectionString)
         {
-            this._connectionString = connectionString;
+            _connectionString = connectionString;
         }
 
         public ISqlCommandWrapper CreateStoredProcedure(string sql)

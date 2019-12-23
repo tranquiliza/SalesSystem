@@ -14,6 +14,7 @@ namespace Tranquiliza.Shop.Core.Model
         [JsonProperty]
         public Guid UserId { get; private set; }
 
+        [JsonProperty]
         public Guid CreatedByClient { get; private set; }
 
         [JsonProperty]

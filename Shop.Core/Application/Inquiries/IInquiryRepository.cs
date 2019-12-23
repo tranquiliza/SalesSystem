@@ -7,6 +7,7 @@ namespace Tranquiliza.Shop.Core.Application
     public interface IInquiryRepository
     {
         Task Save(Inquiry inquiry);
-        Task<Inquiry> GetInquiry(Guid inquiryId);
+        Task<Inquiry> Get(Guid inquiryId);
+        Task<Inquiry> GetLatestInquiryFromClient(Guid clientId);
     }
 }

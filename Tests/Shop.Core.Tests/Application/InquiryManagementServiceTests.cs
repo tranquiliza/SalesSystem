@@ -138,7 +138,7 @@ namespace Tranquiliza.Shop.Core.Tests.Application
 
             var inquiry = Inquiry.Create(testProduct, userId, clientId);
             var inquiryRepository = new Mock<IInquiryRepository>();
-            inquiryRepository.Setup(x => x.GetInquiry(It.IsAny<Guid>()))
+            inquiryRepository.Setup(x => x.Get(It.IsAny<Guid>()))
                 .ReturnsAsync(inquiry);
 
             var sut = new InquiryManagementServiceFactory()
@@ -179,7 +179,7 @@ namespace Tranquiliza.Shop.Core.Tests.Application
 
             var inquiry = Inquiry.Create(testProduct, userId, clientId);
             var inquiryRepository = new Mock<IInquiryRepository>();
-            inquiryRepository.Setup(x => x.GetInquiry(It.IsAny<Guid>()))
+            inquiryRepository.Setup(x => x.Get(It.IsAny<Guid>()))
                 .ReturnsAsync(inquiry);
 
             var sut = new InquiryManagementServiceFactory()
@@ -213,7 +213,7 @@ namespace Tranquiliza.Shop.Core.Tests.Application
 
             var inquiry = Inquiry.Create(testProduct, userId, clientId);
             var inquiryRepository = new Mock<IInquiryRepository>();
-            inquiryRepository.Setup(x => x.GetInquiry(It.IsAny<Guid>()))
+            inquiryRepository.Setup(x => x.Get(It.IsAny<Guid>()))
                 .ReturnsAsync(inquiry);
 
             var sut = new InquiryManagementServiceFactory()
@@ -249,7 +249,7 @@ namespace Tranquiliza.Shop.Core.Tests.Application
             var productRepository = new Mock<IProductRepository>();
             var customerRepository = new Mock<ICustomerRepository>();
             var inquiryRepository = new Mock<IInquiryRepository>();
-            inquiryRepository.Setup(x => x.GetInquiry(inquiry.Id))
+            inquiryRepository.Setup(x => x.Get(inquiry.Id))
                 .ReturnsAsync(inquiry);
 
             var sut = new InquiryManagementServiceFactory()
@@ -301,7 +301,7 @@ namespace Tranquiliza.Shop.Core.Tests.Application
             var productRepository = new Mock<IProductRepository>();
             var customerRepository = new Mock<ICustomerRepository>();
             var inquiryRepository = new Mock<IInquiryRepository>();
-            inquiryRepository.Setup(x => x.GetInquiry(inquiry.Id))
+            inquiryRepository.Setup(x => x.Get(inquiry.Id))
                 .ReturnsAsync(inquiry);
 
             var sut = new InquiryManagementServiceFactory()

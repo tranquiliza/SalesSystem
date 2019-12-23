@@ -12,7 +12,7 @@ namespace Tranquiliza.Shop.FileSystem
     {
         private readonly string _imageStoragePath;
 
-        public ImageRepository(IConfigurationProvider configurationProvider)
+        public ImageRepository(IApplicationConfigurationProvider configurationProvider)
         {
             _imageStoragePath = configurationProvider.ImageStoragePath;
         }

@@ -13,11 +13,11 @@ namespace Tranquiliza.Shop.Sql
     public class EventRepository : IEventRepository
     {
         private readonly IDateTimeProvider _dateTimeProvider;
-        private readonly ILogger _log;
+        private readonly IApplicationLogger _log;
 
         private readonly ISqlAccess _sql;
 
-        public EventRepository(IConnectionStringProvider connectionStringProvider, IDateTimeProvider dateTimeProvider, ILogger log)
+        public EventRepository(IConnectionStringProvider connectionStringProvider, IDateTimeProvider dateTimeProvider, IApplicationLogger log)
         {
             _dateTimeProvider = dateTimeProvider;
             _log = log;

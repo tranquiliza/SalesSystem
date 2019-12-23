@@ -51,7 +51,7 @@ namespace Tranquiliza.Shop.Core.Application
                 await _customerRepository.Save(customerInformation).ConfigureAwait(false);
             }
 
-            var inquiry = await _inquiryRepository.GetInquiry(inquiryId).ConfigureAwait(false);
+            var inquiry = await _inquiryRepository.Get(inquiryId).ConfigureAwait(false);
             if (inquiry == null)
                 return Result<Inquiry>.Failure("Unable to find Inquiry");
 
@@ -66,7 +66,7 @@ namespace Tranquiliza.Shop.Core.Application
 
         public async Task<Result<Inquiry>> AddProductToInquiry(Guid inquiryId, Guid productId, int amount, IApplicationContext context)
         {
-            var inquiry = await _inquiryRepository.GetInquiry(inquiryId).ConfigureAwait(false);
+            var inquiry = await _inquiryRepository.Get(inquiryId).ConfigureAwait(false);
             if (inquiry == null)
                 return Result<Inquiry>.Failure("Unable to find inquiry");
 
@@ -78,19 +78,27 @@ namespace Tranquiliza.Shop.Core.Application
                 return Result<Inquiry>.Failure("Product not found");
 
             inquiry.AddProduct(product, amount);
-
             await _inquiryRepository.Save(inquiry).ConfigureAwait(false);
 
             return Result<Inquiry>.Succeeded(inquiry);
         }
 
-        public async Task<Inquiry> GetInquiry(Guid inquiryId, IApplicationContext context)
+        public async Task<Result<Inquiry>> Get(IApplicationContext context)
         {
-            var inquiry = await _inquiryRepository.GetInquiry(inquiryId).ConfigureAwait(false);
-            if (!context.HasAccessTo(inquiry))
-                return null;
+            var inquiry = await _inquiryRepository.GetLatestInquiryFromClient(context.ClientId).ConfigureAwait(false);
+            if (inquiry == null)
+                return Result<Inquiry>.Failure("No inquiry found");
 
-            return inquiry;
+            return Result<Inquiry>.Succeeded(inquiry);
+        }
+
+        public async Task<Result<Inquiry>> Get(Guid inquiryId, IApplicationContext context)
+        {
+            var inquiry = await _inquiryRepository.Get(inquiryId).ConfigureAwait(false);
+            if (!context.HasAccessTo(inquiry))
+                return Result<Inquiry>.Failure("User does not have access to this inquiry");
+
+            return Result<Inquiry>.Succeeded(inquiry);
         }
     }
 }

@@ -34,9 +34,7 @@ namespace Tranquiliza.Shop.Core.Application
             {
                 var computedHash = hmac.ComputeHash(Encoding.UTF8.GetBytes(password));
                 for (int i = 0; i < computedHash.Length; i++)
-                {
                     if (computedHash[i] != storedHash[i]) return false;
-                }
             }
 
             return true;

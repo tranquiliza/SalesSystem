@@ -11,9 +11,9 @@ namespace Tranquiliza.Shop.Core.Application
     {
         private readonly IEventRepository _eventRepository;
         private readonly IMediator _mediator;
-        private readonly ILogger _log;
+        private readonly IApplicationLogger _log;
 
-        public DefaultEventDispatcher(IEventRepository eventRepository, IMediator mediator, ILogger log)
+        public DefaultEventDispatcher(IEventRepository eventRepository, IMediator mediator, IApplicationLogger log)
         {
             _eventRepository = eventRepository;
             _mediator = mediator;

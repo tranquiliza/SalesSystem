@@ -3,10 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
+using Tranquiliza.Shop.Core;
 
 namespace Tranquiliza.Shop.Api
 {
-    public class ConfigurationProvider : Core.IConfigurationProvider
+    public class ConfigurationProvider : IApplicationConfigurationProvider
     {
         public string SecurityKey { get; private set; }
         public string SmtpEndpointAddress { get; private set; }
@@ -14,6 +15,7 @@ namespace Tranquiliza.Shop.Api
         public string SmtpPassword { get; private set; }
         public string HostName { get; private set; }
         public string ImageStoragePath { get; private set; }
+        public string SeqLoggingAddress { get; private set; }
 
         public static ConfigurationProvider CreateFromConfig(IConfiguration configuration)
         {
@@ -24,7 +26,8 @@ namespace Tranquiliza.Shop.Api
                 SmtpAccountName = configuration.GetValue<string>("SmtpAccountName"),
                 SmtpPassword = configuration.GetValue<string>("SmtpPassword"),
                 HostName = configuration.GetValue<string>("HostName"),
-                ImageStoragePath = configuration.GetValue<string>("ImageStoragePath")
+                ImageStoragePath = configuration.GetValue<string>("ImageStoragePath"),
+                SeqLoggingAddress = configuration.GetValue<string>("SeqLogAddress")
             };
         }
     }

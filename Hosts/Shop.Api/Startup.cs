@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -13,7 +12,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.IdentityModel.Tokens;
-using Scrutor;
+using Serilog;
 using Tranquiliza.Shop.Core;
 using Tranquiliza.Shop.Core.Application;
 using Tranquiliza.Shop.Core.Model;
@@ -23,7 +22,7 @@ using Tranquiliza.Shop.Sql;
 
 namespace Tranquiliza.Shop.Api
 {
-    public class Startup
+    public partial class Startup
     {
         public Startup(IConfiguration configuration)
         {
@@ -64,10 +63,21 @@ namespace Tranquiliza.Shop.Api
 
             services.AddMvc(options => options.Filters.Add(typeof(ApplicationContextFilter)));
 
-            ConfigureDependencyInjection(services, config, connectionStringProvider);
+            var seriLogger = new LoggerConfiguration()
+                .WriteTo.Console()
+                .WriteTo.Seq(config.SeqLoggingAddress)
+                .CreateLogger();
+
+            var logger = new LogBridge(seriLogger);
+
+            ConfigureDependencyInjection(services, config, connectionStringProvider, logger);
         }
 
-        private void ConfigureDependencyInjection(IServiceCollection services, Core.IConfigurationProvider configurationProvider, IConnectionStringProvider connectionStringProvider)
+        private void ConfigureDependencyInjection(
+            IServiceCollection services,
+            IApplicationConfigurationProvider configurationProvider,
+            IConnectionStringProvider connectionStringProvider,
+            IApplicationLogger log)
         {
             services.AddTransient<IUserService, UserService>();
 
@@ -78,7 +88,7 @@ namespace Tranquiliza.Shop.Api
             services.AddSingleton<ISecurity, PasswordSecurity>();
             services.AddSingleton<IDateTimeProvider, DefaultDateTimeProvider>();
             services.AddSingleton<IEventDispatcher, DefaultEventDispatcher>();
-            services.AddSingleton<ILogger, DebugLogger>();
+            services.AddSingleton(log);
             services.AddSingleton<IMessageSender, DefaultMessageSender>();
             services.AddSingleton<IProductManagementService, ProductManagementService>();
             services.AddSingleton<IProductRepository, ProductRepository>();
