@@ -34,11 +34,6 @@
 
     public IEnumerable<ProductModel> products;
 
-    protected override async Task OnInitializedAsync()
-    {
-        products = await Http.GetJsonAsync<IEnumerable<ProductModel>>(config.ApiBaseAddress + "products/");
-    }
-
     protected override async Task OnParametersSetAsync()
     {
         products = await Http.GetJsonAsync<IEnumerable<ProductModel>>(config.ApiBaseAddress + "products?category=" + ProductCategory);

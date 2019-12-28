@@ -10,5 +10,6 @@ namespace Tranquiliza.Shop.Api.Controllers
     public class BaseController : ControllerBase
     {
         public IApplicationContext ApplicationContext { get; set; }
+        public IRequestInformation RequestInformation { get; set; }
     }
 }

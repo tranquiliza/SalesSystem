@@ -78,7 +78,7 @@ namespace Tranquiliza.Shop.Core.Tests.Model
             var result = sut.GetTotal();
 
             // assert
-            Assert.AreEqual(expected: 200800, actual: result);
+            Assert.AreEqual(expected: 2008, actual: result);
         }
     }
 }

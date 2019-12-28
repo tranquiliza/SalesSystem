@@ -22,11 +22,15 @@ namespace Tranquiliza.Shop.Core.Tests.Application
 
             public bool IsAnonymous { get; private set; }
 
+            public User User { get; private set; }
+
             public TestContext(Guid userId, Guid clientId, bool isAnonymous)
             {
                 UserId = userId;
                 ClientId = clientId;
                 IsAnonymous = isAnonymous;
+                if (!IsAnonymous)
+                    User = User.CreateUserForTest("Test@Example.com", userId);
             }
         }
 
@@ -314,7 +318,7 @@ namespace Tranquiliza.Shop.Core.Tests.Application
             var result = await sut.AddCustomerToInquiry(inquiry.Id, email, firstName, surName, address, phoneNumber, applicationContext).ConfigureAwait(false);
 
             // assert
-            Assert.IsTrue(result.Success);
+            Assert.IsTrue(result.Success, message: result.FailureReason);
 
             customerRepository.Verify(x => x.Save(It.Is<CustomerInformation>(y =>
                 y.Email == email

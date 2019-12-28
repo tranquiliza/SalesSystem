@@ -99,5 +99,11 @@ namespace Tranquiliza.Shop.Core.Model
         }
 
         internal static User CreateNewUser(string email, byte[] passwordHash, byte[] passwordSalt) => new User(email, passwordHash, passwordSalt);
+
+        public static User CreateUserForTest(string email, Guid userId)
+            => new User(email, null, null)
+            {
+                Id = userId
+            };
     }
 }

@@ -44,19 +44,33 @@ namespace Tranquiliza.Shop.Core.Application
             string phoneNumber,
             IApplicationContext context)
         {
-            var customerInformation = await _customerRepository.GetCustomer(email).ConfigureAwait(false);
-            if (customerInformation == null)
-            {
-                customerInformation = CustomerInformation.Create(email, firstName, surname, address, phoneNumber, context.UserId);
-                await _customerRepository.Save(customerInformation).ConfigureAwait(false);
-            }
-
             var inquiry = await _inquiryRepository.Get(inquiryId).ConfigureAwait(false);
             if (inquiry == null)
                 return Result<Inquiry>.Failure("Unable to find Inquiry");
 
             if (!context.HasAccessTo(inquiry))
                 return Result<Inquiry>.Failure("User does not have access to this inquiry");
+
+            CustomerInformation customerInformation;
+            if (context.IsAnonymous)
+                customerInformation = await _customerRepository.GetCustomer(email).ConfigureAwait(false);
+            else
+            {
+                customerInformation = await _customerRepository.GetCustomer(context.UserId).ConfigureAwait(false)
+                    ?? await _customerRepository.GetCustomer(email).ConfigureAwait(false);
+            }
+
+            if (customerInformation == null)
+            {
+                customerInformation = CustomerInformation.Create(email, firstName, surname, address, phoneNumber, context.UserId);
+                await _customerRepository.Save(customerInformation).ConfigureAwait(false);
+            }
+
+            if (!context.HasAccessTo(customerInformation))
+                return Result<Inquiry>.Failure("User does not have access to this customer's information");
+
+            if (customerInformation.TryUpdate(email, firstName, surname, address, phoneNumber, context))
+                await _customerRepository.Save(customerInformation).ConfigureAwait(false);
 
             inquiry.SetCustomerInformation(customerInformation);
             await _inquiryRepository.Save(inquiry).ConfigureAwait(false);

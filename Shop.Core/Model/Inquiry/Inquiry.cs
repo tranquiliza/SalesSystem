@@ -69,6 +69,6 @@ namespace Tranquiliza.Shop.Core.Model
             }
         }
 
-        public int GetTotal() => OrderLines.Sum(x => x.Amount * x.Item.Price);
+        public double GetTotal() => OrderLines.Sum(x => x.LineTotal());
     }
 }

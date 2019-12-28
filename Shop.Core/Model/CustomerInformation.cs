@@ -46,5 +46,44 @@ namespace Tranquiliza.Shop.Core.Model
         {
             return new CustomerInformation(email, firstName, surname, address, phoneNumber, userId);
         }
+
+        public bool TryUpdate(string email, string firstName, string surname, string address, string phoneNumber, IApplicationContext context)
+        {
+            if (string.Equals(email, Email, StringComparison.OrdinalIgnoreCase)
+                && string.Equals(FirstName, firstName, StringComparison.OrdinalIgnoreCase)
+                && string.Equals(Surname, surname, StringComparison.OrdinalIgnoreCase)
+                && string.Equals(Address, address, StringComparison.OrdinalIgnoreCase)
+                && string.Equals(PhoneNumber, phoneNumber, StringComparison.OrdinalIgnoreCase))
+            {
+                if (UserId == default && !context.IsAnonymous)
+                {
+                    UserId = context.UserId;
+                    return true;
+                }
+
+                return false;
+            }
+
+            if (context.IsAnonymous)
+            {
+                FirstName = firstName;
+                Surname = surname;
+                Address = address;
+                PhoneNumber = phoneNumber;
+
+                return true;
+            }
+
+            if (UserId == default)
+                UserId = context.UserId;
+
+            Email = email;
+            FirstName = firstName;
+            Surname = surname;
+            Address = address;
+            PhoneNumber = phoneNumber;
+
+            return true;
+        }
     }
 }

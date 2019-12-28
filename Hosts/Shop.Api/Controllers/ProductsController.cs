@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -33,7 +32,7 @@ namespace Tranquiliza.Shop.Api.Controllers
             if (!result.Success)
                 return BadRequest(result.FailureReason);
 
-            return Ok(result.Data.Select(x => x.Map(Request.Scheme, Request.Host.Value)));
+            return Ok(result.Data.Select(x => x.Map(RequestInformation)));
         }
 
         [HttpGet("{productId}")]
@@ -47,7 +46,7 @@ namespace Tranquiliza.Shop.Api.Controllers
             if (!result.Success)
                 return BadRequest(result.FailureReason);
 
-            return Ok(result.Data.Map(Request.Scheme, Request.Host.Value));
+            return Ok(result.Data.Map(RequestInformation));
         }
 
         [HttpGet("categories")]
@@ -81,7 +80,7 @@ namespace Tranquiliza.Shop.Api.Controllers
             if (!result.Success)
                 return BadRequest(result.FailureReason);
 
-            return Ok(result.Data.Map(Request.Scheme, Request.Host.Value));
+            return Ok(result.Data.Map(RequestInformation));
         }
     }
 }

@@ -7,6 +7,12 @@ namespace Tranquiliza.Shop.Core.Extensions
 {
     public static class ApplicationContextExtensions
     {
-        public static bool HasAccessTo(this IApplicationContext context, Inquiry inquiry) => (context.UserId != default && inquiry.UserId == context.UserId) || inquiry.CreatedByClient == context.ClientId;
+        public static bool HasAccessTo(this IApplicationContext context, Inquiry inquiry)
+            => (context.User != null && inquiry.UserId == context.User.Id) || inquiry.CreatedByClient == context.ClientId;
+
+        // TODO: Refactor IApplicationContext to have user instead of just UserId.
+        public static bool HasAccessTo(this IApplicationContext context, CustomerInformation customerInformation)
+            => context.User?.Id == customerInformation.UserId
+            || (customerInformation.UserId == default && !context.IsAnonymous);
     }
 }

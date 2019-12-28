@@ -4,16 +4,20 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Tranquiliza.Shop.Api.Controllers;
+using Tranquiliza.Shop.Core.Application;
 
 namespace Tranquiliza.Shop.Api
 {
-    public class ApplicationContextFilter : IActionFilter
+    public class ApplicationContextFilter : IAsyncActionFilter
     {
-        public void OnActionExecuted(ActionExecutedContext context)
+        private readonly IUserRepository _userRepository;
+
+        public ApplicationContextFilter(IUserRepository userRepository)
         {
+            _userRepository = userRepository;
         }
 
-        public void OnActionExecuting(ActionExecutingContext context)
+        public async Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)
         {
             if (context.Controller is BaseController controller)
             {
@@ -22,10 +26,17 @@ namespace Tranquiliza.Shop.Api
                     Guid.TryParse(value.FirstOrDefault(), out clientId);
 
                 if (Guid.TryParse(context.HttpContext?.User?.Identity?.Name, out var userId))
-                    controller.ApplicationContext = ApplicationContext.Create(userId, clientId);
+                {
+                    var user = await _userRepository.Get(userId).ConfigureAwait(false);
+                    controller.ApplicationContext = ApplicationContext.Create(user, clientId);
+                }
                 else
+                {
                     controller.ApplicationContext = ApplicationContext.CreateAnonymous(clientId);
+                }
             }
+
+            await next.Invoke();
         }
     }
 }

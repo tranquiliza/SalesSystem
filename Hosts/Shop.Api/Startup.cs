@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -31,7 +32,6 @@ namespace Tranquiliza.Shop.Api
 
         public IConfiguration Configuration { get; }
 
-        // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddCors();
@@ -61,7 +61,11 @@ namespace Tranquiliza.Shop.Api
                 };
             });
 
-            services.AddMvc(options => options.Filters.Add(typeof(ApplicationContextFilter)));
+            services.AddMvc(options =>
+            {
+                options.Filters.Add(typeof(ApplicationContextFilter));
+                options.Filters.Add(typeof(RequestInformationFilter));
+            });
 
             var seriLogger = new LoggerConfiguration()
                 .WriteTo.Console()
@@ -79,23 +83,67 @@ namespace Tranquiliza.Shop.Api
             IConnectionStringProvider connectionStringProvider,
             IApplicationLogger log)
         {
-            services.AddTransient<IUserService, UserService>();
+            services.AddSingleton(log);
 
             services.AddMediatR(typeof(DomainEntityBase));
-
+            services.AddSingleton<IUserService, UserService>();
             services.AddSingleton<IUserRepository, UserRepository>();
             services.AddSingleton<IEventRepository, EventRepository>();
             services.AddSingleton<ISecurity, PasswordSecurity>();
             services.AddSingleton<IDateTimeProvider, DefaultDateTimeProvider>();
             services.AddSingleton<IEventDispatcher, DefaultEventDispatcher>();
-            services.AddSingleton(log);
             services.AddSingleton<IMessageSender, DefaultMessageSender>();
             services.AddSingleton<IProductManagementService, ProductManagementService>();
             services.AddSingleton<IProductRepository, ProductRepository>();
             services.AddSingleton<IImageRepository, ImageRepository>();
+            services.AddSingleton<IInquiryManagementService, InquiryManagementService>();
+            services.AddSingleton<IInquiryRepository, InquiryMockRepo>();
+            services.AddSingleton<ICustomerRepository, CustomerMockRepo>();
 
             services.AddSingleton(connectionStringProvider);
             services.AddSingleton(configurationProvider);
+        }
+
+        public class CustomerMockRepo : ICustomerRepository
+        {
+            private CustomerInformation CustomerInformation { get; set; }
+
+            public Task<CustomerInformation> GetCustomer(Guid customerId)
+            {
+                return Task.FromResult(CustomerInformation);
+            }
+
+            public Task<CustomerInformation> GetCustomer(string emailAddress)
+            {
+                return Task.FromResult(CustomerInformation);
+            }
+
+            public Task Save(CustomerInformation customer)
+            {
+                CustomerInformation = customer;
+                return Task.CompletedTask;
+            }
+        }
+
+        public class InquiryMockRepo : IInquiryRepository
+        {
+            private Inquiry Inquiry { get; set; }
+
+            public Task<Inquiry> Get(Guid inquiryId)
+            {
+                return Task.FromResult(Inquiry);
+            }
+
+            public Task<Inquiry> GetLatestInquiryFromClient(Guid clientId)
+            {
+                return Task.FromResult(Inquiry);
+            }
+
+            public Task Save(Inquiry inquiry)
+            {
+                Inquiry = inquiry;
+                return Task.CompletedTask;
+            }
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
