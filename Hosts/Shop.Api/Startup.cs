@@ -97,53 +97,11 @@ namespace Tranquiliza.Shop.Api
             services.AddSingleton<IProductRepository, ProductRepository>();
             services.AddSingleton<IImageRepository, ImageRepository>();
             services.AddSingleton<IInquiryManagementService, InquiryManagementService>();
-            services.AddSingleton<IInquiryRepository, InquiryMockRepo>();
-            services.AddSingleton<ICustomerRepository, CustomerMockRepo>();
+            services.AddSingleton<IInquiryRepository, InquiryRepository>();
+            services.AddSingleton<ICustomerInformationRepository, CustomerInformationRepository>();
 
             services.AddSingleton(connectionStringProvider);
             services.AddSingleton(configurationProvider);
-        }
-
-        public class CustomerMockRepo : ICustomerRepository
-        {
-            private CustomerInformation CustomerInformation { get; set; }
-
-            public Task<CustomerInformation> GetCustomer(Guid customerId)
-            {
-                return Task.FromResult(CustomerInformation);
-            }
-
-            public Task<CustomerInformation> GetCustomer(string emailAddress)
-            {
-                return Task.FromResult(CustomerInformation);
-            }
-
-            public Task Save(CustomerInformation customer)
-            {
-                CustomerInformation = customer;
-                return Task.CompletedTask;
-            }
-        }
-
-        public class InquiryMockRepo : IInquiryRepository
-        {
-            private Inquiry Inquiry { get; set; }
-
-            public Task<Inquiry> Get(Guid inquiryId)
-            {
-                return Task.FromResult(Inquiry);
-            }
-
-            public Task<Inquiry> GetLatestInquiryFromClient(Guid clientId)
-            {
-                return Task.FromResult(Inquiry);
-            }
-
-            public Task Save(Inquiry inquiry)
-            {
-                Inquiry = inquiry;
-                return Task.CompletedTask;
-            }
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)

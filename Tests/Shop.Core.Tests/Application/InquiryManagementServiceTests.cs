@@ -251,7 +251,7 @@ namespace Tranquiliza.Shop.Core.Tests.Application
             var applicationContext = new TestContext(userId, clientId, false);
 
             var productRepository = new Mock<IProductRepository>();
-            var customerRepository = new Mock<ICustomerRepository>();
+            var customerRepository = new Mock<ICustomerInformationRepository>();
             var inquiryRepository = new Mock<IInquiryRepository>();
             inquiryRepository.Setup(x => x.Get(inquiry.Id))
                 .ReturnsAsync(inquiry);
@@ -303,7 +303,7 @@ namespace Tranquiliza.Shop.Core.Tests.Application
             var applicationContext = new TestContext(userId, clientId, false);
 
             var productRepository = new Mock<IProductRepository>();
-            var customerRepository = new Mock<ICustomerRepository>();
+            var customerRepository = new Mock<ICustomerInformationRepository>();
             var inquiryRepository = new Mock<IInquiryRepository>();
             inquiryRepository.Setup(x => x.Get(inquiry.Id))
                 .ReturnsAsync(inquiry);

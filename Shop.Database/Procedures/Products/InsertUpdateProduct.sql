@@ -7,8 +7,8 @@
 	@data NVARCHAR(MAX)
 AS
 BEGIN
-	IF NOT EXISTS(SELECT * FROM Products WHERE [Guid] = @guid)
-		INSERT INTO Products([Guid], [Price], [IsActive], [Category], [Name], [Data])
+	IF NOT EXISTS(SELECT * FROM [Core].[Products] WHERE [Guid] = @guid)
+		INSERT INTO [Core].[Products]([Guid], [Price], [IsActive], [Category], [Name], [Data])
 		VALUES(@guid, @price, @isActive, @category, @name, @data)
 	ELSE
 	UPDATE [Core].[Products] SET 

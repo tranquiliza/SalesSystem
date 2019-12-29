@@ -4,7 +4,7 @@ using Tranquiliza.Shop.Core.Model;
 
 namespace Tranquiliza.Shop.Core.Application
 {
-    public interface ICustomerRepository
+    public interface ICustomerInformationRepository
     {
         Task<CustomerInformation> GetCustomer(Guid customerId);
         Task<CustomerInformation> GetCustomer(string emailAddress);

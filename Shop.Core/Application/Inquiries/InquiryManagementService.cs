@@ -11,12 +11,12 @@ namespace Tranquiliza.Shop.Core.Application
     {
         private readonly IInquiryRepository _inquiryRepository;
         private readonly IProductRepository _productRepository;
-        private readonly ICustomerRepository _customerRepository;
+        private readonly ICustomerInformationRepository _customerRepository;
 
         public InquiryManagementService(
             IInquiryRepository inquiryRepository,
             IProductRepository productRepository,
-            ICustomerRepository customerRepository)
+            ICustomerInformationRepository customerRepository)
         {
             _inquiryRepository = inquiryRepository;
             _productRepository = productRepository;

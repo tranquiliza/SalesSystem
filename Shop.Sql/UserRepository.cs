@@ -37,6 +37,7 @@ namespace Tranquiliza.Shop.Sql
             catch (Exception ex)
             {
                 _log.Warning("Unable to persist user", ex);
+                throw;
             }
         }
 
@@ -56,6 +57,7 @@ namespace Tranquiliza.Shop.Sql
             catch (Exception ex)
             {
                 _log.Warning("Unable to fetch user", ex);
+                throw;
             }
 
             return null;
@@ -68,13 +70,14 @@ namespace Tranquiliza.Shop.Sql
             try
             {
                 using var command = _sql.CreateQuery(DeleteStatement)
-                .WithParameter("guid", id);
+                    .WithParameter("guid", id);
 
                 await command.ExecuteNonQueryAsync().ConfigureAwait(false);
             }
             catch (Exception ex)
             {
                 _log.Warning("Unable to delete user", ex);
+                throw;
             }
         }
 
@@ -94,9 +97,9 @@ namespace Tranquiliza.Shop.Sql
             catch (Exception ex)
             {
                 _log.Warning("Unable to fetch user", ex);
+                throw;
             }
 
-            // TODO Figure out why we shouldn't do this.
             return null;
         }
 
@@ -117,9 +120,8 @@ namespace Tranquiliza.Shop.Sql
             catch (Exception ex)
             {
                 _log.Warning("Unable to fetch users", ex);
+                throw;
             }
-
-            return Enumerable.Empty<User>();
         }
     }
 }

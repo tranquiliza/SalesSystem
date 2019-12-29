@@ -9,7 +9,7 @@ namespace Tranquiliza.Shop.Core.Tests.Helpers
     {
         private IInquiryRepository _inquiryRepository;
         private IProductRepository _productRepository;
-        private ICustomerRepository _customerRepository;
+        private ICustomerInformationRepository _customerRepository;
 
         internal InquiryManagementService Build()
         {
@@ -28,7 +28,7 @@ namespace Tranquiliza.Shop.Core.Tests.Helpers
             return this;
         }
 
-        internal InquiryManagementServiceFactory With(ICustomerRepository customerRepository)
+        internal InquiryManagementServiceFactory With(ICustomerInformationRepository customerRepository)
         {
             _customerRepository = customerRepository;
             return this;

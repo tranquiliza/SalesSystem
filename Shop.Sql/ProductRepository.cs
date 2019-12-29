@@ -36,6 +36,7 @@ namespace Tranquiliza.Shop.Sql
             catch (Exception ex)
             {
                 _log.Warning("Unable to fetch product", ex);
+                throw;
             }
 
             return null;
@@ -57,9 +58,8 @@ namespace Tranquiliza.Shop.Sql
             catch (Exception ex)
             {
                 _log.Warning("Unable to fetch categories", ex);
+                throw;
             }
-
-            return Enumerable.Empty<string>();
         }
 
         public async Task<IEnumerable<Product>> GetProducts(string category)
@@ -85,9 +85,8 @@ namespace Tranquiliza.Shop.Sql
             catch (Exception ex)
             {
                 _log.Warning("Unable to fetch products", ex);
+                throw;
             }
-
-            return Enumerable.Empty<Product>();
         }
 
         public async Task<bool> Save(Product product)
@@ -108,9 +107,8 @@ namespace Tranquiliza.Shop.Sql
             catch (Exception ex)
             {
                 _log.Warning("Unable to save product", ex);
+                throw;
             }
-
-            return false;
         }
     }
 }

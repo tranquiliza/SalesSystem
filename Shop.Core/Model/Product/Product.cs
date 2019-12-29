@@ -6,7 +6,7 @@ using Tranquiliza.Shop.Core.Application;
 
 namespace Tranquiliza.Shop.Core.Model
 {
-    public class Product
+    public class Product : DomainEntityBase
     {
         [JsonProperty]
         public Guid Id { get; private set; }
@@ -24,6 +24,7 @@ namespace Tranquiliza.Shop.Core.Model
         [JsonProperty]
         public int Price { get; private set; }
 
+        [JsonIgnore]
         public double ActualPrice => Price / 100d;
 
         [JsonProperty]
