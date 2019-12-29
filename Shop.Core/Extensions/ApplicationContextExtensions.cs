@@ -11,7 +11,19 @@ namespace Tranquiliza.Shop.Core.Extensions
             => (context.User != null && inquiry.UserId == context.User.Id) || inquiry.CreatedByClient == context.ClientId;
 
         public static bool HasAccessTo(this IApplicationContext context, CustomerInformation customerInformation)
-            => context.User?.Id == customerInformation.UserId
-            || (customerInformation.UserId == default && !context.IsAnonymous);
+        {
+            if (context.IsAnonymous && customerInformation.UserId == default)
+                return true;
+
+            if (!context.IsAnonymous)
+            {
+                if (customerInformation.UserId != default && context.UserId == customerInformation.UserId)
+                    return true;
+                else if (customerInformation.UserId == default)
+                    return true;
+            }
+
+            return false;
+        }
     }
 }

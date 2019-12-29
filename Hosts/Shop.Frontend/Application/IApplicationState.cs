@@ -5,12 +5,9 @@ using System.Threading.Tasks;
 
 namespace Shop.Frontend.Application
 {
-    public class ApplicationContext : IApplicationContext
+    public interface IApplicationState
     {
-        public Guid ClientId { get; }
-
-        public ApplicationContext()
-        {
-        }
+        Task<T> GetItem<T>(string key);
+        Task SetItem<T>(string key, T value);
     }
 }

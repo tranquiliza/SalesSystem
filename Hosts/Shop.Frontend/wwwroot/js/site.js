@@ -18,3 +18,11 @@ window.InitializeCollapsibles = function () {
     var elems = document.querySelectorAll('.collapsible');
     var instances = M.Collapsible.init(elems, {});
 };
+
+window.TranquilizaSetItem = function (key, value) {
+    this.localStorage.setItem(key, value);
+};
+
+window.TranquilizaGetItem = function (key) {
+    return this.localStorage.getItem(key);
+};

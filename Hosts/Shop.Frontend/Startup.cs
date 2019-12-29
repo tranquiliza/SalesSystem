@@ -10,7 +10,9 @@ namespace Shop.Frontend
         {
             services.AddSingleton<IConfiguration, Configuration>();
             services.AddSingleton<IBasketService, BasketService>();
-            services.AddSingleton<IApplicationContext, ApplicationContext>();
+            services.AddSingleton<IApplicationState, ApplicationState>();
+            services.AddSingleton<IApplicationStateManager, ApplicationStateManager>();
+            services.AddSingleton<IApiGateway, ApiGateway>();
         }
 
         public void Configure(IComponentsApplicationBuilder app)

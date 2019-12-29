@@ -1,6 +1,6 @@
 ﻿@inject IJSRuntime JSRuntime
-@inject HttpClient Http
 @inject IConfiguration config
+@inject IApiGateway api
 
 <ul id="categoriesDropdown" class="dropdown-content">
     @if (categories == null)
@@ -89,7 +89,7 @@
 
     protected override async Task OnInitializedAsync()
     {
-        categories = await Http.GetJsonAsync<string[]>(config.ApiBaseAddress + "products/categories");
+        categories = await api.Get<string[]>("products", "categories").ConfigureAwait(false);
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
