@@ -23,6 +23,21 @@ namespace Tranquiliza.Shop.Core.Application
             _customerRepository = customerRepository;
         }
 
+        public async Task<Result<Inquiry>> RemoveProductFromInquiry(Guid inquiryId, Guid productId, int amountToRemove, IApplicationContext context)
+        {
+            var inquiry = await _inquiryRepository.Get(inquiryId).ConfigureAwait(false);
+            if (inquiry == null)
+                return Result<Inquiry>.Failure("Inquiry not found");
+
+            if (!context.HasAccessTo(inquiry))
+                return Result<Inquiry>.Unauthorized();
+
+            inquiry.RemoveProduct(productId, amountToRemove);
+            await _inquiryRepository.Save(inquiry).ConfigureAwait(false);
+
+            return Result<Inquiry>.Succeeded(inquiry);
+        }
+
         public async Task<Result<Inquiry>> CreateInquiry(Guid productId, IApplicationContext context)
         {
             var product = await _productRepository.Get(productId).ConfigureAwait(false);
@@ -49,11 +64,13 @@ namespace Tranquiliza.Shop.Core.Application
                 return Result<Inquiry>.Failure("Unable to find Inquiry");
 
             if (!context.HasAccessTo(inquiry))
-                return Result<Inquiry>.Failure("User does not have access to this inquiry");
+                return Result<Inquiry>.Unauthorized();
 
             CustomerInformation customerInformation;
             if (context.IsAnonymous)
+            {
                 customerInformation = await _customerRepository.GetCustomer(email).ConfigureAwait(false);
+            }
             else
             {
                 customerInformation = await _customerRepository.GetCustomer(context.UserId).ConfigureAwait(false)
@@ -67,7 +84,7 @@ namespace Tranquiliza.Shop.Core.Application
             }
 
             if (!context.HasAccessTo(customerInformation))
-                return Result<Inquiry>.Failure("User does not have access to this customer's information");
+                return Result<Inquiry>.Unauthorized();
 
             if (customerInformation.TryUpdate(email, firstName, surname, address, phoneNumber, context))
                 await _customerRepository.Save(customerInformation).ConfigureAwait(false);
@@ -85,7 +102,7 @@ namespace Tranquiliza.Shop.Core.Application
                 return Result<Inquiry>.Failure("Unable to find inquiry");
 
             if (!context.HasAccessTo(inquiry))
-                return Result<Inquiry>.Failure("User does not have access to this inquiry");
+                return Result<Inquiry>.Unauthorized();
 
             var product = await _productRepository.Get(productId).ConfigureAwait(false);
             if (product == null)
@@ -101,7 +118,7 @@ namespace Tranquiliza.Shop.Core.Application
         {
             var inquiry = await _inquiryRepository.GetLatestInquiryFromClient(context.ClientId).ConfigureAwait(false);
             if (inquiry == null)
-                return Result<Inquiry>.Failure("No inquiry found");
+                return Result<Inquiry>.NoContentFound();
 
             return Result<Inquiry>.Succeeded(inquiry);
         }
@@ -110,7 +127,7 @@ namespace Tranquiliza.Shop.Core.Application
         {
             var inquiry = await _inquiryRepository.Get(inquiryId).ConfigureAwait(false);
             if (!context.HasAccessTo(inquiry))
-                return Result<Inquiry>.Failure("User does not have access to this inquiry");
+                return Result<Inquiry>.Unauthorized();
 
             return Result<Inquiry>.Succeeded(inquiry);
         }

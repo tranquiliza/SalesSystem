@@ -29,7 +29,7 @@ namespace Tranquiliza.Shop.Api.Controllers
         public async Task<IActionResult> GetProducts([FromQuery]string category)
         {
             var result = await _productManagementService.GetProducts(category);
-            if (!result.Success)
+            if (result.State != Core.ResultState.Success)
                 return BadRequest(result.FailureReason);
 
             return Ok(result.Data.Select(x => x.Map(RequestInformation)));
@@ -43,7 +43,7 @@ namespace Tranquiliza.Shop.Api.Controllers
                 return BadRequest("Invalid product ID");
 
             var result = await _productManagementService.GetProduct(productId).ConfigureAwait(false);
-            if (!result.Success)
+            if (result.State != Core.ResultState.Success)
                 return BadRequest(result.FailureReason);
 
             return Ok(result.Data.Map(RequestInformation));
@@ -54,7 +54,7 @@ namespace Tranquiliza.Shop.Api.Controllers
         public async Task<IActionResult> GetCategories()
         {
             var result = await _productManagementService.GetCategories();
-            if (!result.Success)
+            if (result.State != Core.ResultState.Success)
                 return BadRequest(result.FailureReason);
 
             return Ok(result.Data);
@@ -77,7 +77,7 @@ namespace Tranquiliza.Shop.Api.Controllers
         public async Task<IActionResult> CreateProduct([FromBody]CreateProductModel createProductModel)
         {
             var result = await _productManagementService.CreateProduct(createProductModel.Title, createProductModel.Category, createProductModel.Price, createProductModel.Description, ApplicationContext).ConfigureAwait(false);
-            if (!result.Success)
+            if (result.State != Core.ResultState.Success)
                 return BadRequest(result.FailureReason);
 
             return Ok(result.Data.Map(RequestInformation));

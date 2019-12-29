@@ -12,5 +12,6 @@ namespace Tranquiliza.Shop.Core.Application
         Task<Result<Inquiry>> AddCustomerToInquiry(Guid inquiryId, string email, string firstName, string surname, string address, string phoneNumber, IApplicationContext context);
         Task<Result<Inquiry>> Get(IApplicationContext context);
         Task<Result<Inquiry>> Get(Guid inquiryId, IApplicationContext context);
+        Task<Result<Inquiry>> RemoveProductFromInquiry(Guid inquiryId, Guid productId, int amountToRemove, IApplicationContext context);
     }
 }

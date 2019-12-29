@@ -33,27 +33,34 @@ namespace Shop.Frontend.Application
             _applicationStateManager = applicationStateManager;
         }
 
-        public async Task<T> Get<T>(string controller, string action = null, string routeValue = null, params QueryParam[] queryParams)
+        public async Task<ResponseModel> Get<ResponseModel>(string controller, string action = null, string[] routeValues = null, params QueryParam[] queryParams)
         {
-            var requestUri = BuildRequestUri(controller, action, routeValue, queryParams);
+            var requestUri = BuildRequestUri(controller, action, routeValues, queryParams);
             var request = await BuildBaseRequest("GET", requestUri).ConfigureAwait(false);
-
             request.RequestUri = requestUri;
 
-            Console.WriteLine("Making request");
-            return await ExecuteRequest<T>(request).ConfigureAwait(false);
+            return await ExecuteRequest<ResponseModel>(request).ConfigureAwait(false);
         }
 
-        public async Task<T> Post<T, Y>(Y model, string controller, string action = null, string routeValue = null, params QueryParam[] queryParams)
+        public async Task<ResponseModel> Post<ResponseModel, RequestModel>(RequestModel model, string controller, string action = null, string[] routeValues = null, params QueryParam[] queryParams)
         {
-            var requestUri = BuildRequestUri(controller, action, routeValue, queryParams);
+            var requestUri = BuildRequestUri(controller, action, routeValues, queryParams);
 
             var request = await BuildBaseRequest("POST", requestUri).ConfigureAwait(false);
-            request.RequestUri = requestUri;
-            request.Content = new StringContent(Serialization.Serialize(model));
-            request.Content.Headers.ContentType = new MediaTypeHeaderValue("application/json");
+            var body = Serialization.Serialize(model);
+            request.Content = new StringContent(body, Encoding.UTF8, "application/json");
 
-            return await ExecuteRequest<T>(request).ConfigureAwait(false);
+            return await ExecuteRequest<ResponseModel>(request).ConfigureAwait(false);
+        }
+
+        public async Task<ResponseModel> Delete<ResponseModel, RequestModel>(RequestModel model, string controller, string action = null, string[] routeValues = null, params QueryParam[] queryParams)
+        {
+            var requestUri = BuildRequestUri(controller, action, routeValues, queryParams);
+            var request = await BuildBaseRequest("DELETE", requestUri).ConfigureAwait(false);
+            var body = Serialization.Serialize(model);
+            request.Content = new StringContent(body, Encoding.UTF8, "application/json");
+
+            return await ExecuteRequest<ResponseModel>(request).ConfigureAwait(false);
         }
 
         private async Task<T> ExecuteRequest<T>(HttpRequestMessage request)
@@ -73,7 +80,9 @@ namespace Shop.Frontend.Application
             var jwtToken = await _applicationStateManager.GetJwtToken().ConfigureAwait(false);
             var clientId = await _applicationStateManager.GetClientId().ConfigureAwait(false);
 
-            _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", jwtToken);
+            if (!string.IsNullOrEmpty(jwtToken))
+                _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", jwtToken);
+
             var requestMessage = new HttpRequestMessage
             {
                 Method = new HttpMethod(requestType),
@@ -85,7 +94,7 @@ namespace Shop.Frontend.Application
             return requestMessage;
         }
 
-        private Uri BuildRequestUri(string controller, string action = null, string routeValue = null, params QueryParam[] queryParams)
+        private Uri BuildRequestUri(string controller, string action = null, string[] routeValues = null, params QueryParam[] queryParams)
         {
             var routeBuilder = new StringBuilder();
             routeBuilder.Append(_apiBaseAddress);
@@ -97,8 +106,11 @@ namespace Shop.Frontend.Application
             if (!string.IsNullOrEmpty(action))
                 routeBuilder.Append("/").Append(action);
 
-            if (!string.IsNullOrEmpty(routeValue))
-                routeBuilder.Append("/").Append(routeValue);
+            if (routeValues != null)
+            {
+                for (int i = 0; i < routeValues.Length; i++)
+                    routeBuilder.Append("/").Append(routeValues[i]);
+            }
 
             for (int i = 0; i < queryParams.Length; i++)
             {

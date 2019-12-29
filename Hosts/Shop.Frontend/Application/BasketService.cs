@@ -1,45 +1,64 @@
-﻿using Shop.Frontend.Models;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Tranquiliza.Shop.Contract.Models;
 
 namespace Shop.Frontend.Application
 {
     public class BasketService : IBasketService
     {
-        private readonly string apiBase;
+        private readonly IApiGateway _api;
 
-        public BasketService(IConfiguration configuration)
+        public BasketService(IApiGateway api)
         {
-            apiBase = configuration.ApiBaseAddress;
+            _api = api;
         }
 
-        private List<OrderLine> OrderLines { get; } = new List<OrderLine>();
+        private InquiryModel _inquiry;
 
-        public IReadOnlyList<OrderLine> Items => OrderLines;
+        public IReadOnlyList<OrderLineModel> Items => _inquiry?.OrderLines ?? new List<OrderLineModel>();
 
         public event Action OnChange;
 
-        public Task AddProduct(Guid productId, double pricePerUnit, string productTitle)
+        public async Task Initialize()
         {
-            var orderLine = OrderLines.Find(x => x.ProductId == productId);
-            if (orderLine == null)
-                OrderLines.Add(new OrderLine(productId, pricePerUnit, productTitle));
-            else
-                orderLine.Increment();
+            _inquiry = await _api.Get<InquiryModel>("Inquiries").ConfigureAwait(false);
+            if (_inquiry != null)
+                NotifyStateChanged();
+        }
 
-            // Invoke backend to update this clients basket. 
-            // Figure out how we can decide who this client is, if anon. We need an ID.
+        public async Task AddProduct(Guid productId)
+        {
+            if (_inquiry == null)
+            {
+                var model = new CreateInquiryModel { ProductId = productId };
+                _inquiry = await _api.Post<InquiryModel, CreateInquiryModel>(model, "Inquiries").ConfigureAwait(false);
+            }
+            else
+            {
+                var model = new AddProductToInquiryModel { ProductId = productId, Amount = 1 };
+                _inquiry = await _api.Post<InquiryModel, AddProductToInquiryModel>(model, "Inquiries", routeValues: new string[] { _inquiry.Id.ToString() }).ConfigureAwait(false);
+            }
 
             NotifyStateChanged();
-            return Task.CompletedTask;
+        }
+
+        public async Task RemoveProduct(Guid productId)
+        {
+            if (_inquiry == null)
+                return;
+
+            var model = new RemoveProductFromInquiryModel { ProductId = productId, Amount = 1 };
+            _inquiry = await _api.Delete<InquiryModel, RemoveProductFromInquiryModel>(model, "Inquiries", routeValues: new string[] { _inquiry.Id.ToString(), "product"}).ConfigureAwait(false);
+
+            NotifyStateChanged();
         }
 
         private void NotifyStateChanged() => OnChange?.Invoke();
 
-        public int ItemCount() => OrderLines.Sum(product => product.Count);
+        public int ItemCount() => Items.Sum(item => item.Amount);
 
-        public double Total() => OrderLines.Sum(product => product.PricePerUnit * product.Count);
+        public double Total => _inquiry?.Total ?? 0;
     }
 }

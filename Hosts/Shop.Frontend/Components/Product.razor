@@ -18,7 +18,7 @@
         </div>
         <div class="card-action center-align">
             <a class="activator waves-effect waves-light"><i class="material-icons left">info</i>Details</a>
-            <a @onclick="@(async () => await AddProductToBasket(ProductModel.Id, ProductModel.Price, ProductModel.Title))" class="waves-effect waves-light"><i class="material-icons left">add_shopping_cart</i>Add to Cart</a>
+            <a @onclick="@(async () => await basketService.AddProduct(ProductModel.Id))" class="waves-effect waves-light"><i class="material-icons left">add_shopping_cart</i>Add to Cart</a>
         </div>
     </div>
 </div>
@@ -27,9 +27,4 @@
 @code {
     [Parameter]
     public ProductModel ProductModel { get; set; }
-
-    Task AddProductToBasket(Guid productId, double pricePerUnit, string productTitle)
-    {
-        return basketService.AddProduct(productId, pricePerUnit, productTitle);
-    }
 }

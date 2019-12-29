@@ -1,14 +1,17 @@
 ﻿@inject IBasketService basketService
 
-<i class="material-icons right">shopping_cart</i> @basketService.ItemCount()
-
-@*<h1>Products in basket @basketService.ItemCount() : TOTAL @basketService.Total().ToString("0.00") DKK</h1>*@
+<i class="material-icons right">shopping_cart</i> @basketService.ItemCount() (@(string.Format("{0:n}", basketService.Total)) DKK)
 
 @code {
 
     protected override void OnInitialized()
     {
         basketService.OnChange += StateHasChanged;
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await basketService.Initialize().ConfigureAwait(false);
     }
 
     public void Dispose()

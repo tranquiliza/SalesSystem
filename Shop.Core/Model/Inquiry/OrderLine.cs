@@ -14,8 +14,8 @@ namespace Tranquiliza.Shop.Core.Model
         public static OrderLine Create(Product item, int amount)
             => new OrderLine { Item = item, Amount = amount };
 
-        public static OrderLine Replace(Product item, int amount)
-            => new OrderLine { Item = item, Amount = amount };
+        public void IncreaseCount(int amount) => Amount += amount;
+        public void DecreaseCount(int amount) => Amount -= amount;
 
         public double LineTotal() => Item.ActualPrice * Amount;
     }

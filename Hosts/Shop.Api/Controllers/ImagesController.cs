@@ -33,17 +33,12 @@ namespace Tranquiliza.Shop.Api.Controllers
 
         private string ContentType(string extension)
         {
-            switch (extension)
+            return extension switch
             {
-                case ".jpg":
-                    return "image/jpeg";
-
-                case ".png":
-                    return "image/png";
-
-                default:
-                    return "image/jpeg";
-            }
+                ".jpg" => "image/jpeg",
+                ".png" => "image/png",
+                _ => "image/jpeg",
+            };
         }
     }
 }

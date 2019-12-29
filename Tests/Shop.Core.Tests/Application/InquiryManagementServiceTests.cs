@@ -57,7 +57,7 @@ namespace Tranquiliza.Shop.Core.Tests.Application
             var result = await sut.CreateInquiry(productId, applicationContext).ConfigureAwait(false);
 
             // assert
-            Assert.IsTrue(result.Success);
+            Assert.AreEqual(ResultState.Success, result.State);
             var resultData = result.Data;
             Assert.AreEqual(resultData.UserId, userId);
             Assert.AreEqual(resultData.CreatedByClient, clientId);
@@ -92,7 +92,7 @@ namespace Tranquiliza.Shop.Core.Tests.Application
             var result = await sut.CreateInquiry(productId, applicationContext).ConfigureAwait(false);
 
             // assert
-            Assert.IsTrue(result.Success);
+            Assert.AreEqual(ResultState.Success, result.State);
             var resultData = result.Data;
             Assert.AreEqual(resultData.CreatedByClient, clientId);
             Assert.AreEqual(resultData.UserId, default);
@@ -123,7 +123,7 @@ namespace Tranquiliza.Shop.Core.Tests.Application
             var result = await sut.CreateInquiry(productId, applicationContext).ConfigureAwait(false);
 
             // assert
-            Assert.IsFalse(result.Success);
+            Assert.AreEqual(ResultState.Failure, result.State);
             Assert.AreEqual("Product was not found", result.FailureReason);
         }
 
@@ -155,7 +155,7 @@ namespace Tranquiliza.Shop.Core.Tests.Application
             var result = await sut.AddProductToInquiry(inquiry.Id, productId, 3, applicationContext).ConfigureAwait(false);
 
             // assert
-            Assert.IsTrue(result.Success);
+            Assert.AreEqual(ResultState.Success, result.State);
             var data = result.Data;
             Assert.AreEqual(1, data.OrderLines.Count);
             Assert.AreEqual(4, data.OrderLines[0].Amount);
@@ -198,8 +198,7 @@ namespace Tranquiliza.Shop.Core.Tests.Application
             var result = await sut.AddProductToInquiry(inquiry.Id, productId, 3, applicationContext).ConfigureAwait(false);
 
             // assert
-            Assert.IsFalse(result.Success);
-            Assert.AreEqual("User does not have access to this inquiry", result.FailureReason);
+            Assert.AreEqual(ResultState.AccessDenied, result.State);
         }
 
         [TestMethod]
@@ -232,7 +231,7 @@ namespace Tranquiliza.Shop.Core.Tests.Application
             var result = await sut.AddProductToInquiry(inquiry.Id, productId, 3, applicationContext).ConfigureAwait(false);
 
             // assert
-            Assert.IsTrue(result.Success);
+            Assert.AreEqual(ResultState.Success, result.State);
         }
 
         [TestMethod]
@@ -266,7 +265,7 @@ namespace Tranquiliza.Shop.Core.Tests.Application
             var result = await sut.AddCustomerToInquiry(inquiry.Id, email, firstName, surName, address, phoneNumber, applicationContext).ConfigureAwait(false);
 
             // assert
-            Assert.IsTrue(result.Success);
+            Assert.AreEqual(ResultState.Success, result.State);
 
             customerRepository.Verify(x => x.Save(It.Is<CustomerInformation>(y =>
                 y.Email == email
@@ -318,7 +317,7 @@ namespace Tranquiliza.Shop.Core.Tests.Application
             var result = await sut.AddCustomerToInquiry(inquiry.Id, email, firstName, surName, address, phoneNumber, applicationContext).ConfigureAwait(false);
 
             // assert
-            Assert.IsTrue(result.Success, message: result.FailureReason);
+            Assert.AreEqual(ResultState.Success, result.State, message: result.FailureReason);
 
             customerRepository.Verify(x => x.Save(It.Is<CustomerInformation>(y =>
                 y.Email == email

@@ -8,7 +8,7 @@ namespace Tranquiliza.Shop.Core.Application
 {
     public interface IUserService
     {
-        Task<User> Authenticate(string email, string password);
+        Task<IResult<User>> Authenticate(string email, string password);
         Task<IResult<IEnumerable<User>>> GetAll(IApplicationContext applicationContext);
         Task<IResult<User>> GetById(Guid id, IApplicationContext applicationContext);
         Task<IResult<User>> Create(string email, string password, string role = null);

@@ -7,7 +7,8 @@ namespace Shop.Frontend.Application
 {
     public interface IApiGateway
     {
-        Task<T> Get<T>(string controller, string action = null, string routeValue = null, params QueryParam[] queryParams);
-        Task<T> Post<T, Y>(Y model, string controller, string action = null, string routeValue = null, params QueryParam[] queryParams);
+        Task<ResponseModel> Get<ResponseModel>(string controller, string action = null, string[] routeValues = null, params QueryParam[] queryParams);
+        Task<ResponseModel> Post<ResponseModel, RequestModel>(RequestModel model, string controller, string action = null, string[] routeValues = null, params QueryParam[] queryParams);
+        Task<ResponseModel> Delete<ResponseModel, RequestModel>(RequestModel model, string controller, string action = null, string[] routeValues = null, params QueryParam[] queryParams);
     }
 }

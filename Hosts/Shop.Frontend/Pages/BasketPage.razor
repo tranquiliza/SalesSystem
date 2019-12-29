@@ -5,9 +5,10 @@
 
 <div class="row">
     <div class="col m9">
-        @foreach (var item in basketService.Items)
+        @foreach (var orderLine in basketService.Items)
         {
-            <p>@item.ProductTitle: Amount @item.Count, total: @item.Total DKK</p>
+            <p>@orderLine.Product.Title: Amount @orderLine.Amount, total: @orderLine.LineTotal.ToString("0.00") DKK</p>
+            <button class="btn-floating red waves-effect waves-light" @onclick="@(async () => await basketService.RemoveProduct(orderLine.Product.Id))"><i class="material-icons">remove</i></button>
         }
     </div>
     <div class="col m3">

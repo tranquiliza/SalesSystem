@@ -1,18 +1,21 @@
-﻿using Shop.Frontend.Models;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Tranquiliza.Shop.Contract.Models;
 
 namespace Shop.Frontend.Application
 {
     public interface IBasketService
     {
-        Task AddProduct(Guid productId, double pricePerUnit, string productTitle);
+        Task Initialize();
+        Task AddProduct(Guid productId);
+        Task RemoveProduct(Guid productId);
         int ItemCount();
-        double Total();
+
+        double Total { get; }
 
         event Action OnChange;
-        IReadOnlyList<OrderLine> Items { get; }
+        IReadOnlyList<OrderLineModel> Items { get; }
     }
 }

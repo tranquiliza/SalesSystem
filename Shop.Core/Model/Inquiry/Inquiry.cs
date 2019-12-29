@@ -43,21 +43,27 @@ namespace Tranquiliza.Shop.Core.Model
         public static Inquiry Create(Product product, Guid inquiryOwner, Guid createdByClientId)
             => new Inquiry(product, inquiryOwner, createdByClientId);
 
+        public void RemoveProduct(Guid productId, int amountToRemove)
+        {
+            var orderline = OrderLines.Find(x => x.Item.Id == productId);
+            if (orderline == null)
+                return;
+
+            orderline.DecreaseCount(amountToRemove);
+            if (orderline.Amount == 0)
+                OrderLines.Remove(orderline);
+        }
+
         public void AddProduct(Product item, int amount = 1)
         {
             if (amount < 1)
                 throw new InvalidOperationException("Must add at least one product");
 
-            var existingOrderline = OrderLines.Find(x => x.Item.Id == item.Id);
-            if (existingOrderline == null)
-            {
+            var orderLine = OrderLines.Find(x => x.Item.Id == item.Id);
+            if (orderLine == null)
                 OrderLines.Add(OrderLine.Create(item, amount));
-            }
             else
-            {
-                OrderLines.Remove(existingOrderline);
-                OrderLines.Add(OrderLine.Replace(item, existingOrderline.Amount + amount));
-            }
+                orderLine.IncreaseCount(amount);
         }
 
         public void SetCustomerInformation(CustomerInformation customerInformation)
