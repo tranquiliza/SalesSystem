@@ -65,7 +65,7 @@ namespace Tranquiliza.Shop.Sql
             try
             {
                 var serializedInquiry = Serialization.Serialize(inquiry);
-                var cmd = _sql.CreateStoredProcedure("[Core].[InsertUpdateInquiry]")
+                using var cmd = _sql.CreateStoredProcedure("[Core].[InsertUpdateInquiry]")
                     .WithParameter("inquiryId", inquiry.Id)
                     .WithParameter("createdByClientId", inquiry.CreatedByClient)
                     .WithParameter("inquiryState", (int)inquiry.State)
