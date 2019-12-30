@@ -6,19 +6,27 @@
         <CustomerForm />
     </div>
     <div class="col m3">
-        <ul class="collection">
+        <ul class="collection with-header z-depth-1">
+            <li class="collection-header"><h4><i class="material-icons small">shopping_cart</i> Basket</h4></li>
+            @if(basketService.Items.Count == 0)
+            {
+                <li class="collection-item">
+                    <p>You've yet to add any products :(</p>
+                </li>
+            }
+
             @foreach (var orderLine in basketService.Items)
             {
                 <li class="collection-item avatar">
                     <img class="circle" src="@(string.IsNullOrEmpty(orderLine.Product.ImageUrl) ? "/images/image-coming-soon-dark.png" : orderLine.Product.ImageUrl)" />
                     <span class="title">@orderLine.Product.Title</span>
                     <p>
-                        Amount: @orderLine.Amount <br />
                         @orderLine.LineTotal.ToString("0.00") DKK <br />
-                        <button class="waves-effect waves-light btn-flat" @onclick="@(async () => await basketService.AddProduct(orderLine.Product.Id))"><i class="material-icons">add</i></button>
-                        <button class="waves-effect waves-light btn-flat" @onclick="@(async () => await basketService.RemoveProduct(orderLine.Product.Id))"><i class="material-icons">remove</i></button>
+                        <button class="waves-effect waves-light btn-flat" @onclick="@(async () => await basketService.AddProduct(orderLine.Product.Id))"><i class="material-icons tiny">add</i></button>
+                        @orderLine.Amount
+                        <button class="waves-effect waves-light btn-flat" @onclick="@(async () => await basketService.RemoveProduct(orderLine.Product.Id))"><i class="material-icons tiny">remove</i></button>
                     </p>
-                    <a class="secondary-content" @onclick="@(async () => await basketService.RemoveProduct(orderLine.Product.Id))"><i class="material-icons">delete</i></a>
+                    <a class="secondary-content hand-pointer" @onclick="@(async () => await basketService.RemoveProduct(orderLine.Product.Id))"><i class="material-icons">delete</i></a>
                 </li>
             }
         </ul>
