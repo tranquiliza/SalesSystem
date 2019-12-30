@@ -1,22 +1,29 @@
 ﻿@page "/basket"
 @inject IBasketService basketService
 
-<h3>BasketPage</h3>
-
 <div class="row">
     <div class="col m9">
-        @foreach (var orderLine in basketService.Items)
-        {
-            <p>@orderLine.Product.Title: Amount @orderLine.Amount, total: @orderLine.LineTotal.ToString("0.00") DKK</p>
-            <button class="btn-floating red waves-effect waves-light" @onclick="@(async () => await basketService.RemoveProduct(orderLine.Product.Id))"><i class="material-icons">remove</i></button>
-        }
+        <CustomerForm />
     </div>
     <div class="col m3">
-        <p>HELLO</p>
+        <ul class="collection">
+            @foreach (var orderLine in basketService.Items)
+            {
+                <li class="collection-item avatar">
+                    <img class="circle" src="@orderLine.Product.ImageUrl" />
+                    <span class="title">@orderLine.Product.Title</span>
+                    <p>
+                        Amount: @orderLine.Amount <br />
+                        @orderLine.LineTotal.ToString("0.00") DKK <br />
+                        <button class="waves-effect waves-light btn-flat" @onclick="@(async () => await basketService.AddProduct(orderLine.Product.Id))"><i class="material-icons">add</i></button>
+                        <button class="waves-effect waves-light btn-flat" @onclick="@(async () => await basketService.RemoveProduct(orderLine.Product.Id))"><i class="material-icons">remove</i></button>
+                    </p>
+                    <a class="secondary-content" @onclick="@(async () => await basketService.RemoveProduct(orderLine.Product.Id))"><i class="material-icons">delete</i></a>
+                </li>
+            }
+        </ul>
     </div>
 </div>
-
-
 
 @code {
 
