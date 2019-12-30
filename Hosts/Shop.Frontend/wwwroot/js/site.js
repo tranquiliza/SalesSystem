@@ -19,6 +19,11 @@ window.InitializeCollapsibles = function () {
     var instances = M.Collapsible.init(elems, {});
 };
 
+window.FixedActionButton = function () {
+    var elems = document.querySelectorAll('.fixed-action-btn');
+    var instances = M.FloatingActionButton.init(elems, {});
+};
+
 window.TranquilizaSetItem = function (key, value) {
     this.localStorage.setItem(key, value);
 };

@@ -1,7 +1,102 @@
-﻿
+﻿@using System.ComponentModel.DataAnnotations;
+
+<div class="card-panel">
+    <Header Title="Customer Information"></Header>
+    <EditForm Model="@testModel" OnValidSubmit="@LogSubmit">
+        <DataAnnotationsValidator />
+
+        <div class="row">
+            <div class="input-field col s6">
+                <i class="material-icons prefix">person</i>
+                <InputText class="" type="text" id="first_name" @bind-Value="testModel.FirstName"></InputText>
+                <label for="first_name">First Name</label>
+            </div>
+            <div class="input-field col s6">
+                <InputText type="text" id="last_name" @bind-Value="testModel.LastName"></InputText>
+                <label for="last_name">Last Name</label>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="input-field col s12">
+                <i class="material-icons prefix">email</i>
+                <InputText type="email" id="email" @bind-Value="testModel.Email"></InputText>
+                <label for="email">Email</label>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="input-field col s6">
+                <i class="material-icons prefix">phone</i>
+                <InputText type="text" id="phone_number" @bind-Value="testModel.Phone"></InputText>
+                <label for="phone_number">Phone Number</label>
+            </div>
+            <div class="input-field col s6">
+                <i class="material-icons prefix">my_location</i>
+                <InputText type="text" id="country" @bind-Value="testModel.Country"></InputText>
+                <label for="country">Country</label>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="input-field col s6">
+                <i class="material-icons prefix">location_city</i>
+                <InputText type="text" id="zip_code" @bind-Value="testModel.ZipCode"></InputText>
+                <label for="zip_code">Zip Code</label>
+            </div>
+            <div class="input-field col s6">
+                <InputText type="text" id="city" @bind-Value="testModel.City"></InputText>
+                <label for="city">City</label>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="input-field col s12">
+                <i class="material-icons prefix">home</i>
+                <InputText type="text" id="street_number" @bind-Value="testModel.StreetNumber"></InputText>
+                <label for="street_number">Street Number</label>
+            </div>
+        </div>
+
+        <div class="row">
+            <button class="btn waves-effect waves-light right" type="submit">
+                Place Order
+                <i class="material-icons right">navigate_next</i>
+            </button>
+        </div>
+
+    </EditForm>
+</div>
 
 
 
 @code {
 
+    public class Test
+    {
+        [Required]
+        public string FirstName { get; set; }
+        [Required]
+        public string LastName { get; set; }
+        [Required]
+        [DataType(DataType.EmailAddress)]
+        public string Email { get; set; }
+        [Required]
+        public string Phone { get; set; }
+        [Required]
+        public string Country { get; set; }
+        [Required]
+        public string ZipCode { get; set; }
+        [Required]
+        public string City { get; set; }
+        [Required]
+        public string StreetNumber { get; set; }
+    }
+
+    private Test testModel = new Test();
+
+    private void LogSubmit()
+    {
+        Console.WriteLine("Submitted: " + testModel.FirstName);
+    }
 }

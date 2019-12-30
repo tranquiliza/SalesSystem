@@ -1,0 +1,29 @@
+﻿@inject IBasketService basketService
+
+<div class="card-panel no-padding-sides">
+    <Header Title="Basket" Icon="shopping_cart" HideDivider="true"></Header>
+    <ul class="collection">
+        @if (basketService.Items.Count == 0)
+        {
+            <li class="collection-item">
+                <p>You've yet to add any products :(</p>
+            </li>
+        }
+
+        @foreach (var orderLine in basketService.Items)
+        {
+            <li class="collection-item avatar">
+                <img class="circle" src="@(string.IsNullOrEmpty(orderLine.Product.ImageUrl) ? "/images/image-coming-soon-dark.png" : orderLine.Product.ImageUrl)" />
+                <span class="title">@orderLine.Product.Title</span>
+                <p>
+                    @(string.Format("{0:n}", orderLine.LineTotal)) DKK <br />
+                    <button class="waves-effect waves-light btn-flat" @onclick="@(async () => await basketService.AddProduct(orderLine.Product.Id))"><i class="material-icons tiny">add</i></button>
+                    @orderLine.Amount
+                    <button class="waves-effect waves-light btn-flat" @onclick="@(async () => await basketService.RemoveProduct(orderLine.Product.Id))"><i class="material-icons tiny">remove</i></button>
+                </p>
+                <a class="secondary-content hand-pointer" @onclick="@(async () => await basketService.RemoveProduct(orderLine.Product.Id))"><i class="material-icons">delete</i></a>
+            </li>
+        }
+        <li class="collection-item">TOTAL: @(string.Format("{0:n}", basketService.Total)) DKK</li>
+    </ul>
+</div>
