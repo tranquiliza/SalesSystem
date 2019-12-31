@@ -6,11 +6,11 @@ namespace Tranquiliza.Shop.Core.Application
 {
     public class CustomerManagementService : ICustomerManagementService
     {
-        private readonly ICustomerRepository customerRepository;
+        private readonly ICustomerInformationRepository _customerInformationRepository;
 
-        public CustomerManagementService(ICustomerRepository customerRepository)
+        public CustomerManagementService(ICustomerInformationRepository customerInformationRepository)
         {
-            this.customerRepository = customerRepository;
+            _customerInformationRepository = customerInformationRepository;
         }
     }
 }

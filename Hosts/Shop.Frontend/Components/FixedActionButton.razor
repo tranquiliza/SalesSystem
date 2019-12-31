@@ -1,0 +1,19 @@
+﻿@inject IJSRuntime JSRuntime
+
+<div class="fixed-action-btn">
+    <NavLink class="btn-floating btn-large" href="checkout">
+        <i class="large material-icons">shopping_cart</i>
+    </NavLink>
+</div>
+
+@code {
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await JSRuntime.InvokeVoidAsync("FixedActionButton").ConfigureAwait(false);
+        }
+
+        await base.OnAfterRenderAsync(firstRender);
+    }
+}

@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace Tranquiliza.Shop.Core
 {
-    public interface IConfigurationProvider
+    public interface IApplicationConfigurationProvider
     {
         string SecurityKey { get; }
         string SmtpEndpointAddress { get; }
@@ -13,5 +13,6 @@ namespace Tranquiliza.Shop.Core
         string SmtpPassword { get; }
         string HostName { get; }
         string ImageStoragePath { get; }
+        string SeqLoggingAddress { get; }
     }
 }

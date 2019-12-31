@@ -1,6 +1,7 @@
 ﻿@page "/products"
 @page "/products/{productCategory}"
 @inject IConfiguration config
+@inject IApiGateway api
 @inject HttpClient Http
 
 <div class="section">
@@ -26,7 +27,7 @@
     </div>
 </div>
 
-
+<FixedActionButton />
 
 @code {
     [Parameter]
@@ -34,13 +35,16 @@
 
     public IEnumerable<ProductModel> products;
 
-    protected override async Task OnInitializedAsync()
-    {
-        products = await Http.GetJsonAsync<IEnumerable<ProductModel>>(config.ApiBaseAddress + "products/");
-    }
-
     protected override async Task OnParametersSetAsync()
     {
-        products = await Http.GetJsonAsync<IEnumerable<ProductModel>>(config.ApiBaseAddress + "products?category=" + ProductCategory);
+        if (string.IsNullOrEmpty(ProductCategory))
+        {
+            products = await api.Get<IEnumerable<ProductModel>>("products");
+        }
+        else
+        {
+            var queryParam = new QueryParam("category", ProductCategory);
+            products = await api.Get<IEnumerable<ProductModel>>("products", queryParams: queryParam);
+        }
     }
 }

@@ -1,11 +1,24 @@
-﻿<div class="card grey darken-4">
-    <div class="card-content">
-        <span class="card-title truncate white-text center-align">@Title</span>
-    </div>
-</div>
-<div class="divider"></div>
+﻿@if (string.IsNullOrEmpty(Icon))
+{
+    <h4 class="truncate center-align">@Title</h4>
+}
+else
+{
+    <h4 class="truncate center-align"><i class="material-icons small">@Icon</i> @Title</h4>
+}
+
+@if (!HideDivider)
+{
+    <div class="divider"></div>
+}
 
 @code {
     [Parameter]
     public string Title { get; set; }
+
+    [Parameter]
+    public string Icon { get; set; }
+
+    [Parameter]
+    public bool HideDivider { get; set; }
 }

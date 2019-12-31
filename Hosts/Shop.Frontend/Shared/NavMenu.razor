@@ -1,6 +1,6 @@
 ﻿@inject IJSRuntime JSRuntime
-@inject HttpClient Http
 @inject IConfiguration config
+@inject IApiGateway api
 
 <ul id="categoriesDropdown" class="dropdown-content">
     @if (categories == null)
@@ -55,7 +55,7 @@
         <div class="nav-wrapper">
             <a href="" class="brand-logo center"><img src="/images/logo.png" /></a>
             <a href="" data-target="mobile-menu" class="sidenav-trigger"><i class="material-icons">menu</i></a>
-            <ul id="nav-mobile" class="left hide-on-med-and-down">
+            <ul class="left hide-on-med-and-down">
                 <li>
                     <NavLink class="waves-effect waves-light" href="" Match="NavLinkMatch.All">
                         Home
@@ -72,6 +72,14 @@
                     </NavLink>
                 </li>
             </ul>
+
+            <ul class="right">
+                <li>
+                    <NavLink class="waves-effect waves-light" href="checkout">
+                        <MenuBasket></MenuBasket>
+                    </NavLink>
+                </li>
+            </ul>
         </div>
     </nav>
 </div>
@@ -81,7 +89,7 @@
 
     protected override async Task OnInitializedAsync()
     {
-        categories = await Http.GetJsonAsync<string[]>(config.ApiBaseAddress + "products/categories");
+        categories = await api.Get<string[]>("products", "categories").ConfigureAwait(false);
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)

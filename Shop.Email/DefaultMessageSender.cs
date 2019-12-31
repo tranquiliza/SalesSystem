@@ -16,7 +16,7 @@ namespace Tranquiliza.Shop.Email
         private readonly string _smtpAccount;
         private readonly string _smtpPassword;
 
-        public DefaultMessageSender(IConfigurationProvider configurationProvider)
+        public DefaultMessageSender(IApplicationConfigurationProvider configurationProvider)
         {
             _smtpClient = new SmtpClient();
             _smtpEndpoint = configurationProvider.SmtpEndpointAddress;

@@ -9,20 +9,11 @@ namespace Tranquiliza.Shop.Api.Mappers
 {
     public static class ProductMapper
     {
-        public static IEnumerable<ProductModel> Map(this IEnumerable<Product> products, string scheme, string hostName)
-            => products.Select(x => new ProductModel
-            {
-                Id = x.Id,
-                Category = x.Category,
-                Title = x.Name,
-                Description = x.Description,
-                Price = x.ActualPrice,
-                Weight = x.Weight,
-                ImageUrl = CreateImageUrl(x.MainImage, scheme, hostName)
-            });
+        public static IEnumerable<ProductModel> Map(this IEnumerable<Product> products, IRequestInformation requestInformation)
+            => products.Select(x => x.Map(requestInformation));
 
-        public static ProductDetailModel Map(this Product product, string scheme, string hostName)
-            => new ProductDetailModel
+        public static ProductModel Map(this Product product, IRequestInformation requestInformation)
+            => new ProductModel
             {
                 Id = product.Id,
                 Category = product.Category,
@@ -30,8 +21,8 @@ namespace Tranquiliza.Shop.Api.Mappers
                 Description = product.Description,
                 Price = product.ActualPrice,
                 Weight = product.Weight,
-                ImageUrl = CreateImageUrl(product.MainImage, scheme, hostName),
-                ImageUrls = product.Images.Select(image => CreateImageUrl(image, scheme, hostName)).ToList()
+                ImageUrl = CreateImageUrl(product.MainImage, requestInformation.Scheme, requestInformation.Host),
+                ImageUrls = product.Images.Select(image => CreateImageUrl(image, requestInformation.Scheme, requestInformation.Host)).ToList()
             };
 
         private static string CreateImageUrl(string imageName, string scheme, string hostName)

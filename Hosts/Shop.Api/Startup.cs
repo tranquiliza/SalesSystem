@@ -13,7 +13,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.IdentityModel.Tokens;
-using Scrutor;
+using Serilog;
 using Tranquiliza.Shop.Core;
 using Tranquiliza.Shop.Core.Application;
 using Tranquiliza.Shop.Core.Model;
@@ -23,7 +23,7 @@ using Tranquiliza.Shop.Sql;
 
 namespace Tranquiliza.Shop.Api
 {
-    public class Startup
+    public partial class Startup
     {
         public Startup(IConfiguration configuration)
         {
@@ -32,7 +32,6 @@ namespace Tranquiliza.Shop.Api
 
         public IConfiguration Configuration { get; }
 
-        // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddCors();
@@ -62,25 +61,44 @@ namespace Tranquiliza.Shop.Api
                 };
             });
 
-            ConfigureDependencyInjection(services, config, connectionStringProvider);
+            services.AddMvc(options =>
+            {
+                options.Filters.Add(typeof(ApplicationContextFilter));
+                options.Filters.Add(typeof(RequestInformationFilter));
+            });
+
+            var seriLogger = new LoggerConfiguration()
+                .WriteTo.Console()
+                .WriteTo.Seq(config.SeqLoggingAddress)
+                .CreateLogger();
+
+            var logger = new LogBridge(seriLogger);
+
+            ConfigureDependencyInjection(services, config, connectionStringProvider, logger);
         }
 
-        private void ConfigureDependencyInjection(IServiceCollection services, Core.IConfigurationProvider configurationProvider, IConnectionStringProvider connectionStringProvider)
+        private void ConfigureDependencyInjection(
+            IServiceCollection services,
+            IApplicationConfigurationProvider configurationProvider,
+            IConnectionStringProvider connectionStringProvider,
+            IApplicationLogger log)
         {
-            services.AddTransient<IUserService, UserService>();
+            services.AddSingleton(log);
 
             services.AddMediatR(typeof(DomainEntityBase));
-
+            services.AddSingleton<IUserService, UserService>();
             services.AddSingleton<IUserRepository, UserRepository>();
             services.AddSingleton<IEventRepository, EventRepository>();
             services.AddSingleton<ISecurity, PasswordSecurity>();
             services.AddSingleton<IDateTimeProvider, DefaultDateTimeProvider>();
             services.AddSingleton<IEventDispatcher, DefaultEventDispatcher>();
-            services.AddSingleton<ILogger, DebugLogger>();
             services.AddSingleton<IMessageSender, DefaultMessageSender>();
             services.AddSingleton<IProductManagementService, ProductManagementService>();
             services.AddSingleton<IProductRepository, ProductRepository>();
             services.AddSingleton<IImageRepository, ImageRepository>();
+            services.AddSingleton<IInquiryManagementService, InquiryManagementService>();
+            services.AddSingleton<IInquiryRepository, InquiryRepository>();
+            services.AddSingleton<ICustomerInformationRepository, CustomerInformationRepository>();
 
             services.AddSingleton(connectionStringProvider);
             services.AddSingleton(configurationProvider);

@@ -16,12 +16,12 @@ namespace Tranquiliza.Shop.Api.Controllers
     [ApiController]
     [Authorize]
     [Route("[controller]")]
-    public class UsersController : ControllerBase
+    public class UsersController : BaseController
     {
         private readonly IUserService _userService;
-        private readonly Core.IConfigurationProvider _configurationProvider;
+        private readonly Core.IApplicationConfigurationProvider _configurationProvider;
 
-        public UsersController(IUserService userService, Core.IConfigurationProvider configurationProvider)
+        public UsersController(IUserService userService, Core.IApplicationConfigurationProvider configurationProvider)
         {
             _userService = userService;
             _configurationProvider = configurationProvider;
@@ -31,9 +31,9 @@ namespace Tranquiliza.Shop.Api.Controllers
         [HttpPost("Authenticate")]
         public async Task<IActionResult> Authenticate([FromBody]AuthenticateModel authenticateModel)
         {
-            var user = await _userService.Authenticate(authenticateModel.Username, authenticateModel.Password).ConfigureAwait(false);
-            if (user == null)
-                return BadRequest(new { message = "Username or password is incorrect" });
+            var result = await _userService.Authenticate(authenticateModel.Username, authenticateModel.Password).ConfigureAwait(false);
+            if (result.State == Core.ResultState.Failure)
+                return BadRequest(result.FailureReason);
 
             var tokenHandler = new JwtSecurityTokenHandler();
 
@@ -42,19 +42,19 @@ namespace Tranquiliza.Shop.Api.Controllers
             {
                 Subject = new ClaimsIdentity(new Claim[]
                 {
-                    new Claim(ClaimTypes.Name, user.Id.ToString()),
+                    new Claim(ClaimTypes.Name, result.Data.Id.ToString()),
                 }),
                 Expires = DateTime.UtcNow.AddDays(7),
                 SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
             };
 
-            var roleClaims = user.UserRoles.Select(role => new Claim(ClaimTypes.Role, role));
+            var roleClaims = result.Data.UserRoles.Select(role => new Claim(ClaimTypes.Role, role));
             if (roleClaims != null)
                 tokenDescriptor.Subject.AddClaims(roleClaims);
             var token = tokenHandler.CreateToken(tokenDescriptor);
             var bearerToken = tokenHandler.WriteToken(token);
 
-            return Ok(user.Map(bearerToken));
+            return Ok(result.Data.Map(bearerToken));
         }
 
         [HttpPost]
@@ -62,7 +62,7 @@ namespace Tranquiliza.Shop.Api.Controllers
         public async Task<IActionResult> RegisterUser([FromBody]RegisterUserModel registerUserModel)
         {
             var result = await _userService.Create(registerUserModel.Email, registerUserModel.Password, Role.Admin).ConfigureAwait(false);
-            if (!result.Success)
+            if (result.State != Core.ResultState.Success)
                 return BadRequest(result.FailureReason);
 
             return Ok(result.Data.Map());
@@ -71,29 +71,34 @@ namespace Tranquiliza.Shop.Api.Controllers
         [HttpGet]
         public async Task<IActionResult> GetUser([FromQuery]Guid userId)
         {
-            var applicationContext = ApplicationContext.Create(Guid.Parse(User.Identity.Name));
             if (userId == Guid.Empty)
             {
-                var allUsersResult = await _userService.GetAll(applicationContext).ConfigureAwait(false);
-                if (!allUsersResult.Success)
-                    return BadRequest(allUsersResult.FailureReason);
+                var allUsersResult = await _userService.GetAll(ApplicationContext).ConfigureAwait(false);
+                if (allUsersResult.State == Core.ResultState.AccessDenied)
+                    return Unauthorized();
+
+                if (allUsersResult.State == Core.ResultState.NoContent)
+                    return NoContent();
 
                 return Ok(allUsersResult.Data.Select(x => x.Map()));
             }
 
-            var result = await _userService.GetById(userId, applicationContext).ConfigureAwait(false);
-            if (!result.Success)
+            var result = await _userService.GetById(userId, ApplicationContext).ConfigureAwait(false);
+            if (result.State == Core.ResultState.AccessDenied)
+                return Unauthorized();
+
+            if (result.State == Core.ResultState.Failure)
                 return BadRequest(result.FailureReason);
 
             return Ok(result.Data.Map());
         }
 
-        [HttpGet("Confirm")]
+        [HttpGet("Confirm/{userId}")]
         [AllowAnonymous]
-        public async Task<IActionResult> ConfirmEmail([FromQuery]Guid userId, Guid emailConfirmationToken)
+        public async Task<IActionResult> ConfirmEmail([FromRoute]Guid userId, [FromQuery]Guid emailConfirmationToken)
         {
             var result = await _userService.ConfirmEmail(userId, emailConfirmationToken).ConfigureAwait(false);
-            if (!result.Success)
+            if (result.State == Core.ResultState.Failure)
                 return BadRequest(result.FailureReason);
 
             return Ok();
@@ -106,8 +111,8 @@ namespace Tranquiliza.Shop.Api.Controllers
             if (userId == Guid.Empty)
                 return BadRequest("Please provide an Id");
 
-            var result = await _userService.Delete(userId, ApplicationContext.Create(Guid.Parse(User.Identity.Name))).ConfigureAwait(false);
-            if (!result.Success)
+            var result = await _userService.Delete(userId, ApplicationContext).ConfigureAwait(false);
+            if (result.State == Core.ResultState.AccessDenied)
                 return Unauthorized(result.FailureReason);
 
             return Ok();

@@ -1,0 +1,22 @@
+﻿CREATE TABLE [Core].[Inquiries]
+(
+	[Id] INT IDENTITY(1,1) NOT NULL PRIMARY KEY, 
+    [InquiryId] UNIQUEIDENTIFIER NOT NULL, 
+    [CreatedByClientId] UNIQUEIDENTIFIER NOT NULL, 
+    [InquiryState] INT NOT NULL, 
+    [CustomerEmail] NVARCHAR(100) NULL, 
+    [UserId] UNIQUEIDENTIFIER NULL,
+    [Data] VARCHAR(MAX) NOT NULL
+)
+GO
+
+CREATE UNIQUE INDEX [IX_INQUIRIES_INQUIRYID] ON [Core].[Inquiries]([InquiryId])
+GO
+CREATE UNIQUE INDEX [IX_INQUIRIES_CREATEDBYCLIENTID] ON [Core].[Inquiries]([CreatedByClientId])
+GO
+CREATE INDEX [IX_INQUIRIES_USERID] ON [Core].[Inquiries]([UserId])
+GO
+CREATE INDEX [IX_INQUIRIES_CUSTOMEREMAIL] ON [Core].[Inquiries]([CustomerEmail])
+GO
+CREATE INDEX [IX_INQUIRIES_INQUIRYSTATE] ON [Core].[Inquiries]([InquiryState])
+GO

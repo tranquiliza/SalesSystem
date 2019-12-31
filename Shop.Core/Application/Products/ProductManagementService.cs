@@ -10,25 +10,22 @@ namespace Tranquiliza.Shop.Core.Application
     public class ProductManagementService : IProductManagementService
     {
         private readonly IProductRepository _productRepository;
-        private readonly IUserRepository _userRepository;
         private readonly IImageRepository _imageRepository;
 
-        public ProductManagementService(IProductRepository productRepository, IUserRepository userRepository, IImageRepository imageRepository)
+        public ProductManagementService(IProductRepository productRepository, IImageRepository imageRepository)
         {
             _productRepository = productRepository;
-            _userRepository = userRepository;
             _imageRepository = imageRepository;
         }
 
-        public async Task<IResult<Product>> CreateProduct(string title, string category, int price, IApplicationContext context)
+        public async Task<IResult<Product>> CreateProduct(string title, string category, int price, string description, IApplicationContext context)
         {
-            var currentUser = await _userRepository.Get(context.UserId).ConfigureAwait(false);
-            if (!currentUser.HasRole(Role.Admin))
+            if (context.User?.HasRole(Role.Admin) == false)
                 return Result<Product>.Failure("Insufficient permissions");
 
             try
             {
-                var product = Product.Create(title, category, price);
+                var product = Product.Create(title, category, price, description);
                 var persisted = await _productRepository.Save(product).ConfigureAwait(false);
                 if (!persisted)
                     return Result<Product>.Failure("Unable to save product");

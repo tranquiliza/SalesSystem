@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Components.Builder;
 using Microsoft.Extensions.DependencyInjection;
+using Shop.Frontend.Application;
 
 namespace Shop.Frontend
 {
@@ -8,6 +9,10 @@ namespace Shop.Frontend
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddSingleton<IConfiguration, Configuration>();
+            services.AddSingleton<IBasketService, BasketService>();
+            services.AddSingleton<IApplicationState, ApplicationState>();
+            services.AddSingleton<IApplicationStateManager, ApplicationStateManager>();
+            services.AddSingleton<IApiGateway, ApiGateway>();
         }
 
         public void Configure(IComponentsApplicationBuilder app)

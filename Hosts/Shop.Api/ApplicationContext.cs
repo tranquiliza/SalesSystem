@@ -10,8 +10,16 @@ namespace Tranquiliza.Shop.Api
 {
     public class ApplicationContext : IApplicationContext
     {
-        public Guid UserId { get; private set; }
+        public User User { get; private set; }
 
-        public static ApplicationContext Create(Guid userId) => new ApplicationContext { UserId = userId};
+        public bool IsAnonymous { get; private set; }
+
+        public Guid ClientId { get; private set; }
+
+        public Guid UserId => User?.Id ?? default;
+
+        public static ApplicationContext Create(User user, Guid clientId) => new ApplicationContext { User = user, ClientId = clientId, IsAnonymous = false };
+
+        public static ApplicationContext CreateAnonymous(Guid clientId) => new ApplicationContext { IsAnonymous = true, ClientId = clientId };
     }
 }

@@ -6,7 +6,7 @@ namespace Tranquiliza.Shop.Core
 {
     public interface IResult
     {
-        bool Success { get; }
+        ResultState State { get; }
         string FailureReason { get; }
     }
 

@@ -7,6 +7,9 @@ namespace Tranquiliza.Shop.Core
 {
     public interface IApplicationContext
     {
+        User User { get; }
         Guid UserId { get; }
+        Guid ClientId { get; }
+        bool IsAnonymous { get; }
     }
 }

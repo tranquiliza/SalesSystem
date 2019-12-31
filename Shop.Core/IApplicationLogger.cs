@@ -4,7 +4,7 @@ using System.Text;
 
 namespace Tranquiliza.Shop.Core
 {
-    public interface ILogger
+    public interface IApplicationLogger
     {
         void Debug(string message);
         void Info(string message);

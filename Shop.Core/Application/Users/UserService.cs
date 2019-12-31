@@ -25,22 +25,22 @@ namespace Tranquiliza.Shop.Core.Application
             _eventDispatcher = eventDispatcher;
         }
 
-        public async Task<User> Authenticate(string email, string password)
+        public async Task<IResult<User>> Authenticate(string email, string password)
         {
-            if (email == null)
-                return null;
+            if (string.IsNullOrEmpty(email))
+                return Result<User>.Failure("Email must be provided");
 
-            if (password == null)
-                return null;
+            if (string.IsNullOrEmpty(password))
+                return Result<User>.Failure("Password must be provided");
 
             var user = await _userRepository.GetByEmail(email).ConfigureAwait(false);
             if (user == null)
-                return null;
+                return Result<User>.Failure("Incorrect email or username");
 
             if (!_security.VerifyPasswordHash(password, user.PasswordHash, user.PasswordSalt))
-                return null;
+                return Result<User>.Failure("Incorrect email or username");
 
-            return user;
+            return Result<User>.Succeeded(user);
         }
 
         public async Task<IResult<User>> Create(string email, string password, string roleName = null)
@@ -135,11 +135,11 @@ namespace Tranquiliza.Shop.Core.Application
         {
             var currentUser = await _userRepository.Get(applicationContext.UserId).ConfigureAwait(false);
             if (currentUser?.HasRole(Role.Admin) == false)
-                return Result<IEnumerable<User>>.Failure("Unauthorized");
+                return Result<IEnumerable<User>>.Unauthorized();
 
             var result = await _userRepository.GetAll().ConfigureAwait(false);
             if (result == null)
-                return Result<IEnumerable<User>>.Failure("No users found");
+                return Result<IEnumerable<User>>.NoContentFound();
 
             return Result<IEnumerable<User>>.Succeeded(result);
         }
@@ -148,7 +148,7 @@ namespace Tranquiliza.Shop.Core.Application
         {
             var currentUser = await _userRepository.Get(applicationContext.UserId).ConfigureAwait(false);
             if (currentUser?.Id != id && currentUser?.HasRole(Role.Admin) == false)
-                return Result<User>.Failure("Unauthorized");
+                return Result<User>.Unauthorized();
 
             var result = await _userRepository.Get(id).ConfigureAwait(false);
             if (result == null)

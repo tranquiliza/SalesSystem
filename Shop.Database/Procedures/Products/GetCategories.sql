@@ -1,4 +1,4 @@
-﻿CREATE PROCEDURE [dbo].[GetCategories]
+﻿CREATE PROCEDURE [Core].[GetCategories]
 AS
-	SELECT DISTINCT Category FROM Products
+	SELECT DISTINCT [Category] FROM [Core].[Products]
 GO

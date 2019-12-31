@@ -1,6 +1,7 @@
-﻿CREATE TABLE [dbo].[Products]
+﻿CREATE TABLE [Core].[Products]
 (
-	[Id] UNIQUEIDENTIFIER NOT NULL PRIMARY KEY, 
+	[Id] INT NOT NULL PRIMARY KEY IDENTITY(1,1), 
+    [Guid] UNIQUEIDENTIFIER NOT NULL,
     [Price] INT NOT NULL, 
     [IsActive] BIT NOT NULL, 
     [Category] NVARCHAR(50) NOT NULL, 
@@ -9,7 +10,9 @@
 )
 GO
 
-CREATE INDEX IX_Products_Category ON Products(Category)
+CREATE UNIQUE INDEX [IX_PRODUCTS_GUID] ON [Core].[Products]([Guid])
 GO
-CREATE INDEX IX_Products_Title ON Products([Name])
+CREATE INDEX [IX_PRODUCTS_CATEGORY] ON [Core].[Products]([Category])
+GO
+CREATE INDEX [IX_PRODUCTS_TITLE] ON [Core].[Products]([Name])
 GO
