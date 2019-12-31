@@ -8,7 +8,7 @@ namespace Tranquiliza.Shop.Core.Model
     {
         AddingToCart = 0,
         Placed = 1,
-        InquriyConfirmed = 2,
+        PaymentReceived = 2,
         Dispatched = 3,
     }
 }

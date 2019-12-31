@@ -1,4 +1,5 @@
 ﻿@inject IBasketService basketService
+@implements IDisposable
 
 <i class="material-icons right">shopping_cart</i> @basketService.ItemCount() (@(string.Format("{0:n}", basketService.Total)) DKK)
 

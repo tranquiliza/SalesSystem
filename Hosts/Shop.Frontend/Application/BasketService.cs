@@ -50,7 +50,22 @@ namespace Shop.Frontend.Application
                 return;
 
             var model = new RemoveProductFromInquiryModel { ProductId = productId, Amount = 1 };
-            _inquiry = await _api.Delete<InquiryModel, RemoveProductFromInquiryModel>(model, "Inquiries", routeValues: new string[] { _inquiry.Id.ToString(), "product"}).ConfigureAwait(false);
+            _inquiry = await _api.Delete<InquiryModel, RemoveProductFromInquiryModel>(model, "Inquiries", routeValues: new string[] { _inquiry.Id.ToString(), "product" }).ConfigureAwait(false);
+
+            NotifyStateChanged();
+        }
+
+        public async Task DeleteFromBasket(Guid productId)
+        {
+            if (_inquiry == null)
+                return;
+
+            var product = _inquiry.OrderLines.Find(x => x.Product.Id == productId);
+            if (product == null)
+                return;
+
+            var model = new RemoveProductFromInquiryModel { ProductId = productId, Amount = product.Amount };
+            _inquiry = await _api.Delete<InquiryModel, RemoveProductFromInquiryModel>(model, "Inquiries", routeValues: new string[] { _inquiry.Id.ToString(), "product" }).ConfigureAwait(false);
 
             NotifyStateChanged();
         }
@@ -58,6 +73,24 @@ namespace Shop.Frontend.Application
         private void NotifyStateChanged() => OnChange?.Invoke();
 
         public int ItemCount() => Items.Sum(item => item.Amount);
+
+        public CustomerInformationModel CustomerInformation => _inquiry?.Customer;
+
+        public InquiryStateModel InquiryState => _inquiry?.State ?? InquiryStateModel.AddingToCart;
+
+        public async Task<bool> TryAddCustomer(AddCustomerToInquiryModel model)
+        {
+            if (_inquiry == null)
+                return false;
+
+            _inquiry = await _api.Post<InquiryModel, AddCustomerToInquiryModel>(model, "Inquiries", routeValues: new string[] { _inquiry.Id.ToString(), "customer" }).ConfigureAwait(false);
+
+            var setInquiryToPlacedState = new UpdateInquiryStateModel { NewState = InquiryStateModel.Placed };
+            _inquiry = await _api.Post<InquiryModel, UpdateInquiryStateModel>(setInquiryToPlacedState, "Inquiries", routeValues: new string[] { _inquiry.Id.ToString(), "state" }).ConfigureAwait(false);
+
+            NotifyStateChanged();
+            return true;
+        }
 
         public double Total => _inquiry?.Total ?? 0;
     }

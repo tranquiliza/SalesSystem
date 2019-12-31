@@ -244,8 +244,12 @@ namespace Tranquiliza.Shop.Core.Tests.Application
             var email = "email@somewhere.com";
             var firstName = "Daniel";
             var surName = "Tranquiliza";
-            var address = "twitch.tv/tranquiliza";
             var phoneNumber = "0011223344";
+
+            var country = "Denmark";
+            var zipCode = "0000";
+            var city = "Odense";
+            var streetNumber = "Somewhere 1";
 
             var applicationContext = new TestContext(userId, clientId, false);
 
@@ -262,7 +266,7 @@ namespace Tranquiliza.Shop.Core.Tests.Application
                 .Build();
 
             // act
-            var result = await sut.AddCustomerToInquiry(inquiry.Id, email, firstName, surName, address, phoneNumber, applicationContext).ConfigureAwait(false);
+            var result = await sut.AddCustomerToInquiry(inquiry.Id, email, firstName, surName, phoneNumber, country, zipCode, city, streetNumber, applicationContext).ConfigureAwait(false);
 
             // assert
             Assert.AreEqual(ResultState.Success, result.State);
@@ -271,8 +275,11 @@ namespace Tranquiliza.Shop.Core.Tests.Application
                 y.Email == email
                 && y.FirstName == firstName
                 && y.Surname == surName
-                && y.Address == address
                 && y.PhoneNumber == phoneNumber
+                && y.Country == country
+                && y.ZipCode == zipCode
+                && y.City == city
+                && y.StreetNumber == streetNumber
             )));
 
             inquiryRepository.Verify(x => x.Save(It.Is<Inquiry>(y =>
@@ -299,6 +306,11 @@ namespace Tranquiliza.Shop.Core.Tests.Application
             var address = "twitch.tv/tranquiliza";
             var phoneNumber = "0011223344";
 
+            var country = "Denmark";
+            var zipCode = "0000";
+            var city = "Odense";
+            var streetNumber = "Somewhere 1";
+
             var applicationContext = new TestContext(userId, clientId, false);
 
             var productRepository = new Mock<IProductRepository>();
@@ -314,7 +326,7 @@ namespace Tranquiliza.Shop.Core.Tests.Application
                 .Build();
 
             // act
-            var result = await sut.AddCustomerToInquiry(inquiry.Id, email, firstName, surName, address, phoneNumber, applicationContext).ConfigureAwait(false);
+            var result = await sut.AddCustomerToInquiry(inquiry.Id, email, firstName, surName, phoneNumber, country, zipCode, city, streetNumber, applicationContext).ConfigureAwait(false);
 
             // assert
             Assert.AreEqual(ResultState.Success, result.State, message: result.FailureReason);
@@ -323,8 +335,11 @@ namespace Tranquiliza.Shop.Core.Tests.Application
                 y.Email == email
                 && y.FirstName == firstName
                 && y.Surname == surName
-                && y.Address == address
                 && y.PhoneNumber == phoneNumber
+                && y.Country == country
+                && y.ZipCode == zipCode
+                && y.City == city
+                && y.StreetNumber == streetNumber
             )));
 
             inquiryRepository.Verify(x => x.Save(It.Is<Inquiry>(y =>

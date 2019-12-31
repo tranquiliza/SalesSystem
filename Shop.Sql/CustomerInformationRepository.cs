@@ -33,7 +33,7 @@ namespace Tranquiliza.Shop.Sql
             }
             catch (Exception ex)
             {
-                _log.Warning($"Unable to get CustomerInformation for {customerId}", ex);
+                _log.Warning($"Unable to get CustomerInformation for customerId {customerId}", ex);
                 throw;
             }
 
@@ -60,6 +60,26 @@ namespace Tranquiliza.Shop.Sql
             return null;
         }
 
+        public async Task<CustomerInformation> GetCustomerFromClientId(Guid clientId)
+        {
+            try
+            {
+                using var cmd = _sql.CreateStoredProcedure("[Core].[GetCustomerInformationFromClientId]")
+                    .WithParameter("clientId", clientId);
+
+                using var reader = await cmd.ExecuteReaderAsync(CommandBehavior.SingleRow).ConfigureAwait(false);
+                if (await reader.ReadAsync().ConfigureAwait(false))
+                    return Serialization.Deserialize<CustomerInformation>(reader.GetString("Data"));
+            }
+            catch (Exception ex)
+            {
+                _log.Warning($"Unable to get CustomerInformation for clientId {clientId}", ex);
+                throw;
+            }
+
+            return null;
+        }
+
         public async Task Save(CustomerInformation customer)
         {
             try
@@ -68,6 +88,7 @@ namespace Tranquiliza.Shop.Sql
 
                 using var cmd = _sql.CreateStoredProcedure("[Core].[InsertUpdateCustomerInformation]")
                     .WithParameter("customerInformationId", customer.Id)
+                    .WithParameter("clientId", customer.CreatedByClientId)
                     .WithParameter("email", customer.Email)
                     .WithParameter("phoneNumber", customer.PhoneNumber)
                     .WithParameter("data", serializedCustomer);

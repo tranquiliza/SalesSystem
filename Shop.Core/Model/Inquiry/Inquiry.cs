@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Tranquiliza.Shop.Core.Application;
 
 namespace Tranquiliza.Shop.Core.Model
 {
@@ -45,6 +46,9 @@ namespace Tranquiliza.Shop.Core.Model
 
         public void RemoveProduct(Guid productId, int amountToRemove)
         {
+            if (State > InquiryState.AddingToCart)
+                throw new DomainException("Cant remove product from an inquiry that's already placed");
+
             var orderline = OrderLines.Find(x => x.Item.Id == productId);
             if (orderline == null)
                 return;
@@ -56,6 +60,9 @@ namespace Tranquiliza.Shop.Core.Model
 
         public void AddProduct(Product item, int amount = 1)
         {
+            if (State > InquiryState.AddingToCart)
+                throw new DomainException("Cant Add product to an inquiry that's already placed");
+
             if (amount < 1)
                 throw new InvalidOperationException("Must add at least one product");
 
@@ -68,13 +75,26 @@ namespace Tranquiliza.Shop.Core.Model
 
         public void SetCustomerInformation(CustomerInformation customerInformation)
         {
+            if (State > InquiryState.AddingToCart)
+                throw new DomainException("Cant update customer information on an inquiry that's already placed");
+
             CustomerInformation = customerInformation;
             if (UserId == default && CustomerInformation.UserId != default)
-            {
                 UserId = customerInformation.UserId;
-            }
         }
 
         public double GetTotal() => OrderLines.Sum(x => x.LineTotal());
+
+        public bool TryUpdateState(InquiryState requestedState)
+        {
+            if (requestedState > State)
+            {
+                State = requestedState;
+
+                return true;
+            }
+
+            return false;
+        }
     }
 }

@@ -51,7 +51,7 @@ namespace Tranquiliza.Shop.Core.Tests.Model
             var clientId = Guid.NewGuid();
             var product = Product.Create("Test Name", "TestCategory", 100, null);
             var sut = Inquiry.Create(product, owner, clientId);
-            var customer = CustomerInformation.Create("tranq@twitch.tv", "tranq", "uiliza", "twitch", "0011223344");
+            var customer = CustomerInformation.Create("tranq@twitch.tv", "tranq", "uiliza", "0011223344", "Denmark", "0000", "Odense", "Odensevej 02", Guid.NewGuid());
 
             // act
             sut.SetCustomerInformation(customer);

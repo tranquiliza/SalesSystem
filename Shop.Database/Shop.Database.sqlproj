@@ -83,6 +83,7 @@
     <Build Include="Procedures\Inquiries\InsertUpdateInquiry.sql" />
     <Build Include="Procedures\Inquiries\GetInquiryFromId.sql" />
     <Build Include="Procedures\Inquiries\GetInquiryFromClientId.sql" />
+    <Build Include="Procedures\CustomerInformation\GetCustomerInformationFromClientId.sql" />
   </ItemGroup>
   <ItemGroup>
     <RefactorLog Include="Shop.Database.refactorlog" />

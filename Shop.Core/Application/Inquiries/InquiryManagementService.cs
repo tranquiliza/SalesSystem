@@ -55,8 +55,11 @@ namespace Tranquiliza.Shop.Core.Application
             string email,
             string firstName,
             string surname,
-            string address,
             string phoneNumber,
+            string country,
+            string zipCode,
+            string city,
+            string streetNumber,
             IApplicationContext context)
         {
             var inquiry = await _inquiryRepository.Get(inquiryId).ConfigureAwait(false);
@@ -69,7 +72,8 @@ namespace Tranquiliza.Shop.Core.Application
             CustomerInformation customerInformation;
             if (context.IsAnonymous)
             {
-                customerInformation = await _customerRepository.GetCustomer(email).ConfigureAwait(false);
+                customerInformation = await _customerRepository.GetCustomer(email).ConfigureAwait(false)
+                    ?? await _customerRepository.GetCustomerFromClientId(context.ClientId).ConfigureAwait(false);
             }
             else
             {
@@ -79,14 +83,14 @@ namespace Tranquiliza.Shop.Core.Application
 
             if (customerInformation == null)
             {
-                customerInformation = CustomerInformation.Create(email, firstName, surname, address, phoneNumber, context.UserId);
+                customerInformation = CustomerInformation.Create(email, firstName, surname, phoneNumber, country, zipCode, city, streetNumber, context.ClientId, context.UserId);
                 await _customerRepository.Save(customerInformation).ConfigureAwait(false);
             }
 
             if (!context.HasAccessTo(customerInformation))
                 return Result<Inquiry>.Unauthorized();
 
-            if (customerInformation.TryUpdate(email, firstName, surname, address, phoneNumber, context))
+            if (customerInformation.TryUpdate(email, firstName, surname, phoneNumber, country, zipCode, city, streetNumber, context))
                 await _customerRepository.Save(customerInformation).ConfigureAwait(false);
 
             inquiry.SetCustomerInformation(customerInformation);
@@ -109,6 +113,24 @@ namespace Tranquiliza.Shop.Core.Application
                 return Result<Inquiry>.Failure("Product not found");
 
             inquiry.AddProduct(product, amount);
+            await _inquiryRepository.Save(inquiry).ConfigureAwait(false);
+
+            return Result<Inquiry>.Succeeded(inquiry);
+        }
+
+        public async Task<Result<Inquiry>> UpdateInquiryState(Guid inquiryId, InquiryState requestedState, IApplicationContext context)
+        {
+            var inquiry = await _inquiryRepository.Get(inquiryId).ConfigureAwait(false);
+            if (inquiry == null)
+                return Result<Inquiry>.Failure("Unable to find inquiry");
+
+            if (!context.HasAccessTo(inquiry))
+                return Result<Inquiry>.Unauthorized();
+
+            var success = inquiry.TryUpdateState(requestedState);
+            if (!success)
+                return Result<Inquiry>.Failure("Unable to update to requested state");
+
             await _inquiryRepository.Save(inquiry).ConfigureAwait(false);
 
             return Result<Inquiry>.Succeeded(inquiry);

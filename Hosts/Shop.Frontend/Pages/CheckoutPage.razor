@@ -1,0 +1,85 @@
+﻿@inject IJSRuntime JSRuntime
+@inject IBasketService basketService
+@implements IDisposable
+
+@page "/checkout"
+
+<div class="row">
+    <div class="col s12">
+        <ul id="basketProgressBar" class="tabs">
+            @switch (basketService.InquiryState)
+            {
+                case InquiryStateModel.Placed:
+                    <li class="tab col s4 disabled"><a @onclick="@(async () => await DisablePaymentTab().ConfigureAwait(false))" href="#CustomerInformation">INFORMATION</a></li>
+                    <li id="basketPaymentTab" class="tab col s4"><a class="active" href="#Payment">Payment</a></li>
+                    <li class="tab col s4 disabled"><a href="#Confirmation">Confirmation</a></li>
+                    break;
+                case InquiryStateModel.PaymentReceived:
+                    <li class="tab col s4 disabled"><a @onclick="@(async () => await DisablePaymentTab().ConfigureAwait(false))" href="#CustomerInformation">INFORMATION</a></li>
+                    <li id="basketPaymentTab" class="tab col s4 disabled"><a href="#Payment">Payment</a></li>
+                    <li class="tab col s4"><a class="active" href="#Confirmation">Confirmation</a></li>
+                    break;
+
+                case InquiryStateModel.Dispatched:
+                case InquiryStateModel.AddingToCart:
+                default:
+                    <li class="tab col s4"><a @onclick="@(async () => await DisablePaymentTab().ConfigureAwait(false))" href="#CustomerInformation">INFORMATION</a></li>
+                    <li id="basketPaymentTab" class="tab col s4 disabled"><a href="#Payment">Payment</a></li>
+                    <li class="tab col s4 disabled"><a href="#Confirmation">Confirmation</a></li>
+                    break;
+            }
+        </ul>
+    </div>
+
+    <div id="CustomerInformation">
+        <div class="row">
+            <div class="col m9">
+                <CustomerForm ChangeToPaymentTab="SwitchToPaymentTab" />
+            </div>
+            <div class="col m3">
+                <BasketComponent />
+            </div>
+        </div>
+    </div>
+
+    <div id="Payment">
+        <h1>How to pay</h1>
+    </div>
+
+    <div id="Confirmation">
+        <h1>Confirmed</h1>
+    </div>
+</div>
+
+
+@code   {
+    protected override void OnInitialized()
+    {
+        basketService.OnChange += StateHasChanged;
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+        }
+        await JSRuntime.InvokeVoidAsync("InitializeTabs").ConfigureAwait(false);
+
+        await base.OnAfterRenderAsync(firstRender);
+    }
+
+    public async Task DisablePaymentTab()
+    {
+        await JSRuntime.InvokeVoidAsync("DisablePaymentTab").ConfigureAwait(false);
+    }
+
+    public async Task SwitchToPaymentTab()
+    {
+        await JSRuntime.InvokeVoidAsync("BasketSwitchToPayment").ConfigureAwait(false);
+    }
+
+    public void Dispose()
+    {
+        basketService.OnChange -= StateHasChanged;
+    }
+}

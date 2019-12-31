@@ -70,8 +70,11 @@ namespace Tranquiliza.Shop.Api.Controllers
                 model.Email,
                 model.FirstName,
                 model.Surname,
-                model.Address,
                 model.PhoneNumber,
+                model.Country,
+                model.ZipCode,
+                model.City,
+                model.StreetNumber,
                 ApplicationContext).ConfigureAwait(false);
 
             if (result.State == Core.ResultState.Failure)
@@ -79,6 +82,22 @@ namespace Tranquiliza.Shop.Api.Controllers
 
             if (result.State == Core.ResultState.AccessDenied)
                 return Unauthorized();
+
+            return Ok(result.Data.Map(RequestInformation));
+        }
+
+        [HttpPost("{inquiryId}/state")]
+        [AllowAnonymous]
+        public async Task<IActionResult> UpdateState([FromRoute]Guid inquiryId, [FromBody]UpdateInquiryStateModel model)
+        {
+            var requestedState = model.Map();
+            var result = await _inquiryManagementService.UpdateInquiryState(inquiryId, requestedState, ApplicationContext).ConfigureAwait(false);
+
+            if (result.State == Core.ResultState.AccessDenied)
+                return Unauthorized();
+
+            if (result.State == Core.ResultState.Failure)
+                return BadRequest(result.FailureReason);
 
             return Ok(result.Data.Map(RequestInformation));
         }

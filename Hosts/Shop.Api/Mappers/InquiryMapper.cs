@@ -24,7 +24,7 @@ namespace Tranquiliza.Shop.Api.Mappers
              {
                  InquiryState.AddingToCart => InquiryStateModel.AddingToCart,
                  InquiryState.Placed => InquiryStateModel.Placed,
-                 InquiryState.InquriyConfirmed => InquiryStateModel.InquriyConfirmed,
+                 InquiryState.PaymentReceived => InquiryStateModel.PaymentReceived,
                  InquiryState.Dispatched => InquiryStateModel.Dispatched,
                  _ => throw new NotImplementedException("State is not implemented in mapper"),
              };
@@ -32,11 +32,14 @@ namespace Tranquiliza.Shop.Api.Mappers
         private static CustomerInformationModel Map(this CustomerInformation customerInformation)
             => new CustomerInformationModel
             {
-                Address = customerInformation.Address,
                 Email = customerInformation.Email,
                 FirstName = customerInformation.FirstName,
                 PhoneNumber = customerInformation.PhoneNumber,
-                Surname = customerInformation.Surname
+                Surname = customerInformation.Surname,
+                Country = customerInformation.Country,
+                StreetNumber = customerInformation.StreetNumber,
+                City = customerInformation.City,
+                ZipCode = customerInformation.ZipCode
             };
 
         private static OrderLineModel Map(this OrderLine orderLine, IRequestInformation requestInformation)
@@ -45,6 +48,16 @@ namespace Tranquiliza.Shop.Api.Mappers
                 Amount = orderLine.Amount,
                 Product = orderLine.Item.Map(requestInformation),
                 LineTotal = orderLine.LineTotal()
+            };
+
+        public static InquiryState Map(this UpdateInquiryStateModel model)
+            => model.NewState switch
+            {
+                InquiryStateModel.AddingToCart => InquiryState.AddingToCart,
+                InquiryStateModel.Placed => InquiryState.Placed,
+                InquiryStateModel.PaymentReceived => InquiryState.PaymentReceived,
+                InquiryStateModel.Dispatched => InquiryState.Dispatched,
+                _ => throw new NotImplementedException("State is not implemented in mapper"),
             };
     }
 }

@@ -23,36 +23,65 @@ namespace Tranquiliza.Shop.Core.Model
         public string Surname { get; private set; }
 
         [JsonProperty]
-        public string Address { get; private set; }
+        public string PhoneNumber { get; private set; }
 
         [JsonProperty]
-        public string PhoneNumber { get; private set; }
+        public string Country { get; private set; }
+
+        [JsonProperty]
+        public string ZipCode { get; private set; }
+
+        [JsonProperty]
+        public string City { get; private set; }
+
+        [JsonProperty]
+        public string StreetNumber { get; private set; }
+
+        [JsonProperty]
+        public Guid CreatedByClientId { get; private set; }
 
         [Obsolete("Serialization", true)]
         public CustomerInformation() { }
 
-        private CustomerInformation(string email, string firstName, string surname, string address, string phoneNumber, Guid userId)
+        private CustomerInformation(string email, string firstName, string surname, string phoneNumber, string country, string zipCode, string city, string streetNumber, Guid clientId, Guid userId)
         {
             Id = Guid.NewGuid();
             Email = email;
             FirstName = firstName;
             Surname = surname;
-            Address = address;
             PhoneNumber = phoneNumber;
             UserId = userId;
+            Country = country;
+            ZipCode = zipCode;
+            City = city;
+            StreetNumber = streetNumber;
+            CreatedByClientId = clientId;
         }
 
-        public static CustomerInformation Create(string email, string firstName, string surname, string address, string phoneNumber, Guid userId = default)
+        public static CustomerInformation Create(string email, string firstName, string surname, string phoneNumber, string country, string zipCode, string city, string streetName, Guid clientId, Guid userId = default)
         {
-            return new CustomerInformation(email, firstName, surname, address, phoneNumber, userId);
+            return new CustomerInformation(
+                email,
+                firstName,
+                surname,
+                phoneNumber,
+                country,
+                zipCode,
+                city,
+                streetName,
+                clientId,
+                userId);
         }
 
-        public bool TryUpdate(string email, string firstName, string surname, string address, string phoneNumber, IApplicationContext context)
+        public bool TryUpdate(string email, string firstName, string surname, string phoneNumber, string country, string zipCode, string city, string streetNumber, IApplicationContext context)
         {
             if (string.Equals(email, Email, StringComparison.OrdinalIgnoreCase)
                 && string.Equals(FirstName, firstName, StringComparison.OrdinalIgnoreCase)
                 && string.Equals(Surname, surname, StringComparison.OrdinalIgnoreCase)
-                && string.Equals(Address, address, StringComparison.OrdinalIgnoreCase)
+                && string.Equals(Country, country, StringComparison.OrdinalIgnoreCase)
+                && string.Equals(ZipCode, zipCode, StringComparison.OrdinalIgnoreCase)
+                && string.Equals(City, city, StringComparison.OrdinalIgnoreCase)
+                && string.Equals(StreetNumber, streetNumber, StringComparison.OrdinalIgnoreCase)
                 && string.Equals(PhoneNumber, phoneNumber, StringComparison.OrdinalIgnoreCase))
             {
                 if (UserId == default && !context.IsAnonymous)
@@ -64,12 +93,16 @@ namespace Tranquiliza.Shop.Core.Model
                 return false;
             }
 
-            if (context.IsAnonymous)
+            if (context.IsAnonymous && CreatedByClientId == context.ClientId)
             {
+                Email = email;
                 FirstName = firstName;
                 Surname = surname;
-                Address = address;
                 PhoneNumber = phoneNumber;
+                Country = country;
+                ZipCode = zipCode;
+                City = city;
+                StreetNumber = streetNumber;
 
                 return true;
             }
@@ -80,8 +113,11 @@ namespace Tranquiliza.Shop.Core.Model
             Email = email;
             FirstName = firstName;
             Surname = surname;
-            Address = address;
             PhoneNumber = phoneNumber;
+            Country = country;
+            ZipCode = zipCode;
+            City = city;
+            StreetNumber = streetNumber;
 
             return true;
         }

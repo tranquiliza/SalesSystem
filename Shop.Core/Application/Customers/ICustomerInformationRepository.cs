@@ -8,6 +8,7 @@ namespace Tranquiliza.Shop.Core.Application
     {
         Task<CustomerInformation> GetCustomer(Guid customerId);
         Task<CustomerInformation> GetCustomer(string emailAddress);
+        Task<CustomerInformation> GetCustomerFromClientId(Guid clientId);
         Task Save(CustomerInformation customer);
     }
 }

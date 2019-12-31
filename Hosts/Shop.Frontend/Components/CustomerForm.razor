@@ -1,18 +1,20 @@
-﻿@using System.ComponentModel.DataAnnotations;
+﻿@inject IBasketService basketService
+@inject IJSRuntime JSRuntime
+@implements IDisposable
 
 <div class="card-panel">
     <Header Title="Customer Information"></Header>
-    <EditForm Model="@testModel" OnValidSubmit="@LogSubmit">
+    <EditForm Model="@model" OnValidSubmit="@AddCustomer">
         <DataAnnotationsValidator />
 
         <div class="row">
             <div class="input-field col s6">
                 <i class="material-icons prefix">person</i>
-                <InputText class="" type="text" id="first_name" @bind-Value="testModel.FirstName"></InputText>
+                <InputText class="" type="text" id="first_name" @bind-Value="model.FirstName"></InputText>
                 <label for="first_name">First Name</label>
             </div>
             <div class="input-field col s6">
-                <InputText type="text" id="last_name" @bind-Value="testModel.LastName"></InputText>
+                <InputText type="text" id="last_name" @bind-Value="model.Surname"></InputText>
                 <label for="last_name">Last Name</label>
             </div>
         </div>
@@ -20,7 +22,7 @@
         <div class="row">
             <div class="input-field col s12">
                 <i class="material-icons prefix">email</i>
-                <InputText type="email" id="email" @bind-Value="testModel.Email"></InputText>
+                <InputText type="email" id="email" @bind-Value="model.Email"></InputText>
                 <label for="email">Email</label>
             </div>
         </div>
@@ -28,24 +30,25 @@
         <div class="row">
             <div class="input-field col s6">
                 <i class="material-icons prefix">phone</i>
-                <InputText type="text" id="phone_number" @bind-Value="testModel.Phone"></InputText>
+                <InputText type="text" id="phone_number" @bind-Value="model.PhoneNumber"></InputText>
                 <label for="phone_number">Phone Number</label>
             </div>
             <div class="input-field col s6">
                 <i class="material-icons prefix">my_location</i>
-                <InputText type="text" id="country" @bind-Value="testModel.Country"></InputText>
+                <InputText type="text" id="country" @bind-Value="model.Country"></InputText>
                 <label for="country">Country</label>
             </div>
         </div>
 
         <div class="row">
             <div class="input-field col s6">
-                <i class="material-icons prefix">location_city</i>
-                <InputText type="text" id="zip_code" @bind-Value="testModel.ZipCode"></InputText>
+                <i class="material-icons prefix">code</i>
+                <InputText type="text" id="zip_code" @bind-Value="model.ZipCode"></InputText>
                 <label for="zip_code">Zip Code</label>
             </div>
             <div class="input-field col s6">
-                <InputText type="text" id="city" @bind-Value="testModel.City"></InputText>
+                <i class="material-icons prefix">location_city</i>
+                <InputText type="text" id="city" @bind-Value="model.City"></InputText>
                 <label for="city">City</label>
             </div>
         </div>
@@ -53,14 +56,14 @@
         <div class="row">
             <div class="input-field col s12">
                 <i class="material-icons prefix">home</i>
-                <InputText type="text" id="street_number" @bind-Value="testModel.StreetNumber"></InputText>
+                <InputText type="text" id="street_number" @bind-Value="model.StreetNumber"></InputText>
                 <label for="street_number">Street Number</label>
             </div>
         </div>
 
         <div class="row">
             <button class="btn waves-effect waves-light right" type="submit">
-                Place Order
+                Payment
                 <i class="material-icons right">navigate_next</i>
             </button>
         </div>
@@ -68,35 +71,66 @@
     </EditForm>
 </div>
 
-
-
 @code {
 
-    public class Test
+    [Parameter]
+    public EventCallback ChangeToPaymentTab { get; set; }
+
+    private AddCustomerToInquiryModel model = new AddCustomerToInquiryModel();
+
+    protected override async Task OnInitializedAsync()
     {
-        [Required]
-        public string FirstName { get; set; }
-        [Required]
-        public string LastName { get; set; }
-        [Required]
-        [DataType(DataType.EmailAddress)]
-        public string Email { get; set; }
-        [Required]
-        public string Phone { get; set; }
-        [Required]
-        public string Country { get; set; }
-        [Required]
-        public string ZipCode { get; set; }
-        [Required]
-        public string City { get; set; }
-        [Required]
-        public string StreetNumber { get; set; }
+        basketService.OnChange += UpdateComponentAsync;
+
+        await UpdateComponent().ConfigureAwait(false);
     }
 
-    private Test testModel = new Test();
+    private Action UpdateComponentAsync => async () => await UpdateComponent();
 
-    private void LogSubmit()
+    private async Task UpdateComponent()
     {
-        Console.WriteLine("Submitted: " + testModel.FirstName);
+        var customerInformation = basketService.CustomerInformation;
+        if (customerInformation == null)
+            return;
+
+        model.FirstName = customerInformation.FirstName;
+        model.Surname = customerInformation.Surname;
+        model.Email = customerInformation.Email;
+        model.PhoneNumber = customerInformation.PhoneNumber;
+        model.Country = customerInformation.Country;
+        model.ZipCode = customerInformation.ZipCode;
+        model.City = customerInformation.City;
+        model.StreetNumber = customerInformation.StreetNumber;
+
+        StateHasChanged();
+        await RefreshInputs().ConfigureAwait(false);
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await RefreshInputs().ConfigureAwait(false);
+        }
+
+        await base.OnAfterRenderAsync(firstRender);
+    }
+
+    private async Task AddCustomer()
+    {
+        var success = await basketService.TryAddCustomer(model).ConfigureAwait(false);
+        if (!success)
+        {
+            // Display why we can't proceed.
+            return;
+        }
+
+        await ChangeToPaymentTab.InvokeAsync(null);
+    }
+    private async Task RefreshInputs() => await JSRuntime.InvokeVoidAsync("RefreshInputFields").ConfigureAwait(false);
+
+    public void Dispose()
+    {
+        basketService.OnChange -= UpdateComponentAsync;
     }
 }

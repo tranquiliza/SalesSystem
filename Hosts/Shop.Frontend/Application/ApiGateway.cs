@@ -68,8 +68,11 @@ namespace Shop.Frontend.Application
             var response = await _httpClient.SendAsync(request).ConfigureAwait(false);
             if (!response.IsSuccessStatusCode)
             {
-                // FUCK
+                // Log
             }
+
+            if (response.StatusCode == System.Net.HttpStatusCode.NoContent)
+                return default;
 
             var responseValue = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
             return Serialization.Deserialize<T>(responseValue);
