@@ -9,6 +9,7 @@ namespace Shop.Frontend.Application
     public interface IUserService
     {
         bool IsUserLoggedIn { get; }
+        bool IsUserAdmin { get; }
 
         event Action OnChange;
 

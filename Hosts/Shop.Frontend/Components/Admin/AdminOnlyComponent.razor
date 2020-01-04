@@ -1,0 +1,24 @@
+﻿@implements IDisposable
+@inject IUserService userService
+@inject NavigationManager NavigationManager
+
+@code {
+    protected override void OnInitialized()
+    {
+        userService.OnChange += RefreshComponent;
+    }
+
+    private void RefreshComponent()
+    {
+        if (!userService.IsUserAdmin)
+        {
+            NavigationManager.NavigateTo("");
+        }
+        StateHasChanged();
+    }
+
+    public void Dispose()
+    {
+        userService.OnChange -= RefreshComponent;
+    }
+}

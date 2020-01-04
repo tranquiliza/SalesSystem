@@ -59,19 +59,18 @@ namespace Tranquiliza.Shop.Core.Application
 
         public async Task<IResult<IEnumerable<Product>>> GetProducts(string category)
         {
-            var products = await _productRepository.GetProducts(category);
+            var products = await _productRepository.GetProducts(category).ConfigureAwait(false);
 
             return Result<IEnumerable<Product>>.Succeeded(products);
         }
 
         public async Task<IResult<Product>> GetProduct(Guid productId)
         {
-            var product = await _productRepository.Get(productId);
+            var product = await _productRepository.Get(productId).ConfigureAwait(false);
             if (product == null)
                 return Result<Product>.Failure($"No product with given id {productId}");
 
             return Result<Product>.Succeeded(product);
-
         }
     }
 }

@@ -9,9 +9,25 @@ namespace Shop.Frontend.Application
 {
     public class UserService : IUserService
     {
+        private class UserInformation
+        {
+            public Guid Id { get; set; }
+            public List<string> Roles { get; set; }
+
+            public UserInformation(Guid id, List<string> roles)
+            {
+                Id = id;
+                Roles = roles;
+            }
+        }
+
         private readonly IApplicationStateManager _applicationStateManager;
         private readonly IApiGateway _api;
-        public bool IsUserLoggedIn { get; private set; }
+
+        private UserInformation User { get; set; }
+
+        public bool IsUserLoggedIn => User != null;
+        public bool IsUserAdmin => User?.Roles.Any(role => string.Equals("ADMIN", role, StringComparison.Ordinal)) == true;
 
         private void NotifyStateChanged() => OnChange?.Invoke();
         public event Action OnChange;
@@ -27,7 +43,7 @@ namespace Shop.Frontend.Application
             var currentToken = await _applicationStateManager.GetJwtToken().ConfigureAwait(false);
             if (!string.IsNullOrEmpty(currentToken))
             {
-                IsUserLoggedIn = true;
+                User = CreateUserFromJwtToken(currentToken);
                 NotifyStateChanged();
             }
         }
@@ -39,7 +55,7 @@ namespace Shop.Frontend.Application
                 return false;
 
             await _applicationStateManager.SetJwtToken(response.Token).ConfigureAwait(false);
-            IsUserLoggedIn = true;
+            User = CreateUserFromJwtToken(response.Token);
 
             NotifyStateChanged();
             return true;
@@ -47,34 +63,26 @@ namespace Shop.Frontend.Application
 
         public async Task<bool> TryLogout()
         {
-            IsUserLoggedIn = false;
+            User = null;
             await _applicationStateManager.SetJwtToken(string.Empty).ConfigureAwait(false);
 
+            NotifyStateChanged();
             return true;
         }
 
-        public async Task<Guid> GetCurrentUserId()
+        private UserInformation CreateUserFromJwtToken(string jwtToken)
         {
-            var currentToken = await _applicationStateManager.GetJwtToken().ConfigureAwait(false);
-            if (string.IsNullOrEmpty(currentToken))
-                return default;
+            if (string.IsNullOrEmpty(jwtToken))
+                return null;
 
-            var jwt = new JwtSecurityToken(currentToken);
+            var jwt = new JwtSecurityToken(jwtToken);
             var uniqueName = jwt.Claims.FirstOrDefault(x => x.Type == "unique_name");
-            if (Guid.TryParse(uniqueName?.Value, out var result))
-                return result;
+            if (!Guid.TryParse(uniqueName?.Value, out var userId))
+                return null;
 
-            return default;
-        }
+            var roles = jwt.Claims.Where(x => x.Type == "role").Select(x => x.Value).ToList();
 
-        public async Task<List<string>> GetCurrentUserRoles()
-        {
-            var currentToken = await _applicationStateManager.GetJwtToken().ConfigureAwait(false);
-            if (string.IsNullOrEmpty(currentToken))
-                return default;
-
-            var jwt = new JwtSecurityToken(currentToken);
-            return jwt.Claims.Where(x => x.Type == "role").Select(x => x.Value).ToList();
+            return new UserInformation(userId, roles);
         }
     }
 }
