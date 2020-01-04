@@ -17,7 +17,7 @@ namespace Tranquiliza.Shop.Api.Mappers
             {
                 Id = product.Id,
                 Category = product.Category,
-                Title = product.Name,
+                Name = product.Name,
                 Description = product.Description,
                 Price = product.ActualPrice,
                 Weight = product.Weight,

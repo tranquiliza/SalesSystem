@@ -1,0 +1,83 @@
+﻿@inject IProductService productService
+
+@page "/admin/products/{productIdString}"
+
+@if (product != null)
+{
+    <EditForm Model="@model" OnValidSubmit="EditProduct">
+        <DataAnnotationsValidator />
+
+        <div class="row">
+            <div class="input-field col s12">
+                <InputText id="name" @bind-Value="model.Name"></InputText>
+                <label for="name">Name</label>
+            </div>
+        </div>
+        <div class="row">
+            <div class="input-field col s12">
+                <InputTextArea class="materialize-textarea" id="description" @bind-Value="model.Description"></InputTextArea>
+                <label for="description">Description</label>
+            </div>
+        </div>
+        <div class="row">
+            <div class="input-field col s12">
+                <InputNumber id="purchaseCost" @bind-Value="model.PurchaseCost"></InputNumber>
+                <label for="purchaseCost">PurchaseCost</label>
+            </div>
+        </div>
+        <div class="row">
+            <div class="input-field col s12">
+                <InputNumber id="price" @bind-Value="model.Price"></InputNumber>
+                <label for="price">Price</label>
+            </div>
+        </div><div class="row">
+            <div class="input-field col s12">
+                <InputNumber id="weight" @bind-Value="model.Weight"></InputNumber>
+                <label for="weight">Weight</label>
+            </div>
+        </div>
+        <div class="row">
+            <div class="input-field col s12">
+                <InputCheckbox id="isActive" @bind-Value="model.IsActive"></InputCheckbox>
+                <label for="isActive">Is Active</label>
+            </div>
+        </div>
+        <div class="row">
+            <div class="input-field col s12">
+                <InputText id="category" @bind-Value="model.Category"></InputText>
+                <label for="category">Category</label>
+            </div>
+        </div>
+        <div class="row">
+            <div class="input-field col s12">
+                <button type="submit" class="btn waves-effect waves-light">Save</button>
+            </div>
+        </div>
+    </EditForm>
+}
+
+<AdminOnlyComponent />
+
+@code {
+    [Parameter]
+    public string ProductIdString { get; set; }
+
+    private Guid ProductId { get; set; }
+
+    private ProductModel product { get; set; }
+
+    private EditProductModel model = new EditProductModel();
+
+    protected override void OnParametersSet()
+    {
+        ProductId = Guid.Parse(ProductIdString);
+        product = productService.Products.FirstOrDefault(x => x.Id == ProductId);
+    }
+
+    private Task EditProduct()
+    {
+        Console.WriteLine(model);
+
+        return Task.CompletedTask;
+    }
+}

@@ -1,0 +1,63 @@
+﻿@inject NavigationManager navigationManager
+@inject Shop.Frontend.Infrastructure.IApiGateway api
+@implements IDisposable
+
+@if (IsProductPath)
+{
+    <div class="nav-content">
+        <ul class="tabs tabs-transparent">
+            @if (categories == null)
+            {
+                <ProgressBar></ProgressBar>
+            }
+            else
+            {
+                @foreach (var category in categories)
+                {
+                    <li class="tab">
+                        <NavLink class="waves-effect waves-light" href="@("products/" + category)" Match="NavLinkMatch.All">
+                            @category
+                        </NavLink>
+                    </li>
+                }
+            }
+        </ul>
+    </div>
+}
+
+@code {
+    private string[] categories;
+
+    protected override async Task OnInitializedAsync()
+    {
+        categories = await api.Get<string[]>("products", "categories").ConfigureAwait(false);
+    }
+
+    private bool IsProductPath = false;
+
+    protected override void OnInitialized()
+    {
+        navigationManager.LocationChanged += MyLocationChanged;
+    }
+
+    private void MyLocationChanged(object sender, LocationChangedEventArgs args)
+    {
+        var expectedPrefixString = navigationManager.BaseUri + "product";
+
+        if (args.Location.StartsWith(expectedPrefixString))
+        {
+            IsProductPath = true;
+        }
+        else
+        {
+            IsProductPath = false;
+        }
+
+        StateHasChanged();
+    }
+
+    public void Dispose()
+    {
+        navigationManager.LocationChanged -= MyLocationChanged;
+    }
+}

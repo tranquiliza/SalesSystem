@@ -1,43 +1,50 @@
-﻿@inject IApiGateway api
+﻿@inject IProductService productService
+@implements IDisposable
 
 @page "/admin/products"
 
 
-    <table>
-        <thead>
-            <tr>
-                <th>Main Image</th>
-                <th>Title</th>
-                <th>Category</th>
-                <th>Item Price</th>
-                <th></th>
-            </tr>
-        </thead>
+<table class="striped">
+    <thead>
+        <tr>
+            <th>Main Image</th>
+            <th>Name</th>
+            <th>Category</th>
+            <th>Item Price</th>
+            <th>Activated</th>
+            <th></th>
+        </tr>
+    </thead>
 
-        <tbody>
-            @foreach (var product in Products)
-            {
-                <tr>
-                    <td><img style="max-height:4em;" class="responsive-img" src="@(string.IsNullOrEmpty(product.ImageUrl) ? "/images/image-coming-soon-dark.png" : product.ImageUrl)"></td>
-                    <td>@product.Title</td>
-                    <td>@product.Category</td>
-                    <td>@product.Price</td>
-                    <td>
-                        <a href="/admin/products/@product.Id"><i class="material-icons">edit</i></a>
-                        <a style="color:red;" href="/admin/products/@product.Id"><i class="material-icons">delete</i></a>
-                    </td>
-                </tr>
-            }
-        </tbody>
-    </table>
+    <tbody>
+        @foreach (var product in productService.Products)
+        {
+            <tr>
+                <td><img style="max-height:4em;" class="responsive-img" src="@(string.IsNullOrEmpty(product.ImageUrl) ? "/images/image-coming-soon-dark.png" : product.ImageUrl)"></td>
+                <td>@product.Name</td>
+                <td>@product.Category</td>
+                <td>@product.Price</td>
+                <td>Nope</td>
+                <td>
+                    <a href="/admin/products/@product.Id"><i class="material-icons">edit</i></a>
+                    <a class="hand-pointer" @onclick="@(async () => await productService.DeleteProduct(product.Id).ConfigureAwait(false))" style="color:red;"><i class="material-icons">delete</i></a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
 
 <AdminOnlyComponent />
 
 @code {
-    private List<ProductModel> Products = new List<ProductModel>();
-
     protected override async Task OnInitializedAsync()
     {
-        Products = await api.Get<List<ProductModel>>("Products");
+        await productService.Initialize();
+        productService.OnChange += StateHasChanged;
+    }
+
+    public void Dispose()
+    {
+        productService.OnChange -= StateHasChanged;
     }
 }

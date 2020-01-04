@@ -4,7 +4,7 @@
 
 @if (userService.IsUserLoggedIn)
 {
-    <a class="dropdown-trigger" href="#!" data-target="logoutDropdown">Dropdown<i class="material-icons right">arrow_drop_down</i></a>
+    <a class="dropdown-trigger waves-effect waves-light" href="user" data-target="logoutDropdown">UserInformation<i class="material-icons right">arrow_drop_down</i></a>
 }
 else
 {
@@ -12,7 +12,6 @@ else
 }
 
 <ul id="logoutDropdown" class="dropdown-content">
-    <li><a href="#!">My User Stuff</a></li>
     <li><a href="#!">My Inquiries</a></li>
     <li class="divider"></li>
     <li>

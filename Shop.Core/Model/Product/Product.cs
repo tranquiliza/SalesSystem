@@ -72,12 +72,6 @@ namespace Tranquiliza.Shop.Core.Model
             return imageId;
         }
 
-        //public void AdjustPrice(int newPrice)
-        //{
-        //    if (newPrice < PurchaseCost)
-        //        throw new InvalidOperationException("Cannot sell product for less than purchase cost");
-        //}
-
         public static Product Create(string title, string category, int price, string description) => new Product(title, category, price, description);
     }
 }

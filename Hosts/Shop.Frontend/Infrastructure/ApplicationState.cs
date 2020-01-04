@@ -6,7 +6,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.JSInterop;
 
-namespace Shop.Frontend.Application
+namespace Shop.Frontend.Infrastructure
 {
     public class ApplicationState : IApplicationState
     {
