@@ -1,17 +1,15 @@
 ﻿@inject IUserService userService
 @inject IJSRuntime JSRuntime
-
 <!-- Modal Structure -->
 <div id="modalLogin" class="modal">
-    <div class="modal-content">
-
-        <EditForm Model="@model" OnValidSubmit="@Login">
+    <EditForm Model="@model" OnValidSubmit="@Login">
+        <div class="modal-content">
             <DataAnnotationsValidator />
             <div class="row">
                 <div class="input-field col s12">
                     <i class="material-icons prefix">person</i>
                     <InputText class="" type="text" id="username" @bind-Value="model.Username"></InputText>
-                    <label for="username">Username</label>
+                    <label for="username">Email</label>
                 </div>
             </div>
             <div class="row">
@@ -21,15 +19,12 @@
                     <label for="password">Password</label>
                 </div>
             </div>
-            <div class="row">
-                <div class="input-field col s12">
-                    <button class="btn waves-effect waves-light" type="submit">
-                        Login
-                    </button>
-                </div>
-            </div>
-        </EditForm>
-    </div>
+        </div>
+        <div class="modal-footer">
+            <a href="register" class="waves-effect waves-green btn-flat">Register</a>
+            <button type="submit" class="waves-effect waves-green btn-flat">Login</button>
+        </div>
+    </EditForm>
 </div>
 
 

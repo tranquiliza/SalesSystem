@@ -48,6 +48,7 @@ namespace Shop.Frontend.Application
         public async Task<bool> TryLogout()
         {
             IsUserLoggedIn = false;
+            await _applicationStateManager.SetJwtToken(string.Empty).ConfigureAwait(false);
 
             return true;
         }
