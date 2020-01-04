@@ -36,3 +36,8 @@ main {
     padding-right: 0;
     padding-bottom: 0;
 }
+
+#modalLogin {
+    width: 25% !important;
+    min-width: 25em;
+}

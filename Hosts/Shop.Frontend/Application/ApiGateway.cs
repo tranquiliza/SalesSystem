@@ -81,7 +81,7 @@ namespace Shop.Frontend.Application
         private async Task<HttpRequestMessage> BuildBaseRequest(string requestType, Uri requestUri)
         {
             var jwtToken = await _applicationStateManager.GetJwtToken().ConfigureAwait(false);
-            var clientId = await _applicationStateManager.GetClientId().ConfigureAwait(false);
+            var clientId = await _applicationStateManager.CreateOrGetClientId().ConfigureAwait(false);
 
             if (!string.IsNullOrEmpty(jwtToken))
                 _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", jwtToken);

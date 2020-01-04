@@ -12,6 +12,7 @@ namespace Shop.Frontend
             services.AddSingleton<IBasketService, BasketService>();
             services.AddSingleton<IApplicationState, ApplicationState>();
             services.AddSingleton<IApplicationStateManager, ApplicationStateManager>();
+            services.AddSingleton<IUserService, UserService>();
             services.AddSingleton<IApiGateway, ApiGateway>();
         }
 

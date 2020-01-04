@@ -1,0 +1,47 @@
+﻿@inject IUserService userService
+@inject IJSRuntime JSRuntime
+@implements IDisposable
+
+@if (userService.IsUserLoggedIn)
+{
+    <a class="dropdown-trigger" href="#!" data-target="logoutDropdown">Dropdown<i class="material-icons right">arrow_drop_down</i></a>
+}
+else
+{
+    <a class="waves-effect waves-light modal-trigger" href="#modalLogin">Login<i class="material-icons right">person</i></a>
+}
+
+<ul id="logoutDropdown" class="dropdown-content">
+    <li><a href="#!">My User Stuff</a></li>
+    <li><a href="#!">My Inquiries</a></li>
+    <li class="divider"></li>
+    <li>
+        <a @onclick="@(async () => await userService.TryLogout())">LogOut</a>
+    </li>
+</ul>
+
+@code {
+    protected override void OnInitialized()
+    {
+        userService.OnChange += UpdateComponentAsync;
+    }
+
+    private Action UpdateComponentAsync => async () => await UpdateComponent();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await userService.Initialize();
+        await JSRuntime.InvokeVoidAsync("InitializeDropDowns").ConfigureAwait(false);
+    }
+
+    private async Task UpdateComponent()
+    {
+        StateHasChanged();
+        await JSRuntime.InvokeVoidAsync("InitializeDropDowns").ConfigureAwait(false);
+    }
+
+    public void Dispose()
+    {
+        userService.OnChange -= UpdateComponentAsync;
+    }
+}

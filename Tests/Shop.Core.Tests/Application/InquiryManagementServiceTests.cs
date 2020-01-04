@@ -303,7 +303,6 @@ namespace Tranquiliza.Shop.Core.Tests.Application
             var email = "email@somewhere.com";
             var firstName = "Daniel";
             var surName = "Tranquiliza";
-            var address = "twitch.tv/tranquiliza";
             var phoneNumber = "0011223344";
 
             var country = "Denmark";

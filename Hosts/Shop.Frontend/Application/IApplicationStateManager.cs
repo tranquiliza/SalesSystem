@@ -7,7 +7,7 @@ namespace Shop.Frontend.Application
 {
     public interface IApplicationStateManager
     {
-        Task<Guid> GetClientId();
+        Task<Guid> CreateOrGetClientId();
         Task<string> GetJwtToken();
         Task SetJwtToken(string token);
     }

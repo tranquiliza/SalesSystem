@@ -14,7 +14,7 @@ namespace Shop.Frontend.Application
             _applicationState = applicationState;
         }
 
-        public async Task<Guid> GetClientId()
+        public async Task<Guid> CreateOrGetClientId()
         {
             const string key = "ClientId";
 

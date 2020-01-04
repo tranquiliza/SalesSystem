@@ -53,6 +53,18 @@ window.DisablePaymentTab = function () {
     tab.classList.add("disabled");
 };
 
+window.InitializeModals = function () {
+    var elems = document.querySelectorAll('.modal');
+    var instances = M.Modal.init(elems, {});
+};
+
+window.CloseLoginModal = function () {
+    let el = document.querySelector('#modalLogin');
+    var instance = M.Modal.getInstance(el);
+
+    instance.close();
+};
+
 window.TranquilizaSetItem = function (key, value) {
     this.localStorage.setItem(key, value);
 };

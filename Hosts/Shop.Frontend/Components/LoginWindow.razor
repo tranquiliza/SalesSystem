@@ -1,0 +1,49 @@
+﻿@inject IUserService userService
+@inject IJSRuntime JSRuntime
+
+<!-- Modal Structure -->
+<div id="modalLogin" class="modal">
+    <div class="modal-content">
+
+        <EditForm Model="@model" OnValidSubmit="@Login">
+            <DataAnnotationsValidator />
+            <div class="row">
+                <div class="input-field col s12">
+                    <i class="material-icons prefix">person</i>
+                    <InputText class="" type="text" id="username" @bind-Value="model.Username"></InputText>
+                    <label for="username">Username</label>
+                </div>
+            </div>
+            <div class="row">
+                <div class="input-field col s12">
+                    <i class="material-icons prefix">lock</i>
+                    <InputText class="" type="password" id="password" @bind-Value="model.Password"></InputText>
+                    <label for="password">Password</label>
+                </div>
+            </div>
+            <div class="row">
+                <div class="input-field col s12">
+                    <button class="btn waves-effect waves-light" type="submit">
+                        Login
+                    </button>
+                </div>
+            </div>
+        </EditForm>
+    </div>
+</div>
+
+
+@code {
+    AuthenticateModel model = new AuthenticateModel();
+
+    private async Task Login()
+    {
+        var success = await userService.TryLogin(model);
+        if (!success)
+        {
+            // display error
+        }
+
+        await JSRuntime.InvokeVoidAsync("CloseLoginModal").ConfigureAwait(false);
+    }
+}
