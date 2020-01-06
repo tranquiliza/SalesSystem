@@ -6,6 +6,7 @@
     [IsActive] BIT NOT NULL, 
     [Category] NVARCHAR(50) NOT NULL, 
     [Name] NVARCHAR(200) NOT NULL, 
+    [Deleted] BIT NOT NULL DEFAULT 0,
     [Data] NVARCHAR(MAX) NOT NULL
 )
 GO

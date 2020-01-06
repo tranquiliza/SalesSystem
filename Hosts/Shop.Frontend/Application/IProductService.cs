@@ -10,8 +10,10 @@ namespace Shop.Frontend.Application
     {
         Task Initialize();
         Task DeleteProduct(Guid productId);
+        Task CreateProduct(CreateProductModel model);
+        Task EditProduct(Guid productId, EditProductModel model);
 
-        List<ProductModel> Products { get; }
+        List<ExtendedProductModel> Products { get; }
 
         event Action OnChange;
     }

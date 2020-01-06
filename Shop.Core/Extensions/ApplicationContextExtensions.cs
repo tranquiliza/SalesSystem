@@ -25,5 +25,10 @@ namespace Tranquiliza.Shop.Core.Extensions
 
             return false;
         }
+
+        public static bool IsAdmin(this IApplicationContext context)
+        {
+            return context.User?.HasRole("ADMIN") == true;
+        }
     }
 }

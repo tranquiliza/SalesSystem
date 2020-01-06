@@ -1,0 +1,61 @@
+﻿@inject IProductService productService
+@inject IJSRuntime JSRuntime
+@inject NavigationManager navigationManager
+
+@page "/admin/products/create"
+
+<EditForm Model="@model" OnValidSubmit="@CreateProduct">
+    <DataAnnotationsValidator />
+    <div class="row">
+        <div class="input-field col s12">
+            <InputText type="text" id="name" @bind-Value="model.Name"></InputText>
+            <label for="name">Name</label>
+        </div>
+    </div>
+    <div class="row">
+        <div class="input-field col s12">
+            <InputText type="text" id="category" @bind-Value="model.Category"></InputText>
+            <label for="category">Category</label>
+        </div>
+    </div>
+    <div class="row">
+        <div class="input-field col s12">
+            <InputNumber id="price" @bind-Value="model.Price"></InputNumber>
+            <label for="price">Price</label>
+        </div>
+    </div>
+    <div class="row">
+        <div class="input-field col s12">
+            <InputTextArea class="materialize-textarea" id="description" @bind-Value="model.Description"></InputTextArea>
+            <label for="description">Description</label>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col s12">
+            <button type="submit" class="btn waves-effect waves-green right">Create</button>
+        </div>
+    </div>
+</EditForm>
+
+
+
+@code {
+    CreateProductModel model = new CreateProductModel();
+
+    private async Task CreateProduct()
+    {
+        await productService.CreateProduct(model);
+        // Call Product API, if successful. Close Modal (Reset form might be needed too?)
+
+        navigationManager.NavigateTo("/admin/products");
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await JSRuntime.InvokeVoidAsync("RefreshInputFields").ConfigureAwait(false);
+        }
+    }
+}

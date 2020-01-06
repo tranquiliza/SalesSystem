@@ -64,6 +64,17 @@ namespace Shop.Frontend.Infrastructure
             return await ExecuteRequest<ResponseModel>(request).ConfigureAwait(false);
         }
 
+        public async Task Delete(string controller, string action = null, string[] routeValues = null, params QueryParam[] queryParams)
+        {
+            var requestUri = BuildRequestUri(controller, action, routeValues, queryParams);
+            var request = await BuildBaseRequest("DELETE", requestUri).ConfigureAwait(false);
+            var response = await _httpClient.SendAsync(request).ConfigureAwait(false);
+            if (!response.IsSuccessStatusCode)
+            {
+                // LOG
+            }
+        }
+
         private async Task<T> ExecuteRequest<T>(HttpRequestMessage request)
         {
             var response = await _httpClient.SendAsync(request).ConfigureAwait(false);

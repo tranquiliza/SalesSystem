@@ -42,13 +42,14 @@ namespace Tranquiliza.Shop.Sql
             return null;
         }
 
-        public async Task<IEnumerable<string>> GetCategories()
+        public async Task<IEnumerable<string>> GetCategories(bool onlyActive)
         {
             var result = new List<string>();
 
             try
             {
-                using var command = _sql.CreateStoredProcedure("[Core].[GetCategories]");
+                using var command = _sql.CreateStoredProcedure("[Core].[GetCategories]")
+                    .WithParameter("onlyActive", onlyActive);
                 using var reader = await command.ExecuteReaderAsync().ConfigureAwait(false);
                 while (await reader.ReadAsync().ConfigureAwait(false))
                     result.Add(reader.GetString("Category"));
@@ -62,7 +63,7 @@ namespace Tranquiliza.Shop.Sql
             }
         }
 
-        public async Task<IEnumerable<Product>> GetProducts(string category)
+        public async Task<IEnumerable<Product>> GetProducts(string category, bool onlyActive)
         {
             if (string.IsNullOrEmpty(category))
                 category = string.Empty;
@@ -71,6 +72,7 @@ namespace Tranquiliza.Shop.Sql
             try
             {
                 using var command = _sql.CreateStoredProcedure("[Core].[GetProductsByCategory]")
+                    .WithParameter("onlyActive", onlyActive)
                     .WithParameter("category", category);
                 using var reader = await command.ExecuteReaderAsync().ConfigureAwait(false);
 
@@ -107,6 +109,22 @@ namespace Tranquiliza.Shop.Sql
             catch (Exception ex)
             {
                 _log.Warning("Unable to save product", ex);
+                throw;
+            }
+        }
+
+        public async Task Delete(Guid productId)
+        {
+            try
+            {
+                using var command = _sql.CreateStoredProcedure("[Core].[SoftDeleteProduct]")
+                    .WithParameter("productId", productId);
+
+                await command.ExecuteNonQueryAsync().ConfigureAwait(false);
+            }
+            catch (Exception ex)
+            {
+                _log.Warning("Unable to delete product", ex);
                 throw;
             }
         }

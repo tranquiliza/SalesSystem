@@ -1,59 +1,66 @@
 ﻿@inject IProductService productService
+@inject IJSRuntime JSRuntime
+@inject NavigationManager navigationManager
 
 @page "/admin/products/{productIdString}"
 
+<a href="/admin/products/" class="btn red">Go Back</a>
+
 @if (product != null)
 {
-    <EditForm Model="@model" OnValidSubmit="EditProduct">
-        <DataAnnotationsValidator />
+    <div class="card-panel">
+        <EditForm Model="@model" OnValidSubmit="EditProduct">
+            <DataAnnotationsValidator />
 
-        <div class="row">
-            <div class="input-field col s12">
-                <InputText id="name" @bind-Value="model.Name"></InputText>
-                <label for="name">Name</label>
+            <div class="row">
+                <div class="input-field col s12">
+                    <InputText type="text" id="name" @bind-Value="model.Name"></InputText>
+                    <label for="name">Name</label>
+                </div>
             </div>
-        </div>
-        <div class="row">
-            <div class="input-field col s12">
-                <InputTextArea class="materialize-textarea" id="description" @bind-Value="model.Description"></InputTextArea>
-                <label for="description">Description</label>
+            <div class="row">
+                <div class="input-field col s12">
+                    <InputText type="text" id="category" @bind-Value="model.Category"></InputText>
+                    <label for="category">Category</label>
+                </div>
             </div>
-        </div>
-        <div class="row">
-            <div class="input-field col s12">
-                <InputNumber id="purchaseCost" @bind-Value="model.PurchaseCost"></InputNumber>
-                <label for="purchaseCost">PurchaseCost</label>
+            <div class="row">
+                <div class="input-field col s12">
+                    <InputTextArea class="materialize-textarea" id="description" @bind-Value="model.Description"></InputTextArea>
+                    <label for="description">Description</label>
+                </div>
             </div>
-        </div>
-        <div class="row">
-            <div class="input-field col s12">
-                <InputNumber id="price" @bind-Value="model.Price"></InputNumber>
-                <label for="price">Price</label>
+            <div class="row">
+                <div class="input-field col s6">
+                    <InputNumber id="purchaseCost" @bind-Value="model.PurchaseCost"></InputNumber>
+                    <label for="purchaseCost">PurchaseCost</label>
+                </div>
+                <div class="input-field col s6">
+                    <InputNumber id="price" @bind-Value="model.Price"></InputNumber>
+                    <label for="price">Price</label>
+                </div>
             </div>
-        </div><div class="row">
-            <div class="input-field col s12">
-                <InputNumber id="weight" @bind-Value="model.Weight"></InputNumber>
-                <label for="weight">Weight</label>
+            <div class="row">
+                <div class="input-field col s12">
+                    <InputNumber id="weight" @bind-Value="model.Weight"></InputNumber>
+                    <label for="weight">Weight</label>
+                </div>
             </div>
-        </div>
-        <div class="row">
-            <div class="input-field col s12">
-                <InputCheckbox id="isActive" @bind-Value="model.IsActive"></InputCheckbox>
-                <label for="isActive">Is Active</label>
+            <div class="row">
+                <div class="input-field col s12">
+                    <label>
+                        <InputCheckbox id="isActive" @bind-Value="model.IsActive"></InputCheckbox>
+                        <span>Is Active</span>
+                    </label>
+                </div>
             </div>
-        </div>
-        <div class="row">
-            <div class="input-field col s12">
-                <InputText id="category" @bind-Value="model.Category"></InputText>
-                <label for="category">Category</label>
+            <div class="row">
+                <div class="input-field col s12">
+                    <button type="submit" class="btn waves-effect waves-light">Save</button>
+                </div>
             </div>
-        </div>
-        <div class="row">
-            <div class="input-field col s12">
-                <button type="submit" class="btn waves-effect waves-light">Save</button>
-            </div>
-        </div>
-    </EditForm>
+        </EditForm>
+    </div>
 }
 
 <AdminOnlyComponent />
@@ -64,20 +71,54 @@
 
     private Guid ProductId { get; set; }
 
-    private ProductModel product { get; set; }
+    private ExtendedProductModel product { get; set; }
 
     private EditProductModel model = new EditProductModel();
 
-    protected override void OnParametersSet()
+    protected override async Task OnParametersSetAsync()
     {
         ProductId = Guid.Parse(ProductIdString);
         product = productService.Products.FirstOrDefault(x => x.Id == ProductId);
+
+        if (product != null)
+        {
+            model.Name = product.Name;
+            model.Category = product.Category;
+            model.Description = product.Description;
+            model.IsActive = product.IsActive;
+            model.Price = (int)(product.Price * 100);
+            model.PurchaseCost = product.PurchaseCost;
+            model.Weight = product.Weight;
+        }
+
+        await RefreshInputs();
     }
 
-    private Task EditProduct()
+    private async Task EditProduct()
     {
-        Console.WriteLine(model);
+        await productService.EditProduct(ProductId, model).ConfigureAwait(false);
 
-        return Task.CompletedTask;
+        navigationManager.NavigateTo("/admin/products");
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await RefreshInputs().ConfigureAwait(false);
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await RefreshInputs().ConfigureAwait(false);
+        }
+
+        await base.OnAfterRenderAsync(firstRender);
+    }
+
+    private async Task RefreshInputs()
+    {
+        StateHasChanged();
+        await JSRuntime.InvokeVoidAsync("RefreshInputFields").ConfigureAwait(false);
     }
 }

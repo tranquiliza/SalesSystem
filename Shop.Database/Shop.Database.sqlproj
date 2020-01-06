@@ -84,6 +84,7 @@
     <Build Include="Procedures\Inquiries\GetInquiryFromId.sql" />
     <Build Include="Procedures\Inquiries\GetInquiryFromClientId.sql" />
     <Build Include="Procedures\CustomerInformation\GetCustomerInformationFromClientId.sql" />
+    <Build Include="Procedures\Products\SoftDeleteProduct.sql" />
   </ItemGroup>
   <ItemGroup>
     <RefactorLog Include="Shop.Database.refactorlog" />

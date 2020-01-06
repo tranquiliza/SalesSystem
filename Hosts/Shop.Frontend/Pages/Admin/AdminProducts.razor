@@ -3,7 +3,6 @@
 
 @page "/admin/products"
 
-
 <table class="striped">
     <thead>
         <tr>
@@ -24,7 +23,7 @@
                 <td>@product.Name</td>
                 <td>@product.Category</td>
                 <td>@product.Price</td>
-                <td>Nope</td>
+                <td>@product.IsActive</td>
                 <td>
                     <a href="/admin/products/@product.Id"><i class="material-icons">edit</i></a>
                     <a class="hand-pointer" @onclick="@(async () => await productService.DeleteProduct(product.Id).ConfigureAwait(false))" style="color:red;"><i class="material-icons">delete</i></a>
@@ -33,6 +32,12 @@
         }
     </tbody>
 </table>
+
+<div class="row">
+    <div class="col s12">
+        <a href="/admin/products/create" class="btn right">Create Product</a>
+    </div>
+</div>
 
 <AdminOnlyComponent />
 

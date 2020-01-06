@@ -58,8 +58,16 @@ window.InitializeModals = function () {
     var instances = M.Modal.init(elems, {});
 };
 
-window.CloseLoginModal = function () {
-    let el = document.querySelector('#modalLogin');
+window.InitializeStickyModal = function (elementId) {
+    var options = {
+        dismissible: false
+    };
+    var elem = document.querySelector('#' + elementId);
+    var instance = M.Modal.init(elem, options);
+};
+
+window.CloseModal = function (elementId) {
+    let el = document.querySelector('#' + elementId);
     var instance = M.Modal.getInstance(el);
 
     instance.close();

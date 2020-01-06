@@ -1,5 +1,6 @@
 ﻿@inject NavigationManager navigationManager
 @inject Shop.Frontend.Infrastructure.IApiGateway api
+@inject IProductService productService
 @implements IDisposable
 
 @if (IsProductPath)
@@ -31,14 +32,13 @@
     protected override async Task OnInitializedAsync()
     {
         categories = await api.Get<string[]>("products", "categories").ConfigureAwait(false);
+        navigationManager.LocationChanged += MyLocationChanged;
+        productService.OnChange += RefreshCategoriesAsync;
     }
+
+    private Action RefreshCategoriesAsync => async () => await RefreshCategories();
 
     private bool IsProductPath = false;
-
-    protected override void OnInitialized()
-    {
-        navigationManager.LocationChanged += MyLocationChanged;
-    }
 
     private void MyLocationChanged(object sender, LocationChangedEventArgs args)
     {
@@ -56,8 +56,15 @@
         StateHasChanged();
     }
 
+    private async Task RefreshCategories()
+    {
+        categories = await api.Get<string[]>("products", "categories").ConfigureAwait(false);
+        StateHasChanged();
+    }
+
     public void Dispose()
     {
+        productService.OnChange -= RefreshCategoriesAsync;
         navigationManager.LocationChanged -= MyLocationChanged;
     }
 }

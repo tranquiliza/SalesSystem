@@ -39,6 +39,6 @@
             // display error
         }
 
-        await JSRuntime.InvokeVoidAsync("CloseLoginModal").ConfigureAwait(false);
+        await JSRuntime.InvokeVoidAsync("CloseModal", "modalLogin").ConfigureAwait(false);
     }
 }

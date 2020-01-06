@@ -48,7 +48,7 @@ namespace Tranquiliza.Shop.Core.Model
 
         private Product(string name, string category, int price, string description)
         {
-            if (string.IsNullOrWhiteSpace(name)) throw new DomainException("A product must have a title");
+            if (string.IsNullOrWhiteSpace(name)) throw new DomainException("A product must have a name");
             if (name.Length > 200) throw new DomainException("ProductName cannot be more than 200 characters long");
             if (string.IsNullOrEmpty(category)) throw new DomainException("Category name must be given");
             if (price <= 0) throw new DomainException("Price must be above 0");
@@ -70,6 +70,22 @@ namespace Tranquiliza.Shop.Core.Model
                 MainImage = imageName;
 
             return imageId;
+        }
+
+        public void Update(string name, string category, string description, int purchaseCost, int price, int weight, bool isActive)
+        {
+            if (string.IsNullOrEmpty(name)) throw new DomainException("A product must have a name");
+            if (name.Length > 200) throw new DomainException("ProductName cannot be more than 200 characters long");
+            if (string.IsNullOrEmpty(category)) throw new DomainException("Product must have a category");
+            if (price <= 0) throw new DomainException("Price must be above 0");
+
+            Name = name;
+            Category = category;
+            Description = description;
+            PurchaseCost = purchaseCost;
+            Price = price;
+            Weight = weight;
+            IsActive = isActive;
         }
 
         public static Product Create(string title, string category, int price, string description) => new Product(title, category, price, description);
