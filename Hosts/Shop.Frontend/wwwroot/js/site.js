@@ -58,12 +58,9 @@ window.InitializeModals = function () {
     var instances = M.Modal.init(elems, {});
 };
 
-window.InitializeStickyModal = function (elementId) {
-    var options = {
-        dismissible: false
-    };
-    var elem = document.querySelector('#' + elementId);
-    var instance = M.Modal.init(elem, options);
+window.InitializeImageBoxes = function () {
+    var elems = document.querySelectorAll('.materialboxed');
+    var instances = M.Materialbox.init(elems, {});
 };
 
 window.CloseModal = function (elementId) {

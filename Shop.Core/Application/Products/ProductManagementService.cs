@@ -110,5 +110,31 @@ namespace Tranquiliza.Shop.Core.Application
 
             return Result.Succeeded;
         }
+
+        public async Task<IResult<Product>> UpdateMainImage(Guid productId, string imageName, IApplicationContext applicationContext)
+        {
+            var product = await _productRepository.Get(productId).ConfigureAwait(false);
+            if (product == null)
+                return Result<Product>.Failure("No product found");
+
+            product.SetMainImage(imageName);
+
+            await _productRepository.Save(product).ConfigureAwait(false);
+
+            return Result<Product>.Succeeded(product);
+        }
+
+        public async Task<IResult<Product>> DeleteImage(Guid productId, string imageName, IApplicationContext applicationContext)
+        {
+            var product = await _productRepository.Get(productId).ConfigureAwait(false);
+            if (product == null)
+                return Result<Product>.Failure("Product not found");
+
+            product.DeleteImage(imageName);
+            await _productRepository.Save(product).ConfigureAwait(false);
+            await _imageRepository.Delete(imageName).ConfigureAwait(false);
+
+            return Result<Product>.Succeeded(product);
+        }
     }
 }

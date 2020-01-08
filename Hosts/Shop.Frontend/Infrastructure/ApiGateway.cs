@@ -1,6 +1,7 @@
 ﻿using Shop.Frontend.Application;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
@@ -72,6 +73,26 @@ namespace Shop.Frontend.Infrastructure
             if (!response.IsSuccessStatusCode)
             {
                 // LOG
+            }
+        }
+
+        public async Task PostImage(MemoryStream memoryStream, string fileName, string controller, string action = null, string[] routeValues = null, params QueryParam[] queryParams)
+        {
+            var requestUri = BuildRequestUri(controller, action, routeValues, queryParams);
+            var request = await BuildBaseRequest("post", requestUri).ConfigureAwait(false);
+            request.Content = new MultipartFormDataContent
+            {
+                {
+                new ByteArrayContent(memoryStream.GetBuffer()),
+                    "file",
+                    fileName
+                }
+            };
+
+            var response = await _httpClient.SendAsync(request).ConfigureAwait(false);
+            if (!response.IsSuccessStatusCode)
+            {
+                // Log
             }
         }
 

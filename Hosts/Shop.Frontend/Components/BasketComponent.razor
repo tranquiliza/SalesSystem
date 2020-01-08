@@ -14,7 +14,7 @@
         @foreach (var orderLine in basketService.Items)
         {
             <li class="collection-item avatar">
-                <img class="circle" src="@(string.IsNullOrEmpty(orderLine.Product.ImageUrl) ? "/images/image-coming-soon-dark.png" : orderLine.Product.ImageUrl)" />
+                <img class="circle" src="@(string.IsNullOrEmpty(orderLine.Product.MainImage.ImageUrl) ? "/images/image-coming-soon-dark.png" : orderLine.Product.MainImage.ImageUrl)" />
                 <span class="title">@orderLine.Product.Name</span>
                 <p>
                     @(string.Format("{0:n}", orderLine.LineTotal)) DKK <br />

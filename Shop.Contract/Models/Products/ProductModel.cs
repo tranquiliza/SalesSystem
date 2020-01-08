@@ -12,7 +12,7 @@ namespace Tranquiliza.Shop.Contract.Models
         public string Category { get; set; }
         public double Price { get; set; }
         public int Weight { get; set; }
-        public string ImageUrl { get; set; }
-        public List<string> ImageUrls { get; set; }
+        public ImageModel MainImage { get; set; }
+        public List<ImageModel> Images { get; set; }
     }
 }

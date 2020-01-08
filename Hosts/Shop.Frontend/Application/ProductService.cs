@@ -1,6 +1,7 @@
 ﻿using Shop.Frontend.Infrastructure;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Tranquiliza.Shop.Contract.Models;
@@ -56,12 +57,59 @@ namespace Shop.Frontend.Application
             NotifyStateChanged();
         }
 
+        public async Task UploadImage(Guid productId, MemoryStream memoryStream, string fileName)
+        {
+            await _api.PostImage(memoryStream, fileName, "Products", routeValues: new string[] { productId.ToString(), "Image" }).ConfigureAwait(false);
+
+            // Fetch product again and replace in Products?
+
+            var extendedProperties = new QueryParam("extended", "true");
+            var product = await _api.Get<ExtendedProductModel>("Products", routeValues: new string[] { productId.ToString() }, queryParams: extendedProperties).ConfigureAwait(false);
+            if (product == null)
+            {
+                // Shit
+            }
+
+            var productToRemove = Products.Find(x => x.Id == productId);
+            Products.Remove(productToRemove);
+            Products.Add(product);
+
+            NotifyStateChanged();
+        }
+
         public async Task CreateProduct(CreateProductModel model)
         {
             var newProduct = await _api.Post<ExtendedProductModel, CreateProductModel>(model, "Products").ConfigureAwait(false);
             if (newProduct != null)
             {
                 Products.Add(newProduct);
+                NotifyStateChanged();
+            }
+        }
+
+        public async Task MakePrimaryImage(Guid productId, string imageName)
+        {
+            var model = new UpdateMainImageModel { ImageName = imageName };
+            var result = await _api.Post<ExtendedProductModel, UpdateMainImageModel>(model, "Products", routeValues: new string[] { productId.ToString(), "MainImage" }).ConfigureAwait(false);
+            if (result != null)
+            {
+                var productToRemove = Products.Find(x => x.Id == productId);
+                Products.Remove(productToRemove);
+                Products.Add(result);
+
+                NotifyStateChanged();
+            }
+        }
+
+        public async Task DeleteImage(Guid productId, string imageName)
+        {
+            var model = new DeleteImageModel { ImageName = imageName };
+            var result = await _api.Delete<ExtendedProductModel, DeleteImageModel>(model, "Products", routeValues: new string[] { productId.ToString(), "Image", imageName }).ConfigureAwait(false);
+            if (result != null)
+            {
+                var productToRemove = Products.Find(x => x.Id == productId);
+                Products.Remove(productToRemove);
+                Products.Add(result);
                 NotifyStateChanged();
             }
         }

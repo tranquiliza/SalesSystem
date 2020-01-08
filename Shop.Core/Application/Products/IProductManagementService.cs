@@ -14,5 +14,7 @@ namespace Tranquiliza.Shop.Core.Application
         Task<IResult<Product>> GetProduct(Guid productId);
         Task<IResult<Product>> UpdateProduct(Guid productId, string name, string category, string description, int purchaseCost, int price, int weight, bool isActive, IApplicationContext context);
         Task<IResult> DeleteProduct(Guid productId);
+        Task<IResult<Product>> UpdateMainImage(Guid productId, string imageName, IApplicationContext applicationContext);
+        Task<IResult<Product>> DeleteImage(Guid productId, string imageName, IApplicationContext applicationContext);
     }
 }

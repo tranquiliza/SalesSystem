@@ -78,6 +78,20 @@ namespace Tranquiliza.Shop.Api.Controllers
             return Ok();
         }
 
+        [HttpPost("{productId}/MainImage")]
+        [Authorize(Roles = Role.Admin)]
+        public async Task<IActionResult> SetMainImage([FromRoute]Guid productId, UpdateMainImageModel model)
+        {
+            var result = await _productManagementService.UpdateMainImage(productId, model.ImageName, ApplicationContext).ConfigureAwait(false);
+            if (result.State == Core.ResultState.AccessDenied)
+                return Unauthorized();
+
+            if (result.State == Core.ResultState.Failure)
+                return BadRequest(result.FailureReason);
+
+            return Ok(result.Data.MapExtended(RequestInformation));
+        }
+
         [HttpDelete("{productId}")]
         [Authorize(Roles = Role.Admin)]
         public async Task<IActionResult> DeleteProduct([FromRoute]Guid productId)
@@ -85,6 +99,20 @@ namespace Tranquiliza.Shop.Api.Controllers
             await _productManagementService.DeleteProduct(productId).ConfigureAwait(false);
 
             return Ok();
+        }
+
+        [HttpDelete("{productId}/Image/{imageName}")]
+        [Authorize(Roles = Role.Admin)]
+        public async Task<IActionResult> DeleteImage([FromRoute]Guid productId, [FromBody]DeleteImageModel model)
+        {
+            var result = await _productManagementService.DeleteImage(productId, model.ImageName, ApplicationContext).ConfigureAwait(false);
+            if (result.State == Core.ResultState.AccessDenied)
+                return Unauthorized();
+
+            if (result.State == Core.ResultState.Failure)
+                return BadRequest(result.FailureReason);
+
+            return Ok(result.Data.MapExtended(RequestInformation));
         }
 
         [HttpPost]

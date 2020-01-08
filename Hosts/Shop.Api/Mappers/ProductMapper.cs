@@ -21,8 +21,15 @@ namespace Tranquiliza.Shop.Api.Mappers
                 Description = product.Description,
                 Price = product.ActualPrice,
                 Weight = product.Weight,
-                ImageUrl = CreateImageUrl(product.MainImage, requestInformation.Scheme, requestInformation.Host),
-                ImageUrls = product.Images.Select(image => CreateImageUrl(image, requestInformation.Scheme, requestInformation.Host)).ToList()
+                MainImage = MapToImageModel(product.MainImage, requestInformation),
+                Images = product.Images.Select(image => MapToImageModel(image, requestInformation)).ToList()
+            };
+
+        private static ImageModel MapToImageModel(string image, IRequestInformation requestInformation)
+            => new ImageModel
+            {
+                ImageName = image,
+                ImageUrl = CreateImageUrl(image, requestInformation)
             };
 
         public static IEnumerable<ExtendedProductModel> MapExtended(this IEnumerable<Product> products, IRequestInformation requestInformation)
@@ -34,8 +41,8 @@ namespace Tranquiliza.Shop.Api.Mappers
                 Category = product.Category,
                 Description = product.Description,
                 Id = product.Id,
-                ImageUrl = CreateImageUrl(product.MainImage, requestInformation.Scheme, requestInformation.Host),
-                ImageUrls = product.Images.Select(image => CreateImageUrl(image, requestInformation.Scheme, requestInformation.Host)).ToList(),
+                MainImage = MapToImageModel(product.MainImage, requestInformation),
+                Images = product.Images.Select(image => MapToImageModel(image, requestInformation)).ToList(),
                 Name = product.Name,
                 Price = product.ActualPrice,
                 PurchaseCost = product.PurchaseCost,
@@ -43,9 +50,9 @@ namespace Tranquiliza.Shop.Api.Mappers
                 IsActive = product.IsActive
             };
 
-        private static string CreateImageUrl(string imageName, string scheme, string hostName)
+        private static string CreateImageUrl(string imageName, IRequestInformation requestInformation)
             => string.IsNullOrEmpty(imageName)
             ? string.Empty
-            : scheme + "://" + hostName + "/Images/" + imageName;
+            : requestInformation.Scheme + "://" + requestInformation.Host + "/Images/" + imageName;
     }
 }

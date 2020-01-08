@@ -9,5 +9,6 @@ namespace Tranquiliza.Shop.Core.Application
     {
         Task Save(byte[] fileData, string fileType, Guid imageId);
         Task<byte[]> GetImage(string imagePath);
+        Task Delete(string imageName);
     }
 }

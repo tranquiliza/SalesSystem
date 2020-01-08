@@ -1,6 +1,7 @@
 ﻿@inject IProductService productService
 @inject IJSRuntime JSRuntime
 @inject NavigationManager navigationManager
+@implements IDisposable
 
 @page "/admin/products/{productIdString}"
 
@@ -8,58 +9,89 @@
 
 @if (product != null)
 {
-    <div class="card-panel">
-        <EditForm Model="@model" OnValidSubmit="EditProduct">
-            <DataAnnotationsValidator />
+    <div class="row">
+        <div class="card-panel col s12">
+            <EditForm Model="@model" OnValidSubmit="EditProduct">
+                <DataAnnotationsValidator />
 
+                <div class="row">
+                    <div class="input-field col s6">
+                        <InputText type="text" id="name" @bind-Value="model.Name"></InputText>
+                        <label for="name">Name</label>
+                    </div>
+                    <div class="input-field col s3">
+                        <InputText type="text" id="category" @bind-Value="model.Category"></InputText>
+                        <label for="category">Category</label>
+                    </div>
+                    <div class="input-field col s3">
+                        <label>
+                            <InputCheckbox id="isActive" @bind-Value="model.IsActive"></InputCheckbox>
+                            <span>Is Active</span>
+                        </label>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="input-field col s12">
+                        <InputTextArea class="materialize-textarea" id="description" @bind-Value="model.Description"></InputTextArea>
+                        <label for="description">Description</label>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="input-field col s4">
+                        <InputNumber id="purchaseCost" @bind-Value="model.PurchaseCost"></InputNumber>
+                        <label for="purchaseCost">PurchaseCost</label>
+                    </div>
+                    <div class="input-field col s4">
+                        <InputNumber id="price" @bind-Value="model.Price"></InputNumber>
+                        <label for="price">Price</label>
+                    </div>
+
+                    <div class="input-field col s4">
+                        <InputNumber id="weight" @bind-Value="model.Weight"></InputNumber>
+                        <label for="weight">Weight</label>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="input-field col s12">
+                        <button type="submit" class="btn waves-effect waves-light">Save</button>
+                    </div>
+                </div>
+            </EditForm>
+        </div>
+    </div>
+
+    <div class="card-panel">
+        <div class="row">
+            <div class="col s6">
+                <InputFile OnChange="LoadFileIntoMemory" />
+                <button class="btn" @onclick="UploadImage">Upload Image</button>
+            </div>
+        </div>
+
+        @if (!string.IsNullOrEmpty(product.MainImage.ImageUrl))
+        {
             <div class="row">
-                <div class="input-field col s12">
-                    <InputText type="text" id="name" @bind-Value="model.Name"></InputText>
-                    <label for="name">Name</label>
+                <div class="col s12">
+                    <p>Primary</p>
+                    <img width="550" class="materialboxed" src="@product.MainImage.ImageUrl">
+                    <button class="btn red" @onclick="@(async () => await DeleteImage(product.MainImage.ImageName).ConfigureAwait(false))"><i class="material-icons">delete_forever</i></button>
                 </div>
             </div>
-            <div class="row">
-                <div class="input-field col s12">
-                    <InputText type="text" id="category" @bind-Value="model.Category"></InputText>
-                    <label for="category">Category</label>
-                </div>
-            </div>
-            <div class="row">
-                <div class="input-field col s12">
-                    <InputTextArea class="materialize-textarea" id="description" @bind-Value="model.Description"></InputTextArea>
-                    <label for="description">Description</label>
-                </div>
-            </div>
-            <div class="row">
-                <div class="input-field col s6">
-                    <InputNumber id="purchaseCost" @bind-Value="model.PurchaseCost"></InputNumber>
-                    <label for="purchaseCost">PurchaseCost</label>
-                </div>
-                <div class="input-field col s6">
-                    <InputNumber id="price" @bind-Value="model.Price"></InputNumber>
-                    <label for="price">Price</label>
-                </div>
-            </div>
-            <div class="row">
-                <div class="input-field col s12">
-                    <InputNumber id="weight" @bind-Value="model.Weight"></InputNumber>
-                    <label for="weight">Weight</label>
-                </div>
-            </div>
-            <div class="row">
-                <div class="input-field col s12">
-                    <label>
-                        <InputCheckbox id="isActive" @bind-Value="model.IsActive"></InputCheckbox>
-                        <span>Is Active</span>
-                    </label>
-                </div>
-            </div>
-            <div class="row">
-                <div class="input-field col s12">
-                    <button type="submit" class="btn waves-effect waves-light">Save</button>
-                </div>
-            </div>
-        </EditForm>
+        }
+
+        <div class="row">
+            @foreach (var image in product.Images)
+            {
+                if (image.ImageUrl != product.MainImage.ImageUrl)
+                {
+                    <div class="col s4">
+                        <img class="materialboxed responsive-img" src="@image.ImageUrl">
+                        <button class="btn" @onclick="@(async () => await MakePrimaryImage(image.ImageName).ConfigureAwait(false))">Make Primary</button>
+                        <button class="btn red" @onclick="@(async () => await DeleteImage(image.ImageName).ConfigureAwait(false))"><i class="material-icons">delete_forever</i></button>
+                    </div>
+                }
+            }
+        </div>
     </div>
 }
 
@@ -75,10 +107,54 @@
 
     private EditProductModel model = new EditProductModel();
 
+    private MemoryStream memory;
+    private string fileName;
+
+    private async Task MakePrimaryImage(string imageName)
+    {
+        await productService.MakePrimaryImage(ProductId, imageName);
+    }
+    private async Task DeleteImage(string imageName)
+    {
+        await productService.DeleteImage(ProductId, imageName);
+    }
+
+    private async Task LoadFileIntoMemory(IFileListEntry[] files)
+    {
+        var file = files.FirstOrDefault();
+        if (file != null)
+        {
+            memory = new MemoryStream();
+            await file.Data.CopyToAsync(memory);
+            fileName = file.Name;
+        }
+    }
+
+    private async Task UploadImage()
+    {
+        if (memory != null)
+        {
+            await productService.UploadImage(ProductId, memory, fileName).ConfigureAwait(false);
+        }
+    }
+
+    private void LoadProductFromProductService()
+    {
+        product = productService.Products.FirstOrDefault(x => x.Id == ProductId);
+        StateHasChanged();
+    }
+
+    private async Task EditProduct()
+    {
+        await productService.EditProduct(ProductId, model).ConfigureAwait(false);
+
+        navigationManager.NavigateTo("/admin/products");
+    }
+
     protected override async Task OnParametersSetAsync()
     {
         ProductId = Guid.Parse(ProductIdString);
-        product = productService.Products.FirstOrDefault(x => x.Id == ProductId);
+        LoadProductFromProductService();
 
         if (product != null)
         {
@@ -94,15 +170,9 @@
         await RefreshInputs();
     }
 
-    private async Task EditProduct()
-    {
-        await productService.EditProduct(ProductId, model).ConfigureAwait(false);
-
-        navigationManager.NavigateTo("/admin/products");
-    }
-
     protected override async Task OnInitializedAsync()
     {
+        productService.OnChange += LoadProductFromProductService;
         await RefreshInputs().ConfigureAwait(false);
     }
 
@@ -113,6 +183,7 @@
             await RefreshInputs().ConfigureAwait(false);
         }
 
+        await JSRuntime.InvokeVoidAsync("InitializeImageBoxes").ConfigureAwait(false);
         await base.OnAfterRenderAsync(firstRender);
     }
 
@@ -120,5 +191,10 @@
     {
         StateHasChanged();
         await JSRuntime.InvokeVoidAsync("RefreshInputFields").ConfigureAwait(false);
+    }
+
+    public void Dispose()
+    {
+        productService.OnChange -= LoadProductFromProductService;
     }
 }

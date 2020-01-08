@@ -19,7 +19,7 @@
         @foreach (var product in productService.Products)
         {
             <tr>
-                <td><img style="max-height:4em;" class="responsive-img" src="@(string.IsNullOrEmpty(product.ImageUrl) ? "/images/image-coming-soon-dark.png" : product.ImageUrl)"></td>
+                <td><img style="max-height:4em;" class="responsive-img" src="@(string.IsNullOrEmpty(product.MainImage.ImageUrl) ? "/images/image-coming-soon-dark.png" : product.MainImage.ImageUrl)"></td>
                 <td>@product.Name</td>
                 <td>@product.Category</td>
                 <td>@product.Price</td>

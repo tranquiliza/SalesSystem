@@ -89,5 +89,21 @@ namespace Tranquiliza.Shop.Core.Model
         }
 
         public static Product Create(string title, string category, int price, string description) => new Product(title, category, price, description);
+
+        public void SetMainImage(string imageName)
+        {
+            MainImage = imageName;
+        }
+
+        public void DeleteImage(string imageName)
+        {
+            Images.Remove(imageName);
+
+            if (string.Equals(MainImage, imageName, StringComparison.OrdinalIgnoreCase) && Images.Count > 0)
+                MainImage = Images[0];
+
+            if (Images.Count == 0)
+                MainImage = "";
+        }
     }
 }
