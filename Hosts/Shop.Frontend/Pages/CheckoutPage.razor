@@ -7,6 +7,17 @@
 <div class="row">
     <div class="col s12">
         <ul id="basketProgressBar" class="tabs">
+
+            @* FIX THIS MESS: Should just end when going to payment. Reset order in basketService.
+                However, register the orderId as a "Pending" so that it's possible for the user to see pending Inquiries
+                Without Login, this is tied to client ID: There will be sent a mail with a link, directly to the Pending page of Inquiry.
+                With Login, we can probably look up Inquires in a specific state.
+
+                TODO: Add Payment Page (InquiryId in URL)
+                TODO: Add Confirmation Page (InquiryID In URL)
+
+            *@
+
             @switch (basketService.InquiryState)
             {
                 case InquiryStateModel.Placed:
@@ -60,9 +71,8 @@
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        if (firstRender)
-        {
-        }
+        if (firstRender) { }
+
         await JSRuntime.InvokeVoidAsync("InitializeTabs").ConfigureAwait(false);
 
         await base.OnAfterRenderAsync(firstRender);

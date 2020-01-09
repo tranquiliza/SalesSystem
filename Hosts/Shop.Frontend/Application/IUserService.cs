@@ -14,6 +14,7 @@ namespace Shop.Frontend.Application
         event Action OnChange;
 
         Task<bool> TryLogin(AuthenticateModel model);
+        Task CreateAccount(RegisterUserModel model); 
         Task Initialize();
         Task<bool> TryLogout();
     }

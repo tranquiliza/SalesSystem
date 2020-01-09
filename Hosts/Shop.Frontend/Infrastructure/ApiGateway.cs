@@ -55,6 +55,16 @@ namespace Shop.Frontend.Infrastructure
             return await ExecuteRequest<ResponseModel>(request).ConfigureAwait(false);
         }
 
+        public async Task Post<RequestModel>(RequestModel model, string controller, string action = null, string[] routeValues = null, params QueryParam[] queryParams)
+        {
+            var requestUri = BuildRequestUri(controller, action, routeValues, queryParams);
+            var request = await BuildBaseRequest("POST", requestUri).ConfigureAwait(false);
+            var body = Serialization.Serialize(model);
+            request.Content = new StringContent(body, Encoding.UTF8, "application/json");
+
+            await ExecuteRequest(request).ConfigureAwait(false);
+        }
+
         public async Task<ResponseModel> Delete<ResponseModel, RequestModel>(RequestModel model, string controller, string action = null, string[] routeValues = null, params QueryParam[] queryParams)
         {
             var requestUri = BuildRequestUri(controller, action, routeValues, queryParams);
@@ -89,6 +99,11 @@ namespace Shop.Frontend.Infrastructure
                 }
             };
 
+            await ExecuteRequest(request).ConfigureAwait(false);
+        }
+
+        private async Task ExecuteRequest(HttpRequestMessage request)
+        {
             var response = await _httpClient.SendAsync(request).ConfigureAwait(false);
             if (!response.IsSuccessStatusCode)
             {

@@ -1,0 +1,61 @@
+﻿@inject IUserService userService
+@inject NavigationManager navigationManager
+
+@page "/Register"
+
+<Header Title="Create User"></Header>
+
+<div class="row">
+    <div class="col s6 offset-s3">
+        <div class="card-panel">
+            <EditForm Model="@model" OnValidSubmit="@RegisterUser">
+                <div class="row">
+                    <div class="input-field col s12">
+                        <i class="material-icons prefix">person</i>
+                        <InputText type="text" id="email" @bind-Value="model.Email"></InputText>
+                        <label for="email">Email</label>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="input-field col s12">
+                        <i class="material-icons prefix">lock</i>
+                        <InputText type="password" id="register_password" @bind-Value="model.Password"></InputText>
+                        <label for="register_password">Password</label>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="input-field col s12">
+                        <i class="material-icons prefix">lock</i>
+                        <InputText type="password" id="register_password_confirm" @bind-Value="ConfirmPassword"></InputText>
+                        <label for="register_password_confirm">Confirm Password</label>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col s12">
+                        <button type="submit" class="btn waves-effect right">Register</button>
+                    </div>
+                </div>
+
+            </EditForm>
+        </div>
+    </div>
+</div>
+
+@code {
+    RegisterUserModel model = new RegisterUserModel();
+
+    public string ConfirmPassword { get; set; }
+
+    public async Task RegisterUser()
+    {
+        if (!string.Equals(model.Password, ConfirmPassword))
+        {
+            return;
+        }
+
+        await userService.CreateAccount(model);
+
+        navigationManager.NavigateTo("ConfirmEmail");
+    }
+}

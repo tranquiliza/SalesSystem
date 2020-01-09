@@ -1,0 +1,21 @@
+﻿@page "/ConfirmEmail"
+@page "/ConfirmEmail/{emailConfirmationToken}"
+
+@if (string.IsNullOrWhiteSpace(EmailConfirmationToken))
+{
+    <p>We have sent you an email, please check your inbox and confirm!</p>
+}
+else
+{
+    <p>Thank you for confirmation your email!</p>
+}
+
+@code{
+    [Parameter]
+    public string EmailConfirmationToken { get; set; }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        Console.WriteLine(EmailConfirmationToken);
+    }
+}

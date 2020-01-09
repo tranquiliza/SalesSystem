@@ -1,5 +1,7 @@
 ﻿@inject IUserService userService
 @inject IJSRuntime JSRuntime
+@inject NavigationManager navigationManager
+
 <!-- Modal Structure -->
 <div id="modalLogin" class="modal">
     <EditForm Model="@model" OnValidSubmit="@Login">
@@ -21,7 +23,7 @@
             </div>
         </div>
         <div class="modal-footer">
-            <a href="register" class="waves-effect waves-green btn-flat">Register</a>
+            <a @onclick="GoToRegisterPage" class="waves-effect waves-green btn-flat">Register</a>
             <button type="submit" class="waves-effect waves-green btn-flat">Login</button>
         </div>
     </EditForm>
@@ -30,6 +32,12 @@
 
 @code {
     AuthenticateModel model = new AuthenticateModel();
+
+    private async Task GoToRegisterPage()
+    {
+        await JSRuntime.InvokeVoidAsync("CloseModal", "modalLogin").ConfigureAwait(false);
+        navigationManager.NavigateTo("Register");
+    }
 
     private async Task Login()
     {

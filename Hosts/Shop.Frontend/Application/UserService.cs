@@ -85,5 +85,10 @@ namespace Shop.Frontend.Application
 
             return new UserInformation(userId, roles);
         }
+
+        public async Task CreateAccount(RegisterUserModel model)
+        {
+            await _api.Post(model, "Users").ConfigureAwait(false);
+        }
     }
 }
