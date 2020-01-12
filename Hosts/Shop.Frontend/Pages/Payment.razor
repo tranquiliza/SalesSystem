@@ -1,0 +1,68 @@
+﻿@inject IBasketService basketService
+@inject IJSRuntime JSRuntime
+@inject NavigationManager navigationManager
+@implements IDisposable
+
+@page "/payment/{InquiryIdString}"
+
+<ul class="tabs">
+    <li class="tab col s4"><a href="checkout">INFORMATION</a></li>
+    <li class="tab col s4"><a class="active">Payment</a></li>
+    <li class="tab col s4 disabled"><a>Confirmation</a></li>
+</ul>
+
+<a @onclick="async() => await Proceed().ConfigureAwait(false)" href="@("confirmation/" + InquiryId)" class="btn btn-flat">GO TO CONFIRM LOL</a>
+
+@code {
+    [Parameter]
+    public string InquiryIdString { get; set; }
+
+    private Guid InquiryId { get; set; }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        if (Guid.TryParse(InquiryIdString, out var inquiryId))
+        {
+            InquiryId = inquiryId;
+        }
+
+        // IF INQUIRY IS PAYMENT EXPECT: DONT ALLOW USER TO PAY AGAIN! (WERE WAITING FOR PAYMENT APPROVAL PLEASE HOLD)
+
+        // FETCH INQUIRY:
+        // IF INQUIRY IS PAYMENT RECIEVED -> GO TO CONFIRMATION
+    }
+
+    public async Task Proceed()
+    {
+        await basketService.SetStateExpectPayment().ConfigureAwait(false);
+
+        navigationManager.NavigateTo("confirmation/" + InquiryId);
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender) { }
+
+        await JSRuntime.InvokeVoidAsync("InitializeTabs").ConfigureAwait(false);
+
+        await base.OnAfterRenderAsync(firstRender);
+    }
+
+    protected override void OnInitialized()
+    {
+        navigationManager.LocationChanged += SetInquiryStatusToAddingToCart;
+    }
+
+    private void SetInquiryStatusToAddingToCart(object sender, LocationChangedEventArgs args)
+    {
+        if (!args.Location.Contains("confirmation"))
+        {
+            basketService.SetStateAddingToCart();
+        }
+    }
+
+    public void Dispose()
+    {
+        navigationManager.LocationChanged -= SetInquiryStatusToAddingToCart;
+    }
+}

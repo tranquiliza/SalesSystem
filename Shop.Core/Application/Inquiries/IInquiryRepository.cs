@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Tranquiliza.Shop.Core.Model;
 
@@ -8,6 +9,6 @@ namespace Tranquiliza.Shop.Core.Application
     {
         Task Save(Inquiry inquiry);
         Task<Inquiry> Get(Guid inquiryId);
-        Task<Inquiry> GetLatestInquiryFromClient(Guid clientId);
+        Task<IEnumerable<Inquiry>> GetInquiresFromClient(Guid clientId);
     }
 }

@@ -5,7 +5,6 @@
 
 @page "/admin/products/{productIdString}"
 
-<a href="/admin/products/" class="btn red">Go Back</a>
 
 @if (product != null)
 {
@@ -53,7 +52,8 @@
                 </div>
                 <div class="row">
                     <div class="input-field col s12">
-                        <button type="submit" class="btn waves-effect waves-light">Save</button>
+                        <a href="/admin/products/" class="btn red waves-effect waves-light">Go Back</a>
+                        <button type="submit" class="btn waves-effect waves-light right">Save</button>
                     </div>
                 </div>
             </EditForm>

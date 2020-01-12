@@ -9,6 +9,9 @@ namespace Tranquiliza.Shop.Api.Mappers
 {
     public static class InquiryMapper
     {
+        public static List<InquiryModel> Map(this List<Inquiry> inquiries, IRequestInformation requestInformation)
+            => inquiries.Select(x => x.Map(requestInformation)).ToList();
+
         public static InquiryModel Map(this Inquiry inquiry, IRequestInformation requestInformation)
             => new InquiryModel
             {
@@ -24,6 +27,7 @@ namespace Tranquiliza.Shop.Api.Mappers
              {
                  InquiryState.AddingToCart => InquiryStateModel.AddingToCart,
                  InquiryState.Placed => InquiryStateModel.Placed,
+                 InquiryState.PaymentExpected => InquiryStateModel.PaymentExpected,
                  InquiryState.PaymentReceived => InquiryStateModel.PaymentReceived,
                  InquiryState.Dispatched => InquiryStateModel.Dispatched,
                  _ => throw new NotImplementedException("State is not implemented in mapper"),
@@ -55,6 +59,7 @@ namespace Tranquiliza.Shop.Api.Mappers
             {
                 InquiryStateModel.AddingToCart => InquiryState.AddingToCart,
                 InquiryStateModel.Placed => InquiryState.Placed,
+                InquiryStateModel.PaymentExpected => InquiryState.PaymentExpected,
                 InquiryStateModel.PaymentReceived => InquiryState.PaymentReceived,
                 InquiryStateModel.Dispatched => InquiryState.Dispatched,
                 _ => throw new NotImplementedException("State is not implemented in mapper"),

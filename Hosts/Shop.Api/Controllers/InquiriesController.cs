@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using Tranquiliza.Shop.Api.Mappers;
 using Tranquiliza.Shop.Contract.Models;
 using Tranquiliza.Shop.Core.Application;
+using Tranquiliza.Shop.Core.Model;
 
 namespace Tranquiliza.Shop.Api.Controllers
 {
@@ -23,12 +24,29 @@ namespace Tranquiliza.Shop.Api.Controllers
         }
 
         [HttpGet]
-        [AllowAnonymous]
+        [Authorize(Roles = Role.Admin)]
         public async Task<IActionResult> Get()
         {
             var result = await _inquiryManagementService.Get(ApplicationContext).ConfigureAwait(false);
             if (result.State == Core.ResultState.Failure)
                 return BadRequest(result.FailureReason);
+
+            if (result.State == Core.ResultState.NoContent)
+                return NoContent();
+
+            return Ok(result.Data.ToList().Map(RequestInformation));
+        }
+
+        [HttpGet("client/latest")]
+        [AllowAnonymous]
+        public async Task<IActionResult> GetForClient()
+        {
+            var result = await _inquiryManagementService.GetForClient(ApplicationContext).ConfigureAwait(false);
+            if (result.State == Core.ResultState.Failure)
+                return BadRequest(result.FailureReason);
+
+            if (result.State == Core.ResultState.AccessDenied)
+                return NoContent();
 
             if (result.State == Core.ResultState.NoContent)
                 return NoContent();

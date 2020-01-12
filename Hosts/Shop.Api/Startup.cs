@@ -98,7 +98,6 @@ namespace Tranquiliza.Shop.Api
             services.AddSingleton<IImageRepository, ImageRepository>();
             services.AddSingleton<IInquiryManagementService, InquiryManagementService>();
             services.AddSingleton<IInquiryRepository, InquiryRepository>();
-            services.AddSingleton<ICustomerInformationRepository, CustomerInformationRepository>();
 
             services.AddSingleton(connectionStringProvider);
             services.AddSingleton(configurationProvider);

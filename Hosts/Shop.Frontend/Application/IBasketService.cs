@@ -15,12 +15,14 @@ namespace Shop.Frontend.Application
         Task RemoveProduct(Guid productId);
         Task DeleteFromBasket(Guid productId);
         Task<bool> TryAddCustomer(AddCustomerToInquiryModel model);
+        Task SetStateExpectPayment();
         int ItemCount();
+        Task SetStateAddingToCart();
 
+        Guid InquiryId { get; }
 
         double Total { get; }
         IReadOnlyList<OrderLineModel> Items { get; }
         CustomerInformationModel CustomerInformation { get; }
-        InquiryStateModel InquiryState { get; }
     }
 }

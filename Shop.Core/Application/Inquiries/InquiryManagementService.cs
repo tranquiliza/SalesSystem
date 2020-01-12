@@ -4,6 +4,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Tranquiliza.Shop.Core.Extensions;
 using Tranquiliza.Shop.Core.Model;
+using System.Linq;
 
 namespace Tranquiliza.Shop.Core.Application
 {
@@ -11,16 +12,16 @@ namespace Tranquiliza.Shop.Core.Application
     {
         private readonly IInquiryRepository _inquiryRepository;
         private readonly IProductRepository _productRepository;
-        private readonly ICustomerInformationRepository _customerRepository;
+        private readonly IDateTimeProvider _dateTimeProvider;
 
         public InquiryManagementService(
             IInquiryRepository inquiryRepository,
             IProductRepository productRepository,
-            ICustomerInformationRepository customerRepository)
+            IDateTimeProvider dateTimeProvider)
         {
             _inquiryRepository = inquiryRepository;
             _productRepository = productRepository;
-            _customerRepository = customerRepository;
+            _dateTimeProvider = dateTimeProvider;
         }
 
         public async Task<Result<Inquiry>> RemoveProductFromInquiry(Guid inquiryId, Guid productId, int amountToRemove, IApplicationContext context)
@@ -44,7 +45,7 @@ namespace Tranquiliza.Shop.Core.Application
             if (product == null)
                 return Result<Inquiry>.Failure("Product was not found");
 
-            var inquiry = Inquiry.Create(product, context.UserId, context.ClientId);
+            var inquiry = Inquiry.Create(product, context.UserId, context.ClientId, _dateTimeProvider.UtcNow);
             await _inquiryRepository.Save(inquiry).ConfigureAwait(false);
 
             return Result<Inquiry>.Succeeded(inquiry);
@@ -69,30 +70,7 @@ namespace Tranquiliza.Shop.Core.Application
             if (!context.HasAccessTo(inquiry))
                 return Result<Inquiry>.Unauthorized();
 
-            CustomerInformation customerInformation;
-            if (context.IsAnonymous)
-            {
-                customerInformation = await _customerRepository.GetCustomer(email).ConfigureAwait(false)
-                    ?? await _customerRepository.GetCustomerFromClientId(context.ClientId).ConfigureAwait(false);
-            }
-            else
-            {
-                customerInformation = await _customerRepository.GetCustomer(context.UserId).ConfigureAwait(false)
-                    ?? await _customerRepository.GetCustomer(email).ConfigureAwait(false);
-            }
-
-            if (customerInformation == null)
-            {
-                customerInformation = CustomerInformation.Create(email, firstName, surname, phoneNumber, country, zipCode, city, streetNumber, context.ClientId, context.UserId);
-                await _customerRepository.Save(customerInformation).ConfigureAwait(false);
-            }
-
-            if (!context.HasAccessTo(customerInformation))
-                return Result<Inquiry>.Unauthorized();
-
-            if (customerInformation.TryUpdate(email, firstName, surname, phoneNumber, country, zipCode, city, streetNumber, context))
-                await _customerRepository.Save(customerInformation).ConfigureAwait(false);
-
+            var customerInformation = CustomerInformation.Create(email, firstName, surname, phoneNumber, country, zipCode, city, streetNumber);
             inquiry.SetCustomerInformation(customerInformation);
             await _inquiryRepository.Save(inquiry).ConfigureAwait(false);
 
@@ -136,11 +114,29 @@ namespace Tranquiliza.Shop.Core.Application
             return Result<Inquiry>.Succeeded(inquiry);
         }
 
-        public async Task<Result<Inquiry>> Get(IApplicationContext context)
+        public async Task<Result<IEnumerable<Inquiry>>> Get(IApplicationContext context)
         {
-            var inquiry = await _inquiryRepository.GetLatestInquiryFromClient(context.ClientId).ConfigureAwait(false);
+            var inquiries = await _inquiryRepository.GetInquiresFromClient(context.ClientId).ConfigureAwait(false);
+            if (!inquiries.Any())
+                return Result<IEnumerable<Inquiry>>.NoContentFound();
+
+            return Result<IEnumerable<Inquiry>>.Succeeded(inquiries);
+        }
+
+        public async Task<Result<Inquiry>> GetForClient(IApplicationContext context)
+        {
+            var inquiries = await _inquiryRepository.GetInquiresFromClient(context.ClientId).ConfigureAwait(false);
+            if (!inquiries.Any())
+                return Result<Inquiry>.NoContentFound();
+
+            var inquiry = inquiries.OrderByDescending(x => x.CreatedOn)
+                .FirstOrDefault(x => x.State < InquiryState.PaymentExpected);
+
             if (inquiry == null)
                 return Result<Inquiry>.NoContentFound();
+
+            if (!context.HasAccessTo(inquiry))
+                return Result<Inquiry>.Unauthorized();
 
             return Result<Inquiry>.Succeeded(inquiry);
         }

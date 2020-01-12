@@ -9,11 +9,11 @@ namespace Tranquiliza.Shop.Core.Tests.Helpers
     {
         private IInquiryRepository _inquiryRepository;
         private IProductRepository _productRepository;
-        private ICustomerInformationRepository _customerRepository;
+        private IDateTimeProvider _dateTimeProvider;
 
         internal InquiryManagementService Build()
         {
-            return new InquiryManagementService(_inquiryRepository, _productRepository, _customerRepository);
+            return new InquiryManagementService(_inquiryRepository, _productRepository, _dateTimeProvider);
         }
 
         internal InquiryManagementServiceFactory With(IProductRepository productRepository)
@@ -28,9 +28,9 @@ namespace Tranquiliza.Shop.Core.Tests.Helpers
             return this;
         }
 
-        internal InquiryManagementServiceFactory With(ICustomerInformationRepository customerRepository)
+        internal InquiryManagementServiceFactory With(IDateTimeProvider dateTimeProvider)
         {
-            _customerRepository = customerRepository;
+            _dateTimeProvider = dateTimeProvider;
             return this;
         }
     }

@@ -7,7 +7,8 @@ namespace Tranquiliza.Shop.Contract.Models
     {
         AddingToCart = 0,
         Placed = 1,
-        PaymentReceived = 2,
-        Dispatched = 3,
+        PaymentExpected = 2,
+        PaymentReceived = 3,
+        Dispatched = 4,
     }
 }

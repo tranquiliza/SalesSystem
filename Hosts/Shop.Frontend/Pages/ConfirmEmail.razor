@@ -1,7 +1,7 @@
 ﻿@page "/ConfirmEmail"
-@page "/ConfirmEmail/{emailConfirmationToken}"
+@page "/ConfirmEmail/{emailConfirmationTokenString}"
 
-@if (string.IsNullOrWhiteSpace(EmailConfirmationToken))
+@if (EmailConfirmationToken == default)
 {
     <p>We have sent you an email, please check your inbox and confirm!</p>
 }
@@ -12,10 +12,17 @@ else
 
 @code{
     [Parameter]
-    public string EmailConfirmationToken { get; set; }
+    public string EmailConfirmationTokenString { get; set; }
+
+    private Guid EmailConfirmationToken { get; set; }
 
     protected override async Task OnParametersSetAsync()
     {
+        if (Guid.TryParse(EmailConfirmationTokenString, out var token))
+            EmailConfirmationToken = token;
+
         Console.WriteLine(EmailConfirmationToken);
+
+        // Call API with this token
     }
 }

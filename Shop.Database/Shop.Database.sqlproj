@@ -61,7 +61,6 @@
     <Folder Include="Procedures\Products" />
     <Folder Include="Security" />
     <Folder Include="Security\Schemas" />
-    <Folder Include="Procedures\CustomerInformation" />
     <Folder Include="Procedures\Inquiries" />
   </ItemGroup>
   <ItemGroup>
@@ -75,15 +74,10 @@
     <Build Include="Procedures\Products\GetProductFromId.sql" />
     <Build Include="Procedures\Products\GetCategories.sql" />
     <Build Include="Security\Schemas\Core.sql" />
-    <Build Include="Tables\CustomerInformation.sql" />
-    <Build Include="Procedures\CustomerInformation\InsertUpdateCustomerInformation.sql" />
-    <Build Include="Procedures\CustomerInformation\GetCustomerInformationFromId.sql" />
-    <Build Include="Procedures\CustomerInformation\GetCustomerInformationFromEmail.sql" />
     <Build Include="Tables\Inquiries.sql" />
     <Build Include="Procedures\Inquiries\InsertUpdateInquiry.sql" />
     <Build Include="Procedures\Inquiries\GetInquiryFromId.sql" />
-    <Build Include="Procedures\Inquiries\GetInquiryFromClientId.sql" />
-    <Build Include="Procedures\CustomerInformation\GetCustomerInformationFromClientId.sql" />
+    <Build Include="Procedures\Inquiries\GetInquiriesFromClientId.sql" />
     <Build Include="Procedures\Products\SoftDeleteProduct.sql" />
   </ItemGroup>
   <ItemGroup>

@@ -75,7 +75,7 @@
 
 @code {
     [Parameter]
-    public EventCallback ChangeToPaymentTab { get; set; }
+    public EventCallback<Guid> CompletedCallback { get; set; }
 
     private AddCustomerToInquiryModel model = new AddCustomerToInquiryModel();
 
@@ -126,8 +126,9 @@
             return;
         }
 
-        await ChangeToPaymentTab.InvokeAsync(null);
+        await CompletedCallback.InvokeAsync(basketService.InquiryId).ConfigureAwait(false);
     }
+
     private async Task RefreshInputs() => await JSRuntime.InvokeVoidAsync("RefreshInputFields").ConfigureAwait(false);
 
     public void Dispose()

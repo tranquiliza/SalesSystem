@@ -20,11 +20,15 @@ namespace Shop.Frontend.Application
 
         public IReadOnlyList<OrderLineModel> Items => _inquiry?.OrderLines ?? new List<OrderLineModel>();
 
+        public double Total => _inquiry?.Total ?? 0;
+
+        public Guid InquiryId => _inquiry?.Id ?? Guid.Empty;
+
         public event Action OnChange;
 
         public async Task Initialize()
         {
-            _inquiry = await _api.Get<InquiryModel>("Inquiries").ConfigureAwait(false);
+            _inquiry = await _api.Get<InquiryModel>("Inquiries", routeValues: new string[] { "client", "latest" }).ConfigureAwait(false);
             if (_inquiry != null)
                 NotifyStateChanged();
         }
@@ -77,22 +81,48 @@ namespace Shop.Frontend.Application
 
         public CustomerInformationModel CustomerInformation => _inquiry?.Customer;
 
-        public InquiryStateModel InquiryState => _inquiry?.State ?? InquiryStateModel.AddingToCart;
-
         public async Task<bool> TryAddCustomer(AddCustomerToInquiryModel model)
         {
             if (_inquiry == null)
                 return false;
 
-            _inquiry = await _api.Post<InquiryModel, AddCustomerToInquiryModel>(model, "Inquiries", routeValues: new string[] { _inquiry.Id.ToString(), "customer" }).ConfigureAwait(false);
+            var inquiryWithCustomer = await _api.Post<InquiryModel, AddCustomerToInquiryModel>(model, "Inquiries", routeValues: new string[] { _inquiry.Id.ToString(), "customer" }).ConfigureAwait(false);
+            if (inquiryWithCustomer == null)
+                return false;
 
             var setInquiryToPlacedState = new UpdateInquiryStateModel { NewState = InquiryStateModel.Placed };
-            _inquiry = await _api.Post<InquiryModel, UpdateInquiryStateModel>(setInquiryToPlacedState, "Inquiries", routeValues: new string[] { _inquiry.Id.ToString(), "state" }).ConfigureAwait(false);
+            var inquiryWithPlacedState = await _api.Post<InquiryModel, UpdateInquiryStateModel>(setInquiryToPlacedState, "Inquiries", routeValues: new string[] { _inquiry.Id.ToString(), "state" }).ConfigureAwait(false);
+            if (inquiryWithPlacedState == null)
+                return false;
 
             NotifyStateChanged();
             return true;
         }
 
-        public double Total => _inquiry?.Total ?? 0;
+        public async Task SetStateAddingToCart()
+        {
+            var setInquiryStateToExpectPayment = new UpdateInquiryStateModel { NewState = InquiryStateModel.AddingToCart };
+            var updatedInquiry = await _api.Post<InquiryModel, UpdateInquiryStateModel>(setInquiryStateToExpectPayment, "Inquiries", routeValues: new string[] { _inquiry.Id.ToString(), "state" }).ConfigureAwait(false);
+            if (updatedInquiry != null)
+            {
+                _inquiry = updatedInquiry;
+                NotifyStateChanged();
+            }
+
+            // Something went wrong :(
+        }
+
+        public async Task SetStateExpectPayment()
+        {
+            var setInquiryStateToExpectPayment = new UpdateInquiryStateModel { NewState = InquiryStateModel.PaymentExpected };
+            var inquiry = await _api.Post<InquiryModel, UpdateInquiryStateModel>(setInquiryStateToExpectPayment, "Inquiries", routeValues: new string[] { _inquiry.Id.ToString(), "state" }).ConfigureAwait(false);
+            if (inquiry != null)
+            {
+                _inquiry = null;
+                NotifyStateChanged();
+            }
+
+            // Something went wrong :(
+        }
     }
 }

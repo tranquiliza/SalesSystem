@@ -39,20 +39,6 @@ window.UpdateTabIndicator = function () {
     instance.updateTabIndicator();
 };
 
-window.BasketSwitchToPayment = function () {
-    let tab = document.querySelector('#basketPaymentTab');
-    tab.classList.remove("disabled");
-
-    let el = document.querySelector('#basketProgressBar');
-    let instance = M.Tabs.getInstance(el);
-    instance.select('Payment');
-};
-
-window.DisablePaymentTab = function () {
-    let tab = document.querySelector('#basketPaymentTab');
-    tab.classList.add("disabled");
-};
-
 window.InitializeModals = function () {
     var elems = document.querySelectorAll('.modal');
     var instances = M.Modal.init(elems, {});

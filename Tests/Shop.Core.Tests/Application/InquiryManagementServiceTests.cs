@@ -42,6 +42,7 @@ namespace Tranquiliza.Shop.Core.Tests.Application
             var clientId = Guid.Parse("c64906a7-7b92-4dc5-aabf-b1a695b35e4b");
             var isAnon = false;
             var productId = Guid.Parse("c4e17288-f276-46a6-9520-8d5a2c1b0427");
+            var datetimeProvider = new Mock<IDateTimeProvider>();
             var productRepository = new Mock<IProductRepository>();
             productRepository.Setup(x => x.Get(It.IsAny<Guid>()))
                 .ReturnsAsync(Product.Create("Test", "Test", 100, ""));
@@ -50,6 +51,7 @@ namespace Tranquiliza.Shop.Core.Tests.Application
             var sut = new InquiryManagementServiceFactory()
                 .With(productRepository.Object)
                 .With(inquiryRepository.Object)
+                .With(datetimeProvider.Object)
                 .Build();
             var applicationContext = new TestContext(userId, clientId, isAnon);
 
@@ -77,6 +79,7 @@ namespace Tranquiliza.Shop.Core.Tests.Application
             var clientId = Guid.Parse("c64906a7-7b92-4dc5-aabf-b1a695b35e4b");
             var isAnon = true;
             var productId = Guid.Parse("c4e17288-f276-46a6-9520-8d5a2c1b0427");
+            var datetimeProvider = new Mock<IDateTimeProvider>();
             var productRepository = new Mock<IProductRepository>();
             productRepository.Setup(x => x.Get(It.IsAny<Guid>()))
                 .ReturnsAsync(Product.Create("Test", "Test", 100, ""));
@@ -85,6 +88,7 @@ namespace Tranquiliza.Shop.Core.Tests.Application
             var sut = new InquiryManagementServiceFactory()
                 .With(productRepository.Object)
                 .With(inquiryRepository.Object)
+                .With(datetimeProvider.Object)
                 .Build();
             var applicationContext = new TestContext(default, clientId, isAnon);
 
@@ -131,6 +135,7 @@ namespace Tranquiliza.Shop.Core.Tests.Application
         public async Task AddProductToInquiry()
         {
             // arrange
+            var createdOn = DateTime.Parse("2020-01-12 03:46:55");
             var userId = Guid.Parse("9866b9fc-1636-4b21-a77c-b9f0a1229505");
             var clientId = Guid.Parse("c64906a7-7b92-4dc5-aabf-b1a695b35e4b");
             var isAnon = false;
@@ -140,7 +145,7 @@ namespace Tranquiliza.Shop.Core.Tests.Application
             productRepository.Setup(x => x.Get(It.IsAny<Guid>()))
                 .ReturnsAsync(testProduct);
 
-            var inquiry = Inquiry.Create(testProduct, userId, clientId);
+            var inquiry = Inquiry.Create(testProduct, userId, clientId, createdOn);
             var inquiryRepository = new Mock<IInquiryRepository>();
             inquiryRepository.Setup(x => x.Get(It.IsAny<Guid>()))
                 .ReturnsAsync(inquiry);
@@ -172,6 +177,7 @@ namespace Tranquiliza.Shop.Core.Tests.Application
         public async Task ContextDoesNotHaveAccessToInquiry()
         {
             // arrange
+            var createdOn = DateTime.Parse("2020-01-12 03:46:55");
             var userId = default(Guid);
             var clientId = Guid.Parse("c64906a7-7b92-4dc5-aabf-b1a695b35e4b");
             var isAnon = true;
@@ -181,7 +187,7 @@ namespace Tranquiliza.Shop.Core.Tests.Application
             productRepository.Setup(x => x.Get(It.IsAny<Guid>()))
                 .ReturnsAsync(testProduct);
 
-            var inquiry = Inquiry.Create(testProduct, userId, clientId);
+            var inquiry = Inquiry.Create(testProduct, userId, clientId, createdOn);
             var inquiryRepository = new Mock<IInquiryRepository>();
             inquiryRepository.Setup(x => x.Get(It.IsAny<Guid>()))
                 .ReturnsAsync(inquiry);
@@ -205,6 +211,7 @@ namespace Tranquiliza.Shop.Core.Tests.Application
         public async Task ContextIsNotAnonButClientHasAnInquiry()
         {
             // arrange
+            var createdOn = DateTime.Parse("2020-01-12 03:46:55");
             var userId = default(Guid);
             var clientId = Guid.Parse("c64906a7-7b92-4dc5-aabf-b1a695b35e4b");
             var isAnon = false;
@@ -214,7 +221,7 @@ namespace Tranquiliza.Shop.Core.Tests.Application
             productRepository.Setup(x => x.Get(It.IsAny<Guid>()))
                 .ReturnsAsync(testProduct);
 
-            var inquiry = Inquiry.Create(testProduct, userId, clientId);
+            var inquiry = Inquiry.Create(testProduct, userId, clientId, createdOn);
             var inquiryRepository = new Mock<IInquiryRepository>();
             inquiryRepository.Setup(x => x.Get(It.IsAny<Guid>()))
                 .ReturnsAsync(inquiry);
@@ -232,124 +239,6 @@ namespace Tranquiliza.Shop.Core.Tests.Application
 
             // assert
             Assert.AreEqual(ResultState.Success, result.State);
-        }
-
-        [TestMethod]
-        public async Task CustomerInformationAddedToInquiry_UpdateInquiryOwner_ToUserId()
-        {
-            // arrange
-            var clientId = Guid.NewGuid();
-            var userId = Guid.NewGuid();
-            var inquiry = CreateInquiryFromAnon();
-            var email = "email@somewhere.com";
-            var firstName = "Daniel";
-            var surName = "Tranquiliza";
-            var phoneNumber = "0011223344";
-
-            var country = "Denmark";
-            var zipCode = "0000";
-            var city = "Odense";
-            var streetNumber = "Somewhere 1";
-
-            var applicationContext = new TestContext(userId, clientId, false);
-
-            var productRepository = new Mock<IProductRepository>();
-            var customerRepository = new Mock<ICustomerInformationRepository>();
-            var inquiryRepository = new Mock<IInquiryRepository>();
-            inquiryRepository.Setup(x => x.Get(inquiry.Id))
-                .ReturnsAsync(inquiry);
-
-            var sut = new InquiryManagementServiceFactory()
-                .With(productRepository.Object)
-                .With(inquiryRepository.Object)
-                .With(customerRepository.Object)
-                .Build();
-
-            // act
-            var result = await sut.AddCustomerToInquiry(inquiry.Id, email, firstName, surName, phoneNumber, country, zipCode, city, streetNumber, applicationContext).ConfigureAwait(false);
-
-            // assert
-            Assert.AreEqual(ResultState.Success, result.State);
-
-            customerRepository.Verify(x => x.Save(It.Is<CustomerInformation>(y =>
-                y.Email == email
-                && y.FirstName == firstName
-                && y.Surname == surName
-                && y.PhoneNumber == phoneNumber
-                && y.Country == country
-                && y.ZipCode == zipCode
-                && y.City == city
-                && y.StreetNumber == streetNumber
-            )));
-
-            inquiryRepository.Verify(x => x.Save(It.Is<Inquiry>(y =>
-                    y.UserId == userId
-                )));
-
-            Inquiry CreateInquiryFromAnon()
-            {
-                var product = Product.Create("Test", "Test", 100, "");
-                return Inquiry.Create(product, default, clientId);
-            }
-        }
-
-        [TestMethod]
-        public async Task CustomerInformationAddedToInquiry_CustomerInformationDoesNotExist_Create()
-        {
-            // arrange
-            var clientId = Guid.NewGuid();
-            var userId = Guid.NewGuid();
-            var inquiry = CreateInquiryFromAnon();
-            var email = "email@somewhere.com";
-            var firstName = "Daniel";
-            var surName = "Tranquiliza";
-            var phoneNumber = "0011223344";
-
-            var country = "Denmark";
-            var zipCode = "0000";
-            var city = "Odense";
-            var streetNumber = "Somewhere 1";
-
-            var applicationContext = new TestContext(userId, clientId, false);
-
-            var productRepository = new Mock<IProductRepository>();
-            var customerRepository = new Mock<ICustomerInformationRepository>();
-            var inquiryRepository = new Mock<IInquiryRepository>();
-            inquiryRepository.Setup(x => x.Get(inquiry.Id))
-                .ReturnsAsync(inquiry);
-
-            var sut = new InquiryManagementServiceFactory()
-                .With(productRepository.Object)
-                .With(inquiryRepository.Object)
-                .With(customerRepository.Object)
-                .Build();
-
-            // act
-            var result = await sut.AddCustomerToInquiry(inquiry.Id, email, firstName, surName, phoneNumber, country, zipCode, city, streetNumber, applicationContext).ConfigureAwait(false);
-
-            // assert
-            Assert.AreEqual(ResultState.Success, result.State, message: result.FailureReason);
-
-            customerRepository.Verify(x => x.Save(It.Is<CustomerInformation>(y =>
-                y.Email == email
-                && y.FirstName == firstName
-                && y.Surname == surName
-                && y.PhoneNumber == phoneNumber
-                && y.Country == country
-                && y.ZipCode == zipCode
-                && y.City == city
-                && y.StreetNumber == streetNumber
-            )));
-
-            inquiryRepository.Verify(x => x.Save(It.Is<Inquiry>(y =>
-                    y.UserId == userId
-                )));
-
-            Inquiry CreateInquiryFromAnon()
-            {
-                var product = Product.Create("Test", "Test", 100, "");
-                return Inquiry.Create(product, default, clientId);
-            }
         }
     }
 }

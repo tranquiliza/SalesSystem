@@ -40,24 +40,25 @@ namespace Tranquiliza.Shop.Sql
             return null;
         }
 
-        public async Task<Inquiry> GetLatestInquiryFromClient(Guid clientId)
+        public async Task<IEnumerable<Inquiry>> GetInquiresFromClient(Guid clientId)
         {
+            var result = new List<Inquiry>();
             try
             {
-                using var cmd = _sql.CreateStoredProcedure("[Core].[GetInquiryFromClientId]")
+                using var cmd = _sql.CreateStoredProcedure("[Core].[GetInquiriesFromClientId]")
                     .WithParameter("clientId", clientId);
 
-                using var reader = await cmd.ExecuteReaderAsync(CommandBehavior.SingleRow).ConfigureAwait(false);
-                if (await reader.ReadAsync().ConfigureAwait(false))
-                    return Serialization.Deserialize<Inquiry>(reader.GetString("Data"));
+                using var reader = await cmd.ExecuteReaderAsync().ConfigureAwait(false);
+                while (await reader.ReadAsync().ConfigureAwait(false))
+                    result.Add(Serialization.Deserialize<Inquiry>(reader.GetString("Data")));
+
+                return result;
             }
             catch (Exception ex)
             {
-                _log.Warning($"Unable to fetch inquiry for client: {clientId}", ex);
+                _log.Warning($"Unable to fetch inquires for client: {clientId}", ex);
                 throw;
             }
-
-            return null;
         }
 
         public async Task Save(Inquiry inquiry)
