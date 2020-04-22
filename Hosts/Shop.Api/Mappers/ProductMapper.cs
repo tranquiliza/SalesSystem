@@ -53,6 +53,6 @@ namespace Tranquiliza.Shop.Api.Mappers
         private static string CreateImageUrl(string imageName, IRequestInformation requestInformation)
             => string.IsNullOrEmpty(imageName)
             ? string.Empty
-            : requestInformation.Scheme + "://" + requestInformation.Host + "/Images/" + imageName;
+            : requestInformation.Scheme + "://" + requestInformation.Host + "/ShopApi/Images/" + imageName;
     }
 }

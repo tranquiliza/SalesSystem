@@ -16,6 +16,7 @@ namespace Shop.Frontend
             services.AddSingleton<IUserService, UserService>();
             services.AddSingleton<IApiGateway, ApiGateway>();
             services.AddSingleton<IProductService, ProductService>();
+            services.AddSingleton<IInquiryService, InquiryService>();
         }
 
         public void Configure(IComponentsApplicationBuilder app)

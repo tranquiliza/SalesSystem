@@ -1,0 +1,45 @@
+﻿@page "/admin/inquiries"
+@implements IDisposable
+@inject IInquiryService inquiryService
+
+<table class="striped">
+    <thead>
+        <tr>
+            <th>Order Number</th>
+            <th>Surname</th>
+            <th>Firstname</th>
+            <th>Email</th>
+            <th>Status</th>
+            <th></th>
+        </tr>
+    </thead>
+
+    <tbody>
+        @foreach (var inquiry in inquiryService.Inquiries)
+        {
+            <tr>
+                <td>#1</td>
+                <td>@inquiry.Customer?.Surname</td>
+                <td>@inquiry.Customer?.FirstName</td>
+                <td>@inquiry.Customer?.Email</td>
+                <td>@inquiry.State</td>
+                <td><button>BUTTONS?</button></td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<AdminOnlyComponent />
+
+@code {
+    protected override async Task OnInitializedAsync()
+    {
+        await inquiryService.Initialize();
+        inquiryService.OnChange += StateHasChanged;
+    }
+
+    public void Dispose()
+    {
+        inquiryService.OnChange -= StateHasChanged;
+    }
+}

@@ -33,6 +33,17 @@ namespace Tranquiliza.Shop.Api.Mappers
                  _ => throw new NotImplementedException("State is not implemented in mapper"),
              };
 
+        public static InquiryState Map(this InquiryStateModel inquiryState)
+            => inquiryState switch
+            {
+                InquiryStateModel.AddingToCart => InquiryState.AddingToCart,
+                InquiryStateModel.Placed => InquiryState.Placed,
+                InquiryStateModel.PaymentExpected => InquiryState.PaymentExpected,
+                InquiryStateModel.PaymentReceived => InquiryState.PaymentReceived,
+                InquiryStateModel.Dispatched => InquiryState.Dispatched,
+                _ => throw new NotImplementedException("State is not implemented in mapper")
+            };
+
         private static CustomerInformationModel Map(this CustomerInformation customerInformation)
             => new CustomerInformationModel
             {

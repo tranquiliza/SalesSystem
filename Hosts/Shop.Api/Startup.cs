@@ -69,7 +69,7 @@ namespace Tranquiliza.Shop.Api
 
             var seriLogger = new LoggerConfiguration()
                 .WriteTo.Console()
-                .WriteTo.Seq(config.SeqLoggingAddress)
+                //.WriteTo.Seq(config.SeqLoggingAddress)
                 .CreateLogger();
 
             var logger = new LogBridge(seriLogger);

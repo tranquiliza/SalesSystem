@@ -40,6 +40,27 @@ namespace Tranquiliza.Shop.Sql
             return null;
         }
 
+        public async Task<IEnumerable<Inquiry>> Get(InquiryState minimumState)
+        {
+            var result = new List<Inquiry>();
+            try
+            {
+                using var cmd = _sql.CreateStoredProcedure("[Core].[GetAllInquiries]")
+                    .WithParameter("minimumState", (int)minimumState);
+
+                using var reader = await cmd.ExecuteReaderAsync().ConfigureAwait(false);
+                while (await reader.ReadAsync().ConfigureAwait(false))
+                    result.Add(Serialization.Deserialize<Inquiry>(reader.GetString("Data")));
+
+                return result;
+            }
+            catch (Exception ex)
+            {
+                _log.Warning("Unable to fetch inquires", ex);
+                throw;
+            }
+        }
+
         public async Task<IEnumerable<Inquiry>> GetInquiresFromClient(Guid clientId)
         {
             var result = new List<Inquiry>();

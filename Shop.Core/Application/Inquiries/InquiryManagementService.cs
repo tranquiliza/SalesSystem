@@ -114,9 +114,12 @@ namespace Tranquiliza.Shop.Core.Application
             return Result<Inquiry>.Succeeded(inquiry);
         }
 
-        public async Task<Result<IEnumerable<Inquiry>>> Get(IApplicationContext context)
+        public async Task<Result<IEnumerable<Inquiry>>> Get(InquiryState minimumState, IApplicationContext context)
         {
-            var inquiries = await _inquiryRepository.GetInquiresFromClient(context.ClientId).ConfigureAwait(false);
+            if (!context.IsAdmin())
+                return Result<IEnumerable<Inquiry>>.Unauthorized();
+
+            var inquiries = await _inquiryRepository.Get(minimumState).ConfigureAwait(false);
             if (!inquiries.Any())
                 return Result<IEnumerable<Inquiry>>.NoContentFound();
 

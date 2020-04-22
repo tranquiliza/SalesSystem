@@ -25,16 +25,37 @@ namespace Tranquiliza.Shop.Api.Controllers
 
         [HttpGet]
         [Authorize(Roles = Role.Admin)]
-        public async Task<IActionResult> Get()
+        public async Task<IActionResult> Get([FromQuery]InquiryStateModel inquiryState)
         {
-            var result = await _inquiryManagementService.Get(ApplicationContext).ConfigureAwait(false);
+            var mappedValue = inquiryState.Map();
+            var result = await _inquiryManagementService.Get(mappedValue, ApplicationContext).ConfigureAwait(false);
             if (result.State == Core.ResultState.Failure)
                 return BadRequest(result.FailureReason);
+
+            if (result.State == Core.ResultState.AccessDenied)
+                return Unauthorized();
 
             if (result.State == Core.ResultState.NoContent)
                 return NoContent();
 
             return Ok(result.Data.ToList().Map(RequestInformation));
+        }
+
+        [HttpGet("{inquiryId}")]
+        [Authorize(Roles = Role.Admin)]
+        public async Task<IActionResult> Get([FromRoute]Guid inquiryId)
+        {
+            var result = await _inquiryManagementService.Get(inquiryId, ApplicationContext).ConfigureAwait(false);
+            if (result.State == Core.ResultState.Failure)
+                return BadRequest(result.FailureReason);
+
+            if (result.State == Core.ResultState.AccessDenied)
+                return Unauthorized();
+
+            if (result.State == Core.ResultState.NoContent)
+                return NoContent();
+
+            return Ok(result.Data.Map(RequestInformation));
         }
 
         [HttpGet("client/latest")]
