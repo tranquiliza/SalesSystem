@@ -1,5 +1,5 @@
 ﻿CREATE PROCEDURE [Core].[InsertUpdateProduct]
-	@guid UNIQUEIDENTIFIER,
+	@productId UNIQUEIDENTIFIER,
 	@price INT,
 	@isActive BIT,
 	@category NVARCHAR(50),
@@ -7,9 +7,9 @@
 	@data NVARCHAR(MAX)
 AS
 BEGIN
-	IF NOT EXISTS(SELECT * FROM [Core].[Products] WHERE [Guid] = @guid)
-		INSERT INTO [Core].[Products]([Guid], [Price], [IsActive], [Category], [Name], [Data])
-		VALUES(@guid, @price, @isActive, @category, @name, @data)
+	IF NOT EXISTS(SELECT * FROM [Core].[Products] WHERE [ProductId] = @productId)
+		INSERT INTO [Core].[Products]([ProductId], [Price], [IsActive], [Category], [Name], [Data])
+		VALUES(@productId, @price, @isActive, @category, @name, @data)
 	ELSE
 	UPDATE [Core].[Products] SET 
 		[Price] = @price,
@@ -17,5 +17,5 @@ BEGIN
 		[Category] = @category,
 		[Name] = @name,
 		[Data] = @data
-	WHERE [Guid] = @Guid
+	WHERE [ProductId] = @productId
 END

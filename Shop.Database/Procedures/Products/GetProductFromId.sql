@@ -1,5 +1,5 @@
 ﻿CREATE PROCEDURE [Core].[GetProductFromId]
-	@Guid UNIQUEIDENTIFIER
+	@ProductId UNIQUEIDENTIFIER
 AS
-	SELECT TOP(1) [Data] FROM [Core].[Products] WHERE [Guid] = @Guid
+	SELECT TOP(1) [Data] FROM [Core].[Products] WHERE [ProductId] = @ProductId
 GO

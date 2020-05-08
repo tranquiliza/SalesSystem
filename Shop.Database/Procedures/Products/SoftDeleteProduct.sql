@@ -4,5 +4,5 @@ AS
 BEGIN
 	UPDATE [Core].[Products] 
 	SET Deleted = 1
-	Where [Guid] = @productId
+	Where [ProductId] = @productId
 END

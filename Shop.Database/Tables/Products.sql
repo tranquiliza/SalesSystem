@@ -1,7 +1,7 @@
 ﻿CREATE TABLE [Core].[Products]
 (
 	[Id] INT NOT NULL PRIMARY KEY IDENTITY(1,1), 
-    [Guid] UNIQUEIDENTIFIER NOT NULL,
+    [ProductId] UNIQUEIDENTIFIER NOT NULL,
     [Price] INT NOT NULL, 
     [IsActive] BIT NOT NULL, 
     [Category] NVARCHAR(50) NOT NULL, 
@@ -11,7 +11,7 @@
 )
 GO
 
-CREATE UNIQUE INDEX [IX_PRODUCTS_GUID] ON [Core].[Products]([Guid])
+CREATE UNIQUE INDEX [IX_PRODUCTS_PRODUCTID] ON [Core].[Products]([ProductId])
 GO
 CREATE INDEX [IX_PRODUCTS_CATEGORY] ON [Core].[Products]([Category])
 GO

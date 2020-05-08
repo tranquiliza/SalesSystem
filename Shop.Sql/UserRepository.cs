@@ -27,7 +27,7 @@ namespace Tranquiliza.Shop.Sql
             try
             {
                 using var command = _sql.CreateStoredProcedure("[Core].[InsertUpdateUser]")
-                    .WithParameter("guid", user.Id)
+                    .WithParameter("userId", user.Id)
                     .WithParameter("username", user.Username)
                     .WithParameter("email", user.Email)
                     .WithParameter("data", Serialization.Serialize(user));
@@ -65,12 +65,12 @@ namespace Tranquiliza.Shop.Sql
 
         public async Task Delete(Guid id)
         {
-            const string DeleteStatement = "DELETE FROM [Core].[Users] WHERE Guid = @guid";
+            const string DeleteStatement = "DELETE FROM [Core].[Users] WHERE userId = @userId";
 
             try
             {
                 using var command = _sql.CreateQuery(DeleteStatement)
-                    .WithParameter("guid", id);
+                    .WithParameter("userId", id);
 
                 await command.ExecuteNonQueryAsync().ConfigureAwait(false);
             }
@@ -83,12 +83,12 @@ namespace Tranquiliza.Shop.Sql
 
         public async Task<User> Get(Guid id)
         {
-            const string GetUserById = "SELECT Data FROM [Core].[Users] WHERE [guid] = @guid";
+            const string GetUserById = "SELECT Data FROM [Core].[Users] WHERE [userId] = @userId";
 
             try
             {
                 using var command = _sql.CreateQuery(GetUserById)
-                    .WithParameter("guid", id);
+                    .WithParameter("userId", id);
 
                 using var reader = await command.ExecuteReaderAsync(CommandBehavior.SingleRow).ConfigureAwait(false);
                 if (await reader.ReadAsync().ConfigureAwait(false))

@@ -27,7 +27,7 @@ namespace Tranquiliza.Shop.Sql
             try
             {
                 using var command = _sql.CreateStoredProcedure("[Core].[GetProductFromId]")
-                    .WithParameter("Guid", productId);
+                    .WithParameter("productId", productId);
 
                 using var reader = await command.ExecuteReaderAsync(CommandBehavior.SingleRow).ConfigureAwait(false);
                 if (await reader.ReadAsync().ConfigureAwait(false))
@@ -96,7 +96,7 @@ namespace Tranquiliza.Shop.Sql
             try
             {
                 using var command = _sql.CreateStoredProcedure("[Core].[InsertUpdateProduct]")
-                .WithParameter("Guid", product.Id)
+                .WithParameter("productId", product.Id)
                 .WithParameter("price", product.Price)
                 .WithParameter("isActive", product.IsActive)
                 .WithParameter("category", product.Category)
