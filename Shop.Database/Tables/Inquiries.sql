@@ -2,6 +2,7 @@
 (
 	[Id] INT IDENTITY(1,1) NOT NULL PRIMARY KEY, 
     [InquiryId] UNIQUEIDENTIFIER NOT NULL, 
+    [InquiryNumber] INT NULL,
     [CreatedByClientId] UNIQUEIDENTIFIER NOT NULL, 
     [InquiryState] INT NOT NULL, 
     [CustomerEmail] NVARCHAR(100) NULL, 
@@ -19,4 +20,6 @@ GO
 CREATE INDEX [IX_INQUIRIES_CUSTOMEREMAIL] ON [Core].[Inquiries]([CustomerEmail])
 GO
 CREATE INDEX [IX_INQUIRIES_INQUIRYSTATE] ON [Core].[Inquiries]([InquiryState])
+GO
+CREATE INDEX [IX_INQUIRIES_INQUIRYNUMBER] ON [Core].[Inquiries]([InquiryNumber])
 GO

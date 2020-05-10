@@ -105,7 +105,11 @@ namespace Tranquiliza.Shop.Core.Application
             if (!context.HasAccessTo(inquiry))
                 return Result<Inquiry>.Unauthorized();
 
-            var success = inquiry.TryUpdateState(requestedState);
+            int? inquiryNumber = null;
+            if (requestedState == InquiryState.Placed)
+                inquiryNumber = await _inquiryRepository.GetLatestInquiryNumber().ConfigureAwait(false);
+
+            var success = inquiry.TryUpdateState(requestedState, inquiryNumber);
             if (!success)
                 return Result<Inquiry>.Failure("Unable to update to requested state");
 
@@ -114,16 +118,31 @@ namespace Tranquiliza.Shop.Core.Application
             return Result<Inquiry>.Succeeded(inquiry);
         }
 
+        // TODO REFACTOR (Split get all from get for user)
         public async Task<Result<IEnumerable<Inquiry>>> Get(InquiryState minimumState, IApplicationContext context)
         {
             if (!context.IsAdmin())
                 return Result<IEnumerable<Inquiry>>.Unauthorized();
 
-            var inquiries = await _inquiryRepository.Get(minimumState).ConfigureAwait(false);
-            if (!inquiries.Any())
-                return Result<IEnumerable<Inquiry>>.NoContentFound();
+            var allInquiries = await _inquiryRepository.Get(minimumState).ConfigureAwait(false);
+            if (allInquiries.Any())
+                return Result<IEnumerable<Inquiry>>.Succeeded(allInquiries);
 
-            return Result<IEnumerable<Inquiry>>.Succeeded(inquiries);
+            return Result<IEnumerable<Inquiry>>.NoContentFound();
+        }
+
+        public async Task<Result<IEnumerable<Inquiry>>> GetForUser(IApplicationContext context)
+        {
+            IEnumerable<Inquiry> inquires;
+            if (context.IsAnonymous)
+                inquires = await _inquiryRepository.GetInquiresFromClient(context.ClientId).ConfigureAwait(false); // This is a potential leak.
+            else
+                inquires = await _inquiryRepository.GetInquiresFromUserId(context.UserId).ConfigureAwait(false);
+
+            if (inquires.Any())
+                return Result<IEnumerable<Inquiry>>.Succeeded(inquires);
+
+            return Result<IEnumerable<Inquiry>>.NoContentFound();
         }
 
         public async Task<Result<Inquiry>> GetForClient(IApplicationContext context)

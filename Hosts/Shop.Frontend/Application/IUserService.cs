@@ -10,12 +10,14 @@ namespace Shop.Frontend.Application
     {
         bool IsUserLoggedIn { get; }
         bool IsUserAdmin { get; }
+        IReadOnlyList<InquiryModel> Inquiries { get; }
 
         event Action OnChange;
 
         Task<bool> TryLogin(AuthenticateModel model);
-        Task CreateAccount(RegisterUserModel model); 
+        Task CreateAccount(RegisterUserModel model);
         Task Initialize();
         Task<bool> TryLogout();
+        Task LoadUserInquiries();
     }
 }

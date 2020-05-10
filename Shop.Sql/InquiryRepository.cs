@@ -82,6 +82,45 @@ namespace Tranquiliza.Shop.Sql
             }
         }
 
+        public async Task<IEnumerable<Inquiry>> GetInquiresFromUserId(Guid userId)
+        {
+            var result = new List<Inquiry>();
+            try
+            {
+                using var cmd = _sql.CreateStoredProcedure("[Core].[GetInquiriesFromUserId]")
+                       .WithParameter("userId", userId);
+
+                using var reader = await cmd.ExecuteReaderAsync().ConfigureAwait(false);
+                while (await reader.ReadAsync().ConfigureAwait(false))
+                    result.Add(Serialization.Deserialize<Inquiry>(reader.GetString("Data")));
+
+                return result;
+            }
+            catch (Exception ex)
+            {
+                _log.Warning($"Unable to fetch inquires for user: {userId}", ex);
+                throw;
+            }
+        }
+
+        public async Task<int?> GetLatestInquiryNumber()
+        {
+            try
+            {
+                using var cmd = _sql.CreateStoredProcedure("[Core].[GetLatestInquiryNumber]");
+                using var reader = await cmd.ExecuteReaderAsync(CommandBehavior.SingleRow).ConfigureAwait(false);
+                if (await reader.ReadAsync().ConfigureAwait(false))
+                    return reader.GetInt32("InquiryNumber");
+            }
+            catch (Exception ex)
+            {
+                _log.Warning("Unable to get latestInquiryNumber", ex);
+                throw;
+            }
+
+            return null;
+        }
+
         public async Task Save(Inquiry inquiry)
         {
             try
@@ -89,6 +128,7 @@ namespace Tranquiliza.Shop.Sql
                 var serializedInquiry = Serialization.Serialize(inquiry);
                 using var cmd = _sql.CreateStoredProcedure("[Core].[InsertUpdateInquiry]")
                     .WithParameter("inquiryId", inquiry.Id)
+                    .WithParameter("inquiryNumber", inquiry.InquiryNumber)
                     .WithParameter("createdByClientId", inquiry.CreatedByClient)
                     .WithParameter("inquiryState", (int)inquiry.State)
                     .WithParameter("customerEmail", inquiry.CustomerInformation?.Email)

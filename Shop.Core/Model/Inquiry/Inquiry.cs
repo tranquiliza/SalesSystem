@@ -19,6 +19,9 @@ namespace Tranquiliza.Shop.Core.Model
         public Guid CreatedByClient { get; private set; }
 
         [JsonProperty]
+        public int InquiryNumber { get; private set; }
+
+        [JsonProperty]
         public List<OrderLine> OrderLines = new List<OrderLine>();
 
         [JsonProperty]
@@ -87,11 +90,15 @@ namespace Tranquiliza.Shop.Core.Model
 
         public double GetTotal() => OrderLines.Sum(x => x.LineTotal());
 
-        public bool TryUpdateState(InquiryState requestedState)
+        public bool TryUpdateState(InquiryState requestedState, int? latestInquiryNumber)
         {
-            if (State <= InquiryState.Placed && requestedState <= InquiryState.Placed)
+            if (requestedState == State)
+                return true;
+
+            if (State < InquiryState.Placed && requestedState <= InquiryState.Placed && latestInquiryNumber.HasValue)
             {
                 State = requestedState;
+                InquiryNumber = latestInquiryNumber.Value + 1;
                 return true;
             }
 

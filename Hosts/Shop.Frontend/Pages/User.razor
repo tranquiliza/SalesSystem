@@ -1,5 +1,30 @@
-﻿@page "/User"
+﻿@inject IUserService userService
+@inject NavigationManager NavigationManager
+@implements IDisposable
+
+@page "/User"
+
+<p>USER INFORMATION</p>
 
 @code {
+    protected override async Task OnInitializedAsync()
+    {
+        await userService.Initialize();
+        await userService.LoadUserInquiries();
+        userService.OnChange += VerifyState;
+    }
 
+    private void VerifyState()
+    {
+        if (!userService.IsUserLoggedIn)
+        {
+            NavigationManager.NavigateTo("");
+        }
+        StateHasChanged();
+    }
+
+    public void Dispose()
+    {
+        userService.OnChange -= VerifyState;
+    }
 }

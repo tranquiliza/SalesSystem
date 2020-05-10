@@ -42,7 +42,6 @@ namespace Tranquiliza.Shop.Api.Controllers
         }
 
         [HttpGet("{inquiryId}")]
-        [Authorize(Roles = Role.Admin)]
         public async Task<IActionResult> Get([FromRoute]Guid inquiryId)
         {
             var result = await _inquiryManagementService.Get(inquiryId, ApplicationContext).ConfigureAwait(false);

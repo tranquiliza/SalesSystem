@@ -16,6 +16,7 @@ namespace Tranquiliza.Shop.Api.Mappers
             => new InquiryModel
             {
                 Id = inquiry.Id,
+                InquiryNumber = inquiry.InquiryNumber,
                 State = inquiry.State.Map(),
                 Total = inquiry.GetTotal(),
                 Customer = inquiry.CustomerInformation?.Map(),

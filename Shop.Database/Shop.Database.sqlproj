@@ -80,6 +80,8 @@
     <Build Include="Procedures\Inquiries\GetInquiriesFromClientId.sql" />
     <Build Include="Procedures\Products\SoftDeleteProduct.sql" />
     <Build Include="Procedures\Inquiries\GetAllInquiries.sql" />
+    <Build Include="Procedures\Inquiries\GetLatestInquiryNumber.sql" />
+    <Build Include="Procedures\Inquiries\GetInquiriesFromUserId.sql" />
   </ItemGroup>
   <ItemGroup>
     <RefactorLog Include="Shop.Database.refactorlog" />

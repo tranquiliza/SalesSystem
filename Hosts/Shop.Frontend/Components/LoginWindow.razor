@@ -44,7 +44,7 @@
         var success = await userService.TryLogin(model);
         if (!success)
         {
-            // display error
+            // TODO display error
         }
 
         await JSRuntime.InvokeVoidAsync("CloseModal", "modalLogin").ConfigureAwait(false);

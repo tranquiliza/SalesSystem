@@ -1,0 +1,73 @@
+﻿@inject IUserService userService
+@inject NavigationManager NavigationManager
+@implements IDisposable
+
+@page "/User/Inquiries"
+
+@if (userService.Inquiries != null)
+{
+    <div class="row">
+        <div class="col s6 offset-s3">
+            <table class="striped">
+
+                <thead>
+                    <tr>
+                        <th>Inquiry Number</th>
+                        <th>Status</th>
+                        <th>Price</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+
+                @foreach (var inquiry in userService.Inquiries)
+                {
+                    <tr>
+                        <td>@inquiry.InquiryNumber</td>
+                        <td>
+                            @switch (inquiry.State)
+                            {
+                                case InquiryStateModel.Placed:
+                                case InquiryStateModel.PaymentExpected:
+                                    <span class="btn-flat btn-small red">@inquiry.State</span>
+                                    break;
+                                case InquiryStateModel.PaymentReceived:
+                                    <span class="btn-flat btn-small green">@inquiry.State</span>
+                                    break;
+                                case InquiryStateModel.Dispatched:
+                                    <span class="btn-flat btn-small blue">@inquiry.State</span>
+                                    break;
+                            }
+                        </td>
+                        <td>@(string.Format("{0:n}", inquiry.Total)) DKK</td>
+                        <td>
+                            <a class="btn btn-flat">DETAILS</a>
+                        </td>
+                    </tr>
+                }
+            </table>
+        </div>
+    </div>
+}
+
+@code {
+    protected override async Task OnInitializedAsync()
+    {
+        await userService.Initialize();
+        await userService.LoadUserInquiries();
+        userService.OnChange += VerifyState;
+    }
+
+    private void VerifyState()
+    {
+        if (!userService.IsUserLoggedIn)
+        {
+            NavigationManager.NavigateTo("");
+        }
+        StateHasChanged();
+    }
+
+    public void Dispose()
+    {
+        userService.OnChange -= VerifyState;
+    }
+}

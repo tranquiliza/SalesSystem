@@ -11,6 +11,7 @@ namespace Tranquiliza.Shop.Core.Application
         Task<Result<Inquiry>> AddProductToInquiry(Guid inquiryId, Guid productId, int amount, IApplicationContext context);
         Task<Result<Inquiry>> AddCustomerToInquiry(Guid inquiryId, string email, string firstName, string surname, string phoneNumber, string country, string zipCode, string city, string streetNumber, IApplicationContext context);
         Task<Result<IEnumerable<Inquiry>>> Get(InquiryState minimumState, IApplicationContext context);
+        Task<Result<IEnumerable<Inquiry>>> GetForUser(IApplicationContext applicationContext);
         Task<Result<Inquiry>> Get(Guid inquiryId, IApplicationContext context);
         Task<Result<Inquiry>> RemoveProductFromInquiry(Guid inquiryId, Guid productId, int amountToRemove, IApplicationContext context);
         Task<Result<Inquiry>> UpdateInquiryState(Guid inquiryId, InquiryState requestedState, IApplicationContext context);

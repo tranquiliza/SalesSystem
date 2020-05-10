@@ -7,6 +7,7 @@ using System.Linq;
 using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
+using Tranquiliza.Shop.Api.Mappers;
 using Tranquiliza.Shop.Contract.Models;
 using Tranquiliza.Shop.Core.Application;
 using Tranquiliza.Shop.Core.Model;
@@ -20,11 +21,13 @@ namespace Tranquiliza.Shop.Api.Controllers
     {
         private readonly IUserService _userService;
         private readonly Core.IApplicationConfigurationProvider _configurationProvider;
+        private readonly IInquiryManagementService inquiryManagementService;
 
-        public UsersController(IUserService userService, Core.IApplicationConfigurationProvider configurationProvider)
+        public UsersController(IUserService userService, Core.IApplicationConfigurationProvider configurationProvider, IInquiryManagementService inquiryManagementService)
         {
             _userService = userService;
             _configurationProvider = configurationProvider;
+            this.inquiryManagementService = inquiryManagementService;
         }
 
         [AllowAnonymous]
@@ -44,7 +47,7 @@ namespace Tranquiliza.Shop.Api.Controllers
                 {
                     new Claim(ClaimTypes.Name, result.Data.Id.ToString()),
                 }),
-                Expires = DateTime.UtcNow.AddDays(7),
+                Expires = DateTime.UtcNow.AddHours(2),
                 SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
             };
 
@@ -61,11 +64,27 @@ namespace Tranquiliza.Shop.Api.Controllers
         [AllowAnonymous]
         public async Task<IActionResult> RegisterUser([FromBody]RegisterUserModel registerUserModel)
         {
-            var result = await _userService.Create(registerUserModel.Email, registerUserModel.Password, Role.Admin).ConfigureAwait(false);
+            var result = await _userService.Create(registerUserModel.Email, registerUserModel.Password).ConfigureAwait(false);
             if (result.State != Core.ResultState.Success)
                 return BadRequest(result.FailureReason);
 
             return Ok(result.Data.Map());
+        }
+
+        [HttpGet("inquiries")]
+        public async Task<IActionResult> GetInquiries()
+        {
+            var result = await inquiryManagementService.GetForUser(ApplicationContext).ConfigureAwait(false);
+            if (result.State == Core.ResultState.Failure)
+                return BadRequest(result.FailureReason);
+
+            if (result.State == Core.ResultState.AccessDenied)
+                return Unauthorized();
+
+            if (result.State == Core.ResultState.NoContent)
+                return NoContent();
+
+            return Ok(result.Data.ToList().Map(RequestInformation));
         }
 
         [HttpGet]

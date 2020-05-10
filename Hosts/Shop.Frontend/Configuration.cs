@@ -10,6 +10,7 @@ namespace Shop.Frontend
         public Configuration()
         {
             ApiBaseAddress = "https://localhost:44311/";
+            //ApiBaseAddress = "https://tranquiliza.dynu.net/ShopApi/";
         }
 
         public string ApiBaseAddress { get; }

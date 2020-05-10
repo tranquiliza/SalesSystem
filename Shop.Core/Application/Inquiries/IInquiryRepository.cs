@@ -11,5 +11,7 @@ namespace Tranquiliza.Shop.Core.Application
         Task<Inquiry> Get(Guid inquiryId);
         Task<IEnumerable<Inquiry>> GetInquiresFromClient(Guid clientId);
         Task<IEnumerable<Inquiry>> Get(InquiryState minimumState);
+        Task<int?> GetLatestInquiryNumber();
+        Task<IEnumerable<Inquiry>> GetInquiresFromUserId(Guid userId);
     }
 }

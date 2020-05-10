@@ -104,7 +104,7 @@ namespace Tranquiliza.Shop.Core.Tests.Model
             var inquiry = ForceState(Inquiry.Create(product, owner, client, createdOn), currentState);
 
             // act
-            var result = inquiry.TryUpdateState(newState);
+            var result = inquiry.TryUpdateState(newState, null);
 
             // assert
             Assert.AreEqual(expected: shouldSucceed, actual: result, message: "Unexpected result");

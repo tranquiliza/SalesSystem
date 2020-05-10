@@ -5,25 +5,45 @@
 <table class="striped">
     <thead>
         <tr>
-            <th>Order Number</th>
+            <th>Inquiry Number</th>
             <th>Surname</th>
             <th>Firstname</th>
             <th>Email</th>
             <th>Status</th>
-            <th></th>
+            <th>Actions</th>
         </tr>
     </thead>
 
     <tbody>
-        @foreach (var inquiry in inquiryService.Inquiries)
+        @foreach (var inquiry in inquiryService.Inquiries.OrderBy(x => x.State))
         {
             <tr>
-                <td>#1</td>
+                <td>@inquiry.InquiryNumber</td>
                 <td>@inquiry.Customer?.Surname</td>
                 <td>@inquiry.Customer?.FirstName</td>
                 <td>@inquiry.Customer?.Email</td>
-                <td>@inquiry.State</td>
-                <td><button>BUTTONS?</button></td>
+                <td>
+                    @switch (inquiry.State)
+                    {
+                        case InquiryStateModel.Placed:
+                        case InquiryStateModel.PaymentExpected:
+                            <span class="btn-flat btn-small red">@inquiry.State</span>
+                            break;
+                        case InquiryStateModel.PaymentReceived:
+                            <span class="btn-flat btn-small green">@inquiry.State</span>
+                            break;
+                        case InquiryStateModel.Dispatched:
+                            <span class="btn-flat btn-small blue">@inquiry.State</span>
+                            break;
+                    }
+                </td>
+                <td>
+                    <a href="/admin/inquiries/@inquiry.Id"><i class="material-icons">description</i></a>
+                    @if (inquiry.State == InquiryStateModel.PaymentReceived)
+                    {
+                        <a><i class="material-icons green-text">check_circle</i></a>
+                    }
+                </td>
             </tr>
         }
     </tbody>

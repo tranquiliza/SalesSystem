@@ -12,7 +12,7 @@ else
 }
 
 <ul id="logoutDropdown" class="dropdown-content">
-    <li><a href="#!">My Inquiries</a></li>
+    <li><a href="/User/Inquiries">My Inquiries</a></li>
     <li class="divider"></li>
     <li>
         <a @onclick="@(async () => await userService.TryLogout())">LogOut</a>
