@@ -41,3 +41,7 @@ main {
     width: 25% !important;
     min-width: 25em;
 }
+
+.semi-transparent-box {
+    background-color: rgba(0, 0, 0, 0.5);
+}

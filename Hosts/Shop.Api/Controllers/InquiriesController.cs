@@ -6,6 +6,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Tranquiliza.Shop.Api.Mappers;
 using Tranquiliza.Shop.Contract.Models;
+using Tranquiliza.Shop.Core;
 using Tranquiliza.Shop.Core.Application;
 using Tranquiliza.Shop.Core.Model;
 
@@ -16,11 +17,13 @@ namespace Tranquiliza.Shop.Api.Controllers
     [Route("[controller]")]
     public class InquiriesController : BaseController
     {
-        private readonly IInquiryManagementService _inquiryManagementService;
+        private readonly IInquiryManagementService inquiryManagementService;
+        private readonly IApplicationConfigurationProvider applicationConfigurationProvider;
 
-        public InquiriesController(IInquiryManagementService inquiryManagementService)
+        public InquiriesController(IInquiryManagementService inquiryManagementService, IApplicationConfigurationProvider applicationConfigurationProvider)
         {
-            _inquiryManagementService = inquiryManagementService;
+            this.inquiryManagementService = inquiryManagementService;
+            this.applicationConfigurationProvider = applicationConfigurationProvider;
         }
 
         [HttpGet]
@@ -28,7 +31,7 @@ namespace Tranquiliza.Shop.Api.Controllers
         public async Task<IActionResult> Get([FromQuery]InquiryStateModel inquiryState)
         {
             var mappedValue = inquiryState.Map();
-            var result = await _inquiryManagementService.Get(mappedValue, ApplicationContext).ConfigureAwait(false);
+            var result = await inquiryManagementService.Get(mappedValue, ApplicationContext).ConfigureAwait(false);
             if (result.State == Core.ResultState.Failure)
                 return BadRequest(result.FailureReason);
 
@@ -38,13 +41,13 @@ namespace Tranquiliza.Shop.Api.Controllers
             if (result.State == Core.ResultState.NoContent)
                 return NoContent();
 
-            return Ok(result.Data.ToList().Map(RequestInformation));
+            return Ok(result.Data.ToList().Map(RequestInformation, applicationConfigurationProvider));
         }
 
         [HttpGet("{inquiryId}")]
         public async Task<IActionResult> Get([FromRoute]Guid inquiryId)
         {
-            var result = await _inquiryManagementService.Get(inquiryId, ApplicationContext).ConfigureAwait(false);
+            var result = await inquiryManagementService.Get(inquiryId, ApplicationContext).ConfigureAwait(false);
             if (result.State == Core.ResultState.Failure)
                 return BadRequest(result.FailureReason);
 
@@ -54,14 +57,14 @@ namespace Tranquiliza.Shop.Api.Controllers
             if (result.State == Core.ResultState.NoContent)
                 return NoContent();
 
-            return Ok(result.Data.Map(RequestInformation));
+            return Ok(result.Data.Map(RequestInformation, applicationConfigurationProvider));
         }
 
         [HttpGet("client/latest")]
         [AllowAnonymous]
         public async Task<IActionResult> GetForClient()
         {
-            var result = await _inquiryManagementService.GetForClient(ApplicationContext).ConfigureAwait(false);
+            var result = await inquiryManagementService.GetForClient(ApplicationContext).ConfigureAwait(false);
             if (result.State == Core.ResultState.Failure)
                 return BadRequest(result.FailureReason);
 
@@ -71,39 +74,39 @@ namespace Tranquiliza.Shop.Api.Controllers
             if (result.State == Core.ResultState.NoContent)
                 return NoContent();
 
-            return Ok(result.Data.Map(RequestInformation));
+            return Ok(result.Data.Map(RequestInformation, applicationConfigurationProvider));
         }
 
         [HttpPost]
         [AllowAnonymous]
         public async Task<IActionResult> CreateInquiry([FromBody]CreateInquiryModel model)
         {
-            var result = await _inquiryManagementService.CreateInquiry(model.ProductId, ApplicationContext).ConfigureAwait(false);
+            var result = await inquiryManagementService.CreateInquiry(model.ProductId, ApplicationContext).ConfigureAwait(false);
             if (result.State != Core.ResultState.Success)
                 return BadRequest(result.FailureReason);
 
-            return Ok(result.Data.Map(RequestInformation));
+            return Ok(result.Data.Map(RequestInformation, applicationConfigurationProvider));
         }
 
         [HttpPost("{inquiryId}")]
         [AllowAnonymous]
         public async Task<IActionResult> AddProduct([FromRoute]Guid inquiryId, [FromBody]AddProductToInquiryModel model)
         {
-            var result = await _inquiryManagementService.AddProductToInquiry(inquiryId, model.ProductId, model.Amount, ApplicationContext).ConfigureAwait(false);
+            var result = await inquiryManagementService.AddProductToInquiry(inquiryId, model.ProductId, model.Amount, ApplicationContext).ConfigureAwait(false);
             if (result.State == Core.ResultState.Failure)
                 return BadRequest(result.FailureReason);
 
             if (result.State == Core.ResultState.AccessDenied)
                 return Unauthorized();
 
-            return Ok(result.Data.Map(RequestInformation));
+            return Ok(result.Data.Map(RequestInformation, applicationConfigurationProvider));
         }
 
         [HttpPost("{inquiryId}/customer")]
         [AllowAnonymous]
         public async Task<IActionResult> AddCustomerInformation([FromRoute]Guid inquiryId, [FromBody]AddCustomerToInquiryModel model)
         {
-            var result = await _inquiryManagementService.AddCustomerToInquiry(
+            var result = await inquiryManagementService.AddCustomerToInquiry(
                 inquiryId,
                 model.Email,
                 model.FirstName,
@@ -121,7 +124,7 @@ namespace Tranquiliza.Shop.Api.Controllers
             if (result.State == Core.ResultState.AccessDenied)
                 return Unauthorized();
 
-            return Ok(result.Data.Map(RequestInformation));
+            return Ok(result.Data.Map(RequestInformation, applicationConfigurationProvider));
         }
 
         [HttpPost("{inquiryId}/state")]
@@ -129,7 +132,7 @@ namespace Tranquiliza.Shop.Api.Controllers
         public async Task<IActionResult> UpdateState([FromRoute]Guid inquiryId, [FromBody]UpdateInquiryStateModel model)
         {
             var requestedState = model.Map();
-            var result = await _inquiryManagementService.UpdateInquiryState(inquiryId, requestedState, ApplicationContext).ConfigureAwait(false);
+            var result = await inquiryManagementService.UpdateInquiryState(inquiryId, requestedState, ApplicationContext).ConfigureAwait(false);
 
             if (result.State == Core.ResultState.AccessDenied)
                 return Unauthorized();
@@ -137,21 +140,21 @@ namespace Tranquiliza.Shop.Api.Controllers
             if (result.State == Core.ResultState.Failure)
                 return BadRequest(result.FailureReason);
 
-            return Ok(result.Data.Map(RequestInformation));
+            return Ok(result.Data.Map(RequestInformation, applicationConfigurationProvider));
         }
 
         [HttpDelete("{inquiryId}/product")]
         [AllowAnonymous]
         public async Task<IActionResult> DeleteProductFromInquiry([FromRoute]Guid inquiryId, [FromBody]RemoveProductFromInquiryModel model)
         {
-            var result = await _inquiryManagementService.RemoveProductFromInquiry(inquiryId, model.ProductId, model.Amount, ApplicationContext).ConfigureAwait(false);
+            var result = await inquiryManagementService.RemoveProductFromInquiry(inquiryId, model.ProductId, model.Amount, ApplicationContext).ConfigureAwait(false);
             if (result.State == Core.ResultState.AccessDenied)
                 return Unauthorized();
 
             if (result.State == Core.ResultState.Failure)
                 return BadRequest(result.FailureReason);
 
-            return Ok(result.Data.Map(RequestInformation));
+            return Ok(result.Data.Map(RequestInformation, applicationConfigurationProvider));
         }
     }
 }

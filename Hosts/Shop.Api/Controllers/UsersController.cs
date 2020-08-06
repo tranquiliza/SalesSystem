@@ -9,6 +9,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Tranquiliza.Shop.Api.Mappers;
 using Tranquiliza.Shop.Contract.Models;
+using Tranquiliza.Shop.Core;
 using Tranquiliza.Shop.Core.Application;
 using Tranquiliza.Shop.Core.Model;
 
@@ -20,13 +21,13 @@ namespace Tranquiliza.Shop.Api.Controllers
     public class UsersController : BaseController
     {
         private readonly IUserService _userService;
-        private readonly Core.IApplicationConfigurationProvider _configurationProvider;
+        private readonly IApplicationConfigurationProvider configurationProvider;
         private readonly IInquiryManagementService inquiryManagementService;
 
-        public UsersController(IUserService userService, Core.IApplicationConfigurationProvider configurationProvider, IInquiryManagementService inquiryManagementService)
+        public UsersController(IUserService userService, IApplicationConfigurationProvider configurationProvider, IInquiryManagementService inquiryManagementService)
         {
             _userService = userService;
-            _configurationProvider = configurationProvider;
+            this.configurationProvider = configurationProvider;
             this.inquiryManagementService = inquiryManagementService;
         }
 
@@ -35,12 +36,12 @@ namespace Tranquiliza.Shop.Api.Controllers
         public async Task<IActionResult> Authenticate([FromBody]AuthenticateModel authenticateModel)
         {
             var result = await _userService.Authenticate(authenticateModel.Username, authenticateModel.Password).ConfigureAwait(false);
-            if (result.State == Core.ResultState.Failure)
+            if (result.State == ResultState.Failure)
                 return BadRequest(result.FailureReason);
 
             var tokenHandler = new JwtSecurityTokenHandler();
 
-            var key = Encoding.ASCII.GetBytes(_configurationProvider.SecurityKey);
+            var key = Encoding.ASCII.GetBytes(configurationProvider.SecurityKey);
             var tokenDescriptor = new SecurityTokenDescriptor
             {
                 Subject = new ClaimsIdentity(new Claim[]
@@ -65,7 +66,7 @@ namespace Tranquiliza.Shop.Api.Controllers
         public async Task<IActionResult> RegisterUser([FromBody]RegisterUserModel registerUserModel)
         {
             var result = await _userService.Create(registerUserModel.Email, registerUserModel.Password).ConfigureAwait(false);
-            if (result.State != Core.ResultState.Success)
+            if (result.State != ResultState.Success)
                 return BadRequest(result.FailureReason);
 
             return Ok(result.Data.Map());
@@ -75,16 +76,16 @@ namespace Tranquiliza.Shop.Api.Controllers
         public async Task<IActionResult> GetInquiries()
         {
             var result = await inquiryManagementService.GetForUser(ApplicationContext).ConfigureAwait(false);
-            if (result.State == Core.ResultState.Failure)
+            if (result.State == ResultState.Failure)
                 return BadRequest(result.FailureReason);
 
-            if (result.State == Core.ResultState.AccessDenied)
+            if (result.State == ResultState.AccessDenied)
                 return Unauthorized();
 
-            if (result.State == Core.ResultState.NoContent)
+            if (result.State == ResultState.NoContent)
                 return NoContent();
 
-            return Ok(result.Data.ToList().Map(RequestInformation));
+            return Ok(result.Data.ToList().Map(RequestInformation, configurationProvider));
         }
 
         [HttpGet]
@@ -93,20 +94,20 @@ namespace Tranquiliza.Shop.Api.Controllers
             if (userId == Guid.Empty)
             {
                 var allUsersResult = await _userService.GetAll(ApplicationContext).ConfigureAwait(false);
-                if (allUsersResult.State == Core.ResultState.AccessDenied)
+                if (allUsersResult.State == ResultState.AccessDenied)
                     return Unauthorized();
 
-                if (allUsersResult.State == Core.ResultState.NoContent)
+                if (allUsersResult.State == ResultState.NoContent)
                     return NoContent();
 
                 return Ok(allUsersResult.Data.Select(x => x.Map()));
             }
 
             var result = await _userService.GetById(userId, ApplicationContext).ConfigureAwait(false);
-            if (result.State == Core.ResultState.AccessDenied)
+            if (result.State == ResultState.AccessDenied)
                 return Unauthorized();
 
-            if (result.State == Core.ResultState.Failure)
+            if (result.State == ResultState.Failure)
                 return BadRequest(result.FailureReason);
 
             return Ok(result.Data.Map());
@@ -117,7 +118,7 @@ namespace Tranquiliza.Shop.Api.Controllers
         public async Task<IActionResult> ConfirmEmail([FromRoute]Guid userId, [FromQuery]Guid emailConfirmationToken)
         {
             var result = await _userService.ConfirmEmail(userId, emailConfirmationToken).ConfigureAwait(false);
-            if (result.State == Core.ResultState.Failure)
+            if (result.State == ResultState.Failure)
                 return BadRequest(result.FailureReason);
 
             return Ok();
@@ -131,7 +132,7 @@ namespace Tranquiliza.Shop.Api.Controllers
                 return BadRequest("Please provide an Id");
 
             var result = await _userService.Delete(userId, ApplicationContext).ConfigureAwait(false);
-            if (result.State == Core.ResultState.AccessDenied)
+            if (result.State == ResultState.AccessDenied)
                 return Unauthorized(result.FailureReason);
 
             return Ok();

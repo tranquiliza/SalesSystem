@@ -13,6 +13,7 @@ namespace Tranquiliza.Shop.Core
         string SmtpPassword { get; }
         string HostName { get; }
         string ImageStoragePath { get; }
+        string AdditionalHostPathSection { get; }
         string SeqLoggingAddress { get; }
     }
 }

@@ -1,5 +1,52 @@
-﻿@page "/"
+﻿@inject IJSRuntime JSRuntime
+@inject Shop.Frontend.Infrastructure.IApiGateway api
+@inject IBasketService basketService
+@page "/"
 
-<h1>Hello, World</h1>
+<div class="row">
+    <div class="col s12">
+        <div class="carousel carousel-slider center">
+            @if (products != null)
+            {
+                @foreach (var product in products)
+                {
+                    <div style="background-image:url('@product.MainImage.ImageUrl');background-repeat:no-repeat;background-position: center;" class="carousel-item white-text" href="@("#" + product.Id)">
+                        <div class="row">
+                            <div class="col s6 offset-s3">
+                                <h2>@product.Name</h2>
+                                <p class="white-text semi-transparent-box">@product.Description</p>
+                                <div class="button-group">
+                                    <a @onclick="@(async () => await basketService.AddProduct(product.Id))" class="btn waves-effect white grey-text darken-text-2">Add to Cart</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+            }
+            else
+            {
+                <div style="background-image:url('https://localhost:44311/Images/cbe1f2a6-b463-407b-9733-cdf327dd7ea5.png')" class="carousel-item amber white-text" href="#two!">
+                    <h2>Second Panel</h2>
+                    <p class="white-text">This is your second panel</p>
+                    <a class="btn waves-effect white grey-text darken-text-2">b2</a>
+                </div>
+            }
+        </div>
+    </div>
+</div>
 
-Welcome to your new app.
+
+@code {
+    public IEnumerable<ProductModel> products;
+
+    protected override async Task OnInitializedAsync()
+    {
+        products = await api.Get<IEnumerable<ProductModel>>("products");
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        await JSRuntime.InvokeVoidAsync("InitializeCarousel").ConfigureAwait(false);
+        await base.OnAfterRenderAsync(firstRender);
+    }
+}

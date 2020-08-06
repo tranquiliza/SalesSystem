@@ -16,6 +16,8 @@ namespace Tranquiliza.Shop.Api
         public string HostName { get; private set; }
         public string ImageStoragePath { get; private set; }
         public string SeqLoggingAddress { get; private set; }
+        public string AdditionalHostPathSection { get; private set; }
+
 
         public static ConfigurationProvider CreateFromConfig(IConfiguration configuration)
         {
@@ -27,7 +29,8 @@ namespace Tranquiliza.Shop.Api
                 SmtpPassword = configuration.GetValue<string>("SmtpPassword"),
                 HostName = configuration.GetValue<string>("HostName"),
                 ImageStoragePath = configuration.GetValue<string>("ImageStoragePath"),
-                SeqLoggingAddress = configuration.GetValue<string>("SeqLogAddress")
+                SeqLoggingAddress = configuration.GetValue<string>("SeqLogAddress"),
+                AdditionalHostPathSection = configuration.GetValue<string>("AdditionalHostPathSection")
             };
         }
     }

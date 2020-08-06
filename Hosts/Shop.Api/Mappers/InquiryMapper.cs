@@ -3,16 +3,17 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Tranquiliza.Shop.Contract.Models;
+using Tranquiliza.Shop.Core;
 using Tranquiliza.Shop.Core.Model;
 
 namespace Tranquiliza.Shop.Api.Mappers
 {
     public static class InquiryMapper
     {
-        public static List<InquiryModel> Map(this List<Inquiry> inquiries, IRequestInformation requestInformation)
-            => inquiries.Select(x => x.Map(requestInformation)).ToList();
+        public static List<InquiryModel> Map(this List<Inquiry> inquiries, IRequestInformation requestInformation, IApplicationConfigurationProvider applicationConfigurationProvider)
+            => inquiries.Select(x => x.Map(requestInformation, applicationConfigurationProvider)).ToList();
 
-        public static InquiryModel Map(this Inquiry inquiry, IRequestInformation requestInformation)
+        public static InquiryModel Map(this Inquiry inquiry, IRequestInformation requestInformation, IApplicationConfigurationProvider applicationConfigurationProvider)
             => new InquiryModel
             {
                 Id = inquiry.Id,
@@ -20,7 +21,7 @@ namespace Tranquiliza.Shop.Api.Mappers
                 State = inquiry.State.Map(),
                 Total = inquiry.GetTotal(),
                 Customer = inquiry.CustomerInformation?.Map(),
-                OrderLines = inquiry.OrderLines.Select(x => x.Map(requestInformation)).ToList()
+                OrderLines = inquiry.OrderLines.Select(x => x.Map(requestInformation, applicationConfigurationProvider)).ToList()
             };
 
         private static InquiryStateModel Map(this InquiryState inquiryState)
@@ -58,11 +59,11 @@ namespace Tranquiliza.Shop.Api.Mappers
                 ZipCode = customerInformation.ZipCode
             };
 
-        private static OrderLineModel Map(this OrderLine orderLine, IRequestInformation requestInformation)
+        private static OrderLineModel Map(this OrderLine orderLine, IRequestInformation requestInformation, IApplicationConfigurationProvider applicationConfigurationProvider)
             => new OrderLineModel
             {
                 Amount = orderLine.Amount,
-                Product = orderLine.Item.Map(requestInformation),
+                Product = orderLine.Item.Map(requestInformation, applicationConfigurationProvider),
                 LineTotal = orderLine.LineTotal()
             };
 

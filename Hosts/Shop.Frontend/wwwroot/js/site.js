@@ -49,10 +49,17 @@ window.InitializeImageBoxes = function () {
     var instances = M.Materialbox.init(elems, {});
 };
 
+window.InitializeCarousel = function () {
+    var elems = document.querySelectorAll('.carousel');
+    var instances = M.Carousel.init(elems, {
+        fullWidth: true,
+        indicators: true
+    });
+};
+
 window.CloseModal = function (elementId) {
     let el = document.querySelector('#' + elementId);
     var instance = M.Modal.getInstance(el);
-
     instance.close();
 };
 
