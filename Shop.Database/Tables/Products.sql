@@ -2,7 +2,7 @@
 (
 	[Id] INT NOT NULL PRIMARY KEY IDENTITY(1,1), 
     [ProductId] UNIQUEIDENTIFIER NOT NULL,
-    [Price] INT NOT NULL, 
+    [Price] DECIMAL(18, 2) NOT NULL, 
     [IsActive] BIT NOT NULL, 
     [Category] NVARCHAR(50) NOT NULL, 
     [Name] NVARCHAR(200) NOT NULL, 

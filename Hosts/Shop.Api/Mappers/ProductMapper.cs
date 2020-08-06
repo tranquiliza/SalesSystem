@@ -20,7 +20,7 @@ namespace Tranquiliza.Shop.Api.Mappers
                 Category = product.Category,
                 Name = product.Name,
                 Description = product.Description,
-                Price = product.ActualPrice,
+                Price = product.Price,
                 Weight = product.Weight,
                 MainImage = MapToImageModel(product.MainImage, requestInformation, applicationConfigurationProvider),
                 Images = product.Images.Select(image => MapToImageModel(image, requestInformation, applicationConfigurationProvider)).ToList()
@@ -45,7 +45,7 @@ namespace Tranquiliza.Shop.Api.Mappers
                 MainImage = MapToImageModel(product.MainImage, requestInformation, applicationConfigurationProvider),
                 Images = product.Images.Select(image => MapToImageModel(image, requestInformation, applicationConfigurationProvider)).ToList(),
                 Name = product.Name,
-                Price = product.ActualPrice,
+                Price = product.Price,
                 PurchaseCost = product.PurchaseCost,
                 Weight = product.Weight,
                 IsActive = product.IsActive

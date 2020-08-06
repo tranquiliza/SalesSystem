@@ -1,6 +1,6 @@
 ﻿CREATE PROCEDURE [Core].[InsertUpdateProduct]
 	@productId UNIQUEIDENTIFIER,
-	@price INT,
+	@price DECIMAL(18,2),
 	@isActive BIT,
 	@category NVARCHAR(50),
 	@name NVARCHAR(200),

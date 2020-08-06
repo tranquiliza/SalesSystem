@@ -3,6 +3,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Shop.Frontend.Application;
 using Shop.Frontend.Infrastructure;
 using System;
+using System.IdentityModel.Tokens.Jwt;
 using System.Net.Http;
 using System.Threading.Tasks;
 
@@ -23,6 +24,10 @@ namespace Shop.Frontend
 
         private static void ConfigureServices(this IServiceCollection services)
         {
+            // Line because optimazation is eating everything?
+            _ = new JwtHeader();
+            _ = new JwtPayload();
+
             services.AddSingleton<IConfiguration, Configuration>();
             services.AddSingleton<IBasketService, BasketService>();
             services.AddSingleton<IApplicationState, ApplicationState>();

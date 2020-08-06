@@ -19,7 +19,7 @@ namespace Tranquiliza.Shop.Core.Application
             _imageRepository = imageRepository;
         }
 
-        public async Task<IResult<Product>> CreateProduct(string title, string category, int price, string description, IApplicationContext context)
+        public async Task<IResult<Product>> CreateProduct(string title, string category, double price, string description, IApplicationContext context)
         {
             if (context.User?.HasRole(Role.Admin) == false)
                 return Result<Product>.Failure("Insufficient permissions");
@@ -39,7 +39,7 @@ namespace Tranquiliza.Shop.Core.Application
             }
         }
 
-        public async Task<IResult<Product>> UpdateProduct(Guid productId, string name, string category, string description, int purchaseCost, int price, int weight, bool isActive, IApplicationContext context)
+        public async Task<IResult<Product>> UpdateProduct(Guid productId, string name, string category, string description, double purchaseCost, double price, double weight, bool isActive, IApplicationContext context)
         {
             if (context.User?.HasRole(Role.Admin) == false)
                 return Result<Product>.Failure("Insufficient Permissions");

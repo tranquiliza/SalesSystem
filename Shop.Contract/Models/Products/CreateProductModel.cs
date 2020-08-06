@@ -14,7 +14,7 @@ namespace Tranquiliza.Shop.Contract.Models
         public string Category { get; set; }
 
         [Required]
-        public int Price { get; set; }
+        public double Price { get; set; }
 
         public string Description { get; set; }
     }

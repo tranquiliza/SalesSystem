@@ -6,7 +6,7 @@ namespace Tranquiliza.Shop.Contract.Models
 {
     public class ExtendedProductModel : ProductModel
     {
-        public int PurchaseCost { get; set; }
+        public double PurchaseCost { get; set; }
         public bool IsActive { get; set; }
     }
 }

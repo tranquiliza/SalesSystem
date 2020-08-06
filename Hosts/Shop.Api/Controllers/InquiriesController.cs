@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Tranquiliza.Shop.Api.Mappers;
@@ -32,13 +31,13 @@ namespace Tranquiliza.Shop.Api.Controllers
         {
             var mappedValue = inquiryState.Map();
             var result = await inquiryManagementService.Get(mappedValue, ApplicationContext).ConfigureAwait(false);
-            if (result.State == Core.ResultState.Failure)
+            if (result.State == ResultState.Failure)
                 return BadRequest(result.FailureReason);
 
-            if (result.State == Core.ResultState.AccessDenied)
+            if (result.State == ResultState.AccessDenied)
                 return Unauthorized();
 
-            if (result.State == Core.ResultState.NoContent)
+            if (result.State == ResultState.NoContent)
                 return NoContent();
 
             return Ok(result.Data.ToList().Map(RequestInformation, applicationConfigurationProvider));
@@ -48,13 +47,13 @@ namespace Tranquiliza.Shop.Api.Controllers
         public async Task<IActionResult> Get([FromRoute]Guid inquiryId)
         {
             var result = await inquiryManagementService.Get(inquiryId, ApplicationContext).ConfigureAwait(false);
-            if (result.State == Core.ResultState.Failure)
+            if (result.State == ResultState.Failure)
                 return BadRequest(result.FailureReason);
 
-            if (result.State == Core.ResultState.AccessDenied)
+            if (result.State == ResultState.AccessDenied)
                 return Unauthorized();
 
-            if (result.State == Core.ResultState.NoContent)
+            if (result.State == ResultState.NoContent)
                 return NoContent();
 
             return Ok(result.Data.Map(RequestInformation, applicationConfigurationProvider));
@@ -65,13 +64,13 @@ namespace Tranquiliza.Shop.Api.Controllers
         public async Task<IActionResult> GetForClient()
         {
             var result = await inquiryManagementService.GetForClient(ApplicationContext).ConfigureAwait(false);
-            if (result.State == Core.ResultState.Failure)
+            if (result.State == ResultState.Failure)
                 return BadRequest(result.FailureReason);
 
-            if (result.State == Core.ResultState.AccessDenied)
+            if (result.State == ResultState.AccessDenied)
                 return NoContent();
 
-            if (result.State == Core.ResultState.NoContent)
+            if (result.State == ResultState.NoContent)
                 return NoContent();
 
             return Ok(result.Data.Map(RequestInformation, applicationConfigurationProvider));
@@ -82,7 +81,7 @@ namespace Tranquiliza.Shop.Api.Controllers
         public async Task<IActionResult> CreateInquiry([FromBody]CreateInquiryModel model)
         {
             var result = await inquiryManagementService.CreateInquiry(model.ProductId, ApplicationContext).ConfigureAwait(false);
-            if (result.State != Core.ResultState.Success)
+            if (result.State != ResultState.Success)
                 return BadRequest(result.FailureReason);
 
             return Ok(result.Data.Map(RequestInformation, applicationConfigurationProvider));
@@ -93,10 +92,10 @@ namespace Tranquiliza.Shop.Api.Controllers
         public async Task<IActionResult> AddProduct([FromRoute]Guid inquiryId, [FromBody]AddProductToInquiryModel model)
         {
             var result = await inquiryManagementService.AddProductToInquiry(inquiryId, model.ProductId, model.Amount, ApplicationContext).ConfigureAwait(false);
-            if (result.State == Core.ResultState.Failure)
+            if (result.State == ResultState.Failure)
                 return BadRequest(result.FailureReason);
 
-            if (result.State == Core.ResultState.AccessDenied)
+            if (result.State == ResultState.AccessDenied)
                 return Unauthorized();
 
             return Ok(result.Data.Map(RequestInformation, applicationConfigurationProvider));
@@ -118,10 +117,10 @@ namespace Tranquiliza.Shop.Api.Controllers
                 model.StreetNumber,
                 ApplicationContext).ConfigureAwait(false);
 
-            if (result.State == Core.ResultState.Failure)
+            if (result.State == ResultState.Failure)
                 return BadRequest(result.FailureReason);
 
-            if (result.State == Core.ResultState.AccessDenied)
+            if (result.State == ResultState.AccessDenied)
                 return Unauthorized();
 
             return Ok(result.Data.Map(RequestInformation, applicationConfigurationProvider));
@@ -134,10 +133,10 @@ namespace Tranquiliza.Shop.Api.Controllers
             var requestedState = model.Map();
             var result = await inquiryManagementService.UpdateInquiryState(inquiryId, requestedState, ApplicationContext).ConfigureAwait(false);
 
-            if (result.State == Core.ResultState.AccessDenied)
+            if (result.State == ResultState.AccessDenied)
                 return Unauthorized();
 
-            if (result.State == Core.ResultState.Failure)
+            if (result.State == ResultState.Failure)
                 return BadRequest(result.FailureReason);
 
             return Ok(result.Data.Map(RequestInformation, applicationConfigurationProvider));
@@ -148,10 +147,10 @@ namespace Tranquiliza.Shop.Api.Controllers
         public async Task<IActionResult> DeleteProductFromInquiry([FromRoute]Guid inquiryId, [FromBody]RemoveProductFromInquiryModel model)
         {
             var result = await inquiryManagementService.RemoveProductFromInquiry(inquiryId, model.ProductId, model.Amount, ApplicationContext).ConfigureAwait(false);
-            if (result.State == Core.ResultState.AccessDenied)
+            if (result.State == ResultState.AccessDenied)
                 return Unauthorized();
 
-            if (result.State == Core.ResultState.Failure)
+            if (result.State == ResultState.Failure)
                 return BadRequest(result.FailureReason);
 
             return Ok(result.Data.Map(RequestInformation, applicationConfigurationProvider));
