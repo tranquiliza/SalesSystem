@@ -6,11 +6,11 @@
 <table class="striped">
     <thead>
         <tr>
-            <th>Main Image</th>
-            <th>Name</th>
-            <th>Category</th>
-            <th>Item Price</th>
-            <th>Activated</th>
+            <th>Primær billede</th>
+            <th>Navn</th>
+            <th>Katagori</th>
+            <th>Pris</th>
+            <th>Aktiveret</th>
             <th></th>
         </tr>
     </thead>
@@ -25,8 +25,8 @@
                 <td>@product.Price</td>
                 <td>@product.IsActive</td>
                 <td>
-                    <a href="/admin/products/@product.Id"><i class="material-icons">edit</i></a>
-                    <a class="hand-pointer" @onclick="@(async () => await productService.DeleteProduct(product.Id).ConfigureAwait(false))" style="color:red;"><i class="material-icons">delete</i></a>
+                    <a href="/admin/products/@product.Id"><i class="material-icons">rediger</i></a>
+                    <a class="hand-pointer" @onclick="@(async () => await productService.DeleteProduct(product.Id).ConfigureAwait(false))" style="color:red;"><i class="material-icons">slet</i></a>
                 </td>
             </tr>
         }
@@ -35,7 +35,7 @@
 
 <div class="row">
     <div class="col s12">
-        <a href="/admin/products/create" class="btn right">Create Product</a>
+        <a href="/admin/products/create" class="btn right">Opret Produkt</a>
     </div>
 </div>
 

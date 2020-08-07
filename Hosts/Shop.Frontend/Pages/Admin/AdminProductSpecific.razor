@@ -16,44 +16,44 @@
                 <div class="row">
                     <div class="input-field col s6">
                         <InputText type="text" id="name" @bind-Value="model.Name"></InputText>
-                        <label for="name">Name</label>
+                        <label for="name">Produkt Navn</label>
                     </div>
                     <div class="input-field col s3">
                         <InputText type="text" id="category" @bind-Value="model.Category"></InputText>
-                        <label for="category">Category</label>
+                        <label for="category">Kategori</label>
                     </div>
                     <div class="input-field col s3">
                         <label>
                             <InputCheckbox id="isActive" @bind-Value="model.IsActive"></InputCheckbox>
-                            <span>Is Active</span>
+                            <span>Er Aktiv</span>
                         </label>
                     </div>
                 </div>
                 <div class="row">
                     <div class="input-field col s12">
                         <InputTextArea class="materialize-textarea" id="description" @bind-Value="model.Description"></InputTextArea>
-                        <label for="description">Description</label>
+                        <label for="description">Beskrivelse</label>
                     </div>
                 </div>
                 <div class="row">
                     <div class="input-field col s4">
                         <InputNumber id="purchaseCost" @bind-Value="model.PurchaseCost"></InputNumber>
-                        <label for="purchaseCost">PurchaseCost</label>
+                        <label for="purchaseCost">Indkøbs Pris</label>
                     </div>
                     <div class="input-field col s4">
                         <InputNumber id="price" @bind-Value="model.Price"></InputNumber>
-                        <label for="price">Price</label>
+                        <label for="price">Salgs Pris</label>
                     </div>
 
                     <div class="input-field col s4">
                         <InputNumber id="weight" @bind-Value="model.Weight"></InputNumber>
-                        <label for="weight">Weight</label>
+                        <label for="weight">Vægt</label>
                     </div>
                 </div>
                 <div class="row">
                     <div class="input-field col s12">
-                        <a href="/admin/products/" class="btn red waves-effect waves-light">Go Back</a>
-                        <button type="submit" class="btn waves-effect waves-light right">Save</button>
+                        <a href="/admin/products/" class="btn red waves-effect waves-light">Gå tilbage</a>
+                        <button type="submit" class="btn waves-effect waves-light right">Gem</button>
                     </div>
                 </div>
             </EditForm>
@@ -64,7 +64,7 @@
         <div class="row">
             <div class="col s6">
                 <InputFile OnChange="LoadFileIntoMemory" />
-                <button class="btn" @onclick="UploadImage">Upload Image</button>
+                <button class="btn" @onclick="UploadImage">Upload billede</button>
             </div>
         </div>
 
@@ -72,7 +72,7 @@
         {
             <div class="row">
                 <div class="col s12">
-                    <p>Primary</p>
+                    <p>Primær</p>
                     <img width="550" class="materialboxed" src="@Product.MainImage.ImageUrl">
                     <button class="btn red" @onclick="@(async () => await DeleteImage(Product.MainImage.ImageName).ConfigureAwait(false))"><i class="material-icons">delete_forever</i></button>
                 </div>
@@ -86,7 +86,7 @@
                 {
                     <div class="col s4">
                         <img class="materialboxed responsive-img" src="@image.ImageUrl">
-                        <button class="btn" @onclick="@(async () => await MakePrimaryImage(image.ImageName).ConfigureAwait(false))">Make Primary</button>
+                        <button class="btn" @onclick="@(async () => await MakePrimaryImage(image.ImageName).ConfigureAwait(false))">Gør til primær</button>
                         <button class="btn red" @onclick="@(async () => await DeleteImage(image.ImageName).ConfigureAwait(false))"><i class="material-icons">delete_forever</i></button>
                     </div>
                 }

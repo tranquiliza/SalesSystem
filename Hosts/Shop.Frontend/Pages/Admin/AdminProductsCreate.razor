@@ -9,32 +9,32 @@
     <div class="row">
         <div class="input-field col s12">
             <InputText type="text" id="name" @bind-Value="model.Name"></InputText>
-            <label for="name">Name</label>
+            <label for="name">Product Navn</label>
         </div>
     </div>
     <div class="row">
         <div class="input-field col s12">
             <InputText type="text" id="category" @bind-Value="model.Category"></InputText>
-            <label for="category">Category</label>
+            <label for="category">Kategori</label>
         </div>
     </div>
     <div class="row">
         <div class="input-field col s12">
             <InputNumber id="price" @bind-Value="model.Price"></InputNumber>
-            <label for="price">Price</label>
+            <label for="price">Pris</label>
         </div>
     </div>
     <div class="row">
         <div class="input-field col s12">
             <InputTextArea class="materialize-textarea" id="description" @bind-Value="model.Description"></InputTextArea>
-            <label for="description">Description</label>
+            <label for="description">Beskrivelse</label>
         </div>
     </div>
 
     <div class="row">
         <div class="col s12">
             <a href="admin/products" class="btn red">Back</a>
-            <button type="submit" class="btn waves-effect waves-green right">Create</button>
+            <button type="submit" class="btn waves-effect waves-green right">Opret</button>
         </div>
     </div>
 </EditForm>

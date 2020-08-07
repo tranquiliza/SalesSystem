@@ -7,7 +7,7 @@
         @if (basketService.Items.Count == 0)
         {
             <li class="collection-item">
-                <p>You've yet to add any products :(</p>
+                <p>Din kurv er tom</p>
             </li>
         }
 
@@ -25,7 +25,7 @@
                 <a class="secondary-content hand-pointer" @onclick="@(async () => await basketService.DeleteFromBasket(orderLine.Product.Id))"><i style="color:red;" class="material-icons">delete</i></a>
             </li>
         }
-        <li class="collection-item">TOTAL: @(string.Format("{0:n}", basketService.Total)) DKK</li>
+        <li class="collection-item">TOTAL: @(string.Format("{0:n}", basketService.Total)) kr</li>
     </ul>
 </div>
 

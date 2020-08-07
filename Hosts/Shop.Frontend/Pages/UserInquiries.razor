@@ -12,10 +12,10 @@
 
                 <thead>
                     <tr>
-                        <th>Inquiry Number</th>
+                        <th>Ordre nummer</th>
                         <th>Status</th>
-                        <th>Price</th>
-                        <th>Actions</th>
+                        <th>Pris</th>
+                        <th></th>
                     </tr>
                 </thead>
 
@@ -38,9 +38,9 @@
                                     break;
                             }
                         </td>
-                        <td>@(string.Format("{0:n}", inquiry.Total)) DKK</td>
+                        <td>@(string.Format("{0:n}", inquiry.Total)) kr</td>
                         <td>
-                            <a class="btn btn-flat">DETAILS</a>
+                            <a class="btn btn-flat">DETALJER</a>
                         </td>
                     </tr>
                 }
